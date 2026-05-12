@@ -20,11 +20,12 @@
       --violet: #7C3AED;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    html, body { height: 100%; }
+    html, body { height: 100%; max-width: 100%; overflow-x: hidden; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
       background: var(--beige);
       color: var(--noir);
+      font-size: 14px; line-height: 1.6;
       -webkit-font-smoothing: antialiased;
       overscroll-behavior: none;
     }
@@ -83,6 +84,7 @@
       border: 1px solid rgba(0,0,0,.07);
       border-radius: 18px;
       padding: 16px 18px;
+      min-height: 60px;
       display: flex; align-items: center; gap: 14px;
       cursor: pointer;
       box-shadow: 0 2px 10px rgba(0,0,0,.06);
@@ -134,7 +136,7 @@
     .prog-label { color: rgba(255,255,255,.4); font-size: .7rem; text-align: right; margin-top: 3px; }
 
     /* ── EXERCISE CARDS ── */
-    .sess-body { padding: 12px 14px 100px; }
+    .sess-body { padding: 12px 16px 100px; }
     .ex-card {
       background: #fff;
       border-radius: 18px;
@@ -156,7 +158,7 @@
     .ex-info { flex: 1; }
     .ex-name { font-size: .97rem; font-weight: 700; line-height: 1.3; }
     .ex-sets { font-size: .8rem; color: var(--rouge); font-weight: 600; margin-top: 3px; }
-    .ex-tip { font-size: .77rem; color: var(--gris); margin-top: 4px; line-height: 1.45; font-style: italic; }
+    .ex-tip { font-size: 14px; color: var(--gris); margin-top: 4px; line-height: 1.6; font-style: italic; }
     .badge {
       display: inline-block; font-size: .62rem; font-weight: 800;
       padding: 2px 7px; border-radius: 10px; margin-left: 5px;
@@ -175,12 +177,14 @@
     }
     .charge-inp {
       width: 100%; padding: 11px 10px;
+      min-height: 48px;
       background: var(--gris-light);
       border: 1.5px solid transparent;
       border-radius: 11px;
-      font-size: 1.05rem; font-weight: 700;
+      font-size: 16px; font-weight: 700;
       color: var(--noir); text-align: center;
       font-family: -apple-system, sans-serif;
+      -webkit-appearance: none;
     }
     .charge-inp:focus { outline: none; border-color: var(--rouge); background: #fff; }
     .charge-unit { font-size: .67rem; color: var(--gris); text-align: center; margin-top: 3px; }
@@ -212,39 +216,42 @@
     }
     .dots-row { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 9px; }
     .dot {
-      width: 34px; height: 34px; border-radius: 50%;
+      width: 44px; height: 44px; border-radius: 50%;
       background: var(--gris-light);
       border: 2px solid rgba(0,0,0,.08);
       display: flex; align-items: center; justify-content: center;
-      font-size: .75rem; color: var(--gris); font-weight: 700;
-      transition: all .2s;
+      font-size: 14px; color: var(--gris); font-weight: 700;
+      transition: all .2s; flex-shrink: 0;
     }
     .dot.done { background: var(--rouge); border-color: var(--rouge); color: #fff; font-size: .95rem; }
     .dot.done::after { content: '✓'; }
     .dot.done span { display: none; }
     .tick-btn {
-      width: 100%; padding: 12px;
+      width: 100%; padding: 14px;
+      min-height: 52px;
       background: var(--rouge); color: #fff;
       border: none; border-radius: 12px;
-      font-size: .92rem; font-weight: 700;
+      font-size: 15px; font-weight: 700;
       cursor: pointer; letter-spacing: .01em;
     }
     .tick-btn:active { opacity: .85; }
     .tick-btn.all-done { background: var(--vert); }
     .reset-serie-btn {
-      width: 100%; padding: 10px;
+      width: 100%; padding: 12px;
+      min-height: 44px;
       background: transparent;
       border: 1.5px solid rgba(0,0,0,.1);
       border-radius: 12px; color: var(--gris);
-      font-size: .8rem; cursor: pointer; margin-top: 6px;
+      font-size: 14px; cursor: pointer; margin-top: 6px;
     }
 
     /* Rest timer */
     .rest-btn {
-      width: 100%; padding: 11px;
+      width: 100%; padding: 14px;
+      min-height: 52px;
       background: var(--noir-2); color: rgba(255,255,255,.9);
       border: none; border-radius: 12px;
-      font-size: .85rem; font-weight: 600;
+      font-size: 15px; font-weight: 600;
       cursor: pointer; margin-top: 8px;
       display: flex; align-items: center; justify-content: center; gap: 6px;
     }
@@ -261,10 +268,11 @@
     .rest-bar-wrap { background: rgba(255,255,255,.1); height: 3px; border-radius: 2px; margin-top: 8px; overflow: hidden; }
     .rest-bar-fill { height: 100%; background: var(--rouge); border-radius: 2px; transition: width 1s linear; }
     .pause-btn {
-      margin-top: 9px; width: 100%; padding: 9px;
+      margin-top: 9px; width: 100%; padding: 12px;
+      min-height: 44px;
       background: rgba(255,255,255,.1); color: #fff;
       border: 1px solid rgba(255,255,255,.2); border-radius: 10px;
-      font-size: .85rem; font-weight: 600; cursor: pointer;
+      font-size: 15px; font-weight: 600; cursor: pointer;
     }
     .pause-btn:active { opacity: .8; }
     .pause-btn.paused { background: var(--rouge); border-color: var(--rouge); }
@@ -277,9 +285,9 @@
     .duration-bar-wrap { background: rgba(255,255,255,.1); height: 4px; border-radius: 2px; margin: 8px 0; overflow: hidden; }
     .duration-bar-fill { height: 100%; background: var(--rouge); border-radius: 2px; transition: width 1s linear; }
     .duration-btns { display: flex; gap: 8px; margin-top: 10px; }
-    .duration-start { flex:1; padding: 10px; background: var(--rouge); color:#fff; border:none; border-radius:10px; font-size:.88rem; font-weight:700; cursor:pointer; }
+    .duration-start { flex:1; padding: 13px; min-height:48px; background: var(--rouge); color:#fff; border:none; border-radius:10px; font-size:15px; font-weight:700; cursor:pointer; }
     .duration-start:active { opacity:.85; }
-    .duration-pause { flex:1; padding: 10px; background: rgba(255,255,255,.1); color:#fff; border:1px solid rgba(255,255,255,.2); border-radius:10px; font-size:.88rem; font-weight:600; cursor:pointer; }
+    .duration-pause { flex:1; padding: 13px; min-height:48px; background: rgba(255,255,255,.1); color:#fff; border:1px solid rgba(255,255,255,.2); border-radius:10px; font-size:15px; font-weight:600; cursor:pointer; }
     .duration-pause.paused { background: var(--rouge); border-color: var(--rouge); }
     .duration-pause:active { opacity:.85; }
 
