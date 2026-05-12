@@ -249,6 +249,20 @@
     }
     .pause-btn:active { opacity: .8; }
     .pause-btn.paused { background: var(--rouge); border-color: var(--rouge); }
+    .duration-timer {
+      margin-top: 10px; background: var(--noir);
+      border-radius: 12px; padding: 14px; text-align: center;
+    }
+    .duration-lbl { font-size: .67rem; color: rgba(255,255,255,.4); margin-bottom: 4px; }
+    .duration-count { font-size: 2rem; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; letter-spacing: .04em; }
+    .duration-bar-wrap { background: rgba(255,255,255,.1); height: 4px; border-radius: 2px; margin: 8px 0; overflow: hidden; }
+    .duration-bar-fill { height: 100%; background: var(--rouge); border-radius: 2px; transition: width 1s linear; }
+    .duration-btns { display: flex; gap: 8px; margin-top: 10px; }
+    .duration-start { flex:1; padding: 10px; background: var(--rouge); color:#fff; border:none; border-radius:10px; font-size:.88rem; font-weight:700; cursor:pointer; }
+    .duration-start:active { opacity:.85; }
+    .duration-pause { flex:1; padding: 10px; background: rgba(255,255,255,.1); color:#fff; border:1px solid rgba(255,255,255,.2); border-radius:10px; font-size:.88rem; font-weight:600; cursor:pointer; }
+    .duration-pause.paused { background: var(--rouge); border-color: var(--rouge); }
+    .duration-pause:active { opacity:.85; }
 
     /* ── SUIVI ── */
     .suivi-body { padding: 14px 14px 80px; }
@@ -455,7 +469,7 @@ var P = {
     ex:[
       {id:'w1',n:'Good morning barre légère',    s:'3×15',        tip:'Dos plat, incline buste, ressens ischios, cambrure',            rest:90},
       {id:'w2',n:'Hyperextensions avec haltère', s:'3×15',        tip:'Ajoute charge pour progresser',                                rest:90},
-      {id:'w3',n:'Stepmill',                      s:'25 minutes',  tip:'Allure modérée, meilleur cardio fessiers',                     rest:0},
+      {id:'w3',n:'Stepmill',                      s:'25 minutes',  tip:'Allure modérée, meilleur cardio fessiers',                     rest:0, duration:1500},
       {id:'w4',n:'Étirements fléchisseurs hanche',s:'10 min',     tip:'Fente basse 60s/côté, cambrure naturelle',                     rest:0},
     ]
   }
@@ -522,6 +536,18 @@ function buildCard(ex, num, total){
   var ck='c_'+ex.id, tk='t_'+ex.id;
   var cv=localStorage.getItem(ck)||'', tv=localStorage.getItem(tk)||'';
 
+  var durationHTML='';
+  if(ex.duration){
+    var dm=Math.floor(ex.duration/60);
+    durationHTML='<div class="duration-timer">'
+      +'<div class="duration-lbl">Chrono séance</div>'
+      +'<div class="duration-count" id="dc-'+ex.id+'">'+dm+':00</div>'
+      +'<div class="duration-bar-wrap"><div class="duration-bar-fill" id="db-'+ex.id+'" style="width:0%"></div></div>'
+      +'<div class="duration-btns">'
+      +'<button class="duration-start" onclick="startDuration(\''+ex.id+'\','+ex.duration+')">▶ Démarrer</button>'
+      +'<button class="duration-pause" id="dp-'+ex.id+'" onclick="toggleDurationPause(\''+ex.id+'\')">⏸ Pause</button>'
+      +'</div></div>';
+  }
   var restHTML='';
   if(ex.rest>0){
     var rl=ex.rest===120?'2 min':'90 sec';
@@ -562,6 +588,7 @@ function buildCard(ex, num, total){
         +'<button class="tick-btn" id="tb-'+ex.id+'" onclick="tick(\''+ex.id+'\','+ns+')">✓ Série terminée — 1/'+ns+'</button>'
         +'<button class="reset-serie-btn" onclick="resetSerie(\''+ex.id+'\','+ns+')">↺ Réinitialiser cet exercice</button>'
       +'</div>'
+      +durationHTML
       +restHTML
     +'</div>';
   return card;
@@ -641,6 +668,44 @@ function runRest(id,total){
       showToast('Repos terminé — à toi ! 💪');
     }
   },1000);
+}
+var dt={}, dtLeft={}, dtPaused={}, dtTotal={};
+function startDuration(id,secs){
+  if(dt[id]){ clearInterval(dt[id]); delete dt[id]; }
+  dtLeft[id]=secs; dtTotal[id]=secs; dtPaused[id]=false;
+  var pb=document.getElementById('dp-'+id);
+  if(pb){ pb.textContent='⏸ Pause'; pb.classList.remove('paused'); }
+  var bar=document.getElementById('db-'+id);
+  if(bar){ bar.style.transition='none'; bar.style.width='0%';
+    setTimeout(function(){ bar.style.transition='width '+secs+'s linear'; bar.style.width='100%'; },50); }
+  updateDurationCount(id);
+  dt[id]=setInterval(function(){
+    if(dtPaused[id]) return;
+    dtLeft[id]--;
+    updateDurationCount(id);
+    if(dtLeft[id]<=0){
+      clearInterval(dt[id]); delete dt[id];
+      if(navigator.vibrate) navigator.vibrate([300,100,300,100,300]);
+      showToast('Stepmill terminé — bravo ! 🔥');
+    }
+  },1000);
+}
+function updateDurationCount(id){
+  var el=document.getElementById('dc-'+id);
+  if(el) el.textContent=fmt(dtLeft[id]);
+}
+function toggleDurationPause(id){
+  var pb=document.getElementById('dp-'+id);
+  var bar=document.getElementById('db-'+id);
+  if(dtPaused[id]){
+    dtPaused[id]=false;
+    if(pb){ pb.textContent='⏸ Pause'; pb.classList.remove('paused'); }
+    if(bar){ bar.style.transition='width '+dtLeft[id]+'s linear'; bar.style.width='100%'; }
+  } else {
+    dtPaused[id]=true;
+    if(pb){ pb.textContent='▶ Reprendre'; pb.classList.add('paused'); }
+    if(bar){ var cur=bar.getBoundingClientRect().width/bar.parentElement.getBoundingClientRect().width*100; bar.style.transition='none'; bar.style.width=cur+'%'; }
+  }
 }
 function togglePause(id){
   var pb=document.getElementById('pb-'+id);
