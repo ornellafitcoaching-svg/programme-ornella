@@ -241,6 +241,14 @@
     .rest-count { font-size: 1.6rem; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: .04em; }
     .rest-bar-wrap { background: rgba(255,255,255,.1); height: 3px; border-radius: 2px; margin-top: 8px; overflow: hidden; }
     .rest-bar-fill { height: 100%; background: var(--rouge); border-radius: 2px; transition: width 1s linear; }
+    .pause-btn {
+      margin-top: 9px; width: 100%; padding: 9px;
+      background: rgba(255,255,255,.1); color: #fff;
+      border: 1px solid rgba(255,255,255,.2); border-radius: 10px;
+      font-size: .85rem; font-weight: 600; cursor: pointer;
+    }
+    .pause-btn:active { opacity: .8; }
+    .pause-btn.paused { background: var(--rouge); border-color: var(--rouge); }
 
     /* ── SUIVI ── */
     .suivi-body { padding: 14px 14px 80px; }
@@ -483,7 +491,7 @@ function goSuivi(){ buildSuivi(); show('p-suivi'); }
 // ─────────────────────────────
 // SESSION
 // ─────────────────────────────
-var curDay=null, sc={}, rt={};
+var curDay=null, sc={}, rt={}, rLeft={}, rPaused={};
 
 function nSets(ex){
   if(ex.s==='25 minutes'||ex.s==='10 min') return 1;
@@ -517,11 +525,12 @@ function buildCard(ex, num, total){
   var restHTML='';
   if(ex.rest>0){
     var rl=ex.rest===120?'2 min':'90 sec';
-    restHTML='<button class="rest-btn" onclick="startRest(\''+ex.id+'\','+ex.rest+')">⏱ Repos '+rl+'</button>'
+    restHTML='<button class="rest-btn" id="rbtn-'+ex.id+'" onclick="startRest(\''+ex.id+'\','+ex.rest+')">⏱ Repos '+rl+'</button>'
       +'<div class="rest-display" id="rd-'+ex.id+'">'
       +'<div class="rest-lbl">Temps de repos</div>'
       +'<div class="rest-count" id="rc-'+ex.id+'">--</div>'
       +'<div class="rest-bar-wrap"><div class="rest-bar-fill" id="rb-'+ex.id+'" style="width:100%"></div></div>'
+      +'<button class="pause-btn" id="pb-'+ex.id+'" onclick="togglePause(\''+ex.id+'\')">⏸ Pause</button>'
       +'</div>';
   }
 
@@ -604,28 +613,47 @@ function updateProg(){
 // ─────────────────────────────
 function startRest(id,secs){
   if(rt[id]){ clearInterval(rt[id]); delete rt[id]; }
+  rLeft[id]=secs; rPaused[id]=false;
   var disp=document.getElementById('rd-'+id);
+  var pb=document.getElementById('pb-'+id);
+  disp.classList.add('on');
+  if(pb){ pb.textContent='⏸ Pause'; pb.classList.remove('paused'); }
+  runRest(id,secs);
+}
+function runRest(id,total){
   var count=document.getElementById('rc-'+id);
   var bar=document.getElementById('rb-'+id);
-  var left=secs;
-  disp.classList.add('on');
-  count.textContent=fmt(left);
-  bar.style.width='100%';
-  bar.style.transition='none';
-  setTimeout(function(){
-    bar.style.transition='width '+secs+'s linear';
-    bar.style.width='0%';
-  },50);
+  if(count) count.textContent=fmt(rLeft[id]);
+  if(bar){
+    var pct=Math.round(rLeft[id]/total*100);
+    bar.style.transition='none'; bar.style.width=pct+'%';
+    setTimeout(function(){ bar.style.transition='width '+rLeft[id]+'s linear'; bar.style.width='0%'; },50);
+  }
   rt[id]=setInterval(function(){
-    left--;
-    count.textContent=fmt(left);
-    if(left<=0){
+    if(rPaused[id]) return;
+    rLeft[id]--;
+    if(count) count.textContent=fmt(rLeft[id]);
+    if(rLeft[id]<=0){
       clearInterval(rt[id]); delete rt[id];
-      disp.classList.remove('on');
+      var disp=document.getElementById('rd-'+id);
+      if(disp) disp.classList.remove('on');
       if(navigator.vibrate) navigator.vibrate([200,80,200,80,200]);
       showToast('Repos terminé — à toi ! 💪');
     }
   },1000);
+}
+function togglePause(id){
+  var pb=document.getElementById('pb-'+id);
+  var bar=document.getElementById('rb-'+id);
+  if(rPaused[id]){
+    rPaused[id]=false;
+    if(pb){ pb.textContent='⏸ Pause'; pb.classList.remove('paused'); }
+    if(bar){ bar.style.transition='width '+rLeft[id]+'s linear'; bar.style.width='0%'; }
+  } else {
+    rPaused[id]=true;
+    if(pb){ pb.textContent='▶ Reprendre'; pb.classList.add('paused'); }
+    if(bar){ var cur=bar.getBoundingClientRect().width/bar.parentElement.getBoundingClientRect().width*100; bar.style.transition='none'; bar.style.width=cur+'%'; }
+  }
 }
 function fmt(s){ var m=Math.floor(s/60),sec=s%60; return (m>0?m+':':'')+(sec<10?'0':'')+sec; }
 
