@@ -309,6 +309,17 @@
       border-radius: 14px; color: var(--gris);
       font-size: .88rem; cursor: pointer; margin-top: 6px;
     }
+    .save-session-btn {
+      width: 100%; padding: 16px;
+      background: var(--noir); color: #fff;
+      border: none; border-radius: 16px;
+      font-size: 1rem; font-weight: 700;
+      cursor: pointer; margin-top: 8px;
+      transition: background .2s;
+    }
+    .save-session-btn:active { opacity: .85; }
+    .suivi-ex-wrap { flex:1; min-width:0; }
+    .suivi-ex-date { font-size: .68rem; color: var(--gris); margin-top: 2px; }
 
     /* ── TOAST ── */
     .toast {
@@ -540,6 +551,11 @@ function openDay(day){
   var body=document.getElementById('sess-body');
   body.innerHTML='';
   d.ex.forEach(function(ex,i){ body.appendChild(buildCard(ex,i+1,d.ex.length)); if(ex.rm) calc1rm(ex.id); });
+  var saveBtn=document.createElement('button');
+  saveBtn.className='save-session-btn';
+  saveBtn.innerHTML='💾 Enregistrer mes charges';
+  saveBtn.onclick=function(){ saveSessionCharges(); };
+  body.appendChild(saveBtn);
   updateProg();
   show('p-session');
 }
@@ -626,6 +642,22 @@ function buildCard(ex, num, total){
 }
 
 function sv(k,v){ localStorage.setItem(k,v); }
+
+function saveSessionCharges(){
+  if(!curDay) return;
+  var now=new Date().toLocaleDateString('fr-FR')+' '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  P[curDay].ex.forEach(function(ex){
+    var c=localStorage.getItem('c_'+ex.id);
+    if(c) localStorage.setItem('cd_'+ex.id, now);
+    var tc=localStorage.getItem('tc_'+ex.id);
+    if(tc) localStorage.setItem('cd_'+ex.id, now);
+  });
+  localStorage.setItem('ls_'+curDay, new Date().toLocaleDateString('fr-FR'));
+  var btn=document.querySelector('.save-session-btn');
+  if(btn){ btn.innerHTML='✅ Charges enregistrées !'; btn.style.background='#22c55e';
+    setTimeout(function(){ btn.innerHTML='💾 Enregistrer mes charges'; btn.style.background=''; },2500); }
+  showToast('Charges sauvegardées 💾');
+}
 
 var RM_CFG = {
   '8rm':    { pct:0.80, label:'8 reps (force / volume)' },
@@ -794,10 +826,13 @@ function buildSuivi(){
     var rows='';
     d.ex.forEach(function(ex){
       var c=localStorage.getItem('c_'+ex.id)||'';
-      var t=localStorage.getItem('t_'+ex.id)||'';
+      var tc=localStorage.getItem('tc_'+ex.id)||'';
+      var tr=localStorage.getItem('tr_'+ex.id)||'';
+      var cd=localStorage.getItem('cd_'+ex.id)||'';
       var cv=c?'<span class="suivi-val">'+c+' kg</span>':'<span class="suivi-val-empty">—</span>';
-      var tv=t?'<span class="suivi-test">→ '+t+' kg</span>':'';
-      rows+='<div class="suivi-row-item"><span class="suivi-ex">'+ex.n+'</span><span>'+cv+tv+'</span></div>';
+      var testv=(tc&&tr)?'<span class="suivi-test">test '+tc+'kg×'+tr+'</span>':'';
+      var datev=cd?'<div class="suivi-ex-date">'+cd+'</div>':'';
+      rows+='<div class="suivi-row-item"><div class="suivi-ex-wrap"><span class="suivi-ex">'+ex.n+'</span>'+datev+'</div><span>'+cv+testv+'</span></div>';
     });
     card.innerHTML='<div class="suivi-day-hd">'+d.emoji+' '+d.label+' — '+d.sub
       +(date?'<span class="suivi-date">'+date+'</span>':'')
