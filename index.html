@@ -184,6 +184,25 @@
     }
     .charge-inp:focus { outline: none; border-color: var(--rouge); background: #fff; }
     .charge-unit { font-size: .67rem; color: var(--gris); text-align: center; margin-top: 3px; }
+    .test-section { margin-top: 10px; }
+    .test-section-lbl {
+      font-size: .67rem; font-weight: 700; color: var(--gris);
+      text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px;
+    }
+    .test-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .rm-result {
+      margin-top: 8px; background: var(--noir);
+      border-radius: 12px; padding: 12px 14px;
+      display: none;
+    }
+    .rm-result.on { display: block; }
+    .rm-1rm { color: rgba(255,255,255,.5); font-size: .75rem; margin-bottom: 6px; }
+    .rm-1rm strong { color: #fff; font-size: .9rem; }
+    .rm-targets { display: flex; flex-direction: column; gap: 4px; }
+    .rm-line { font-size: .8rem; color: rgba(255,255,255,.6); }
+    .rm-line.reco { color: #fff; font-weight: 700; }
+    .rm-line.reco::before { content: '★ '; color: var(--rouge); }
+    .rm-line span { color: var(--rouge-light); font-weight: 700; }
 
     /* Series */
     .series-wrap { margin-top: 12px; }
@@ -422,53 +441,53 @@ var P = {
   lundi: {
     emoji:'💪', label:'Lundi', sub:'Fessiers haut · Hanches',
     ex:[
-      {id:'l1',n:'Hip Thrust barre',          s:'5×10-12',     tip:'Dos sur banc, squeeze 2s en haut, descends 3s lent',               rest:120},
-      {id:'l2',n:'Abducteur machine',          s:'4×25',        tip:'Squeeze 3s en position ouverte, retour 4s lent',                   rest:90},
-      {id:'l3',n:'Bulgarian split squat haltères', s:'3×10/côté', tip:'Incline le buste en avant pour cibler le fessier',               rest:90},
-      {id:'l4',n:'Kickback câble debout',      s:'3×15/côté',   tip:'Penche-toi en avant, pousse le talon vers le plafond',             rest:90},
-      {id:'l5',n:'Hip abduction câble debout', s:'3×20/côté',   tip:'Lent et contrôlé, squeeze en haut',                               rest:90},
-      {id:'l6',n:'Abducteur machine',          s:'2×15-15-15',  tip:'Charge normale → -30% → -30% sans repos',                         rest:120, drop:true},
+      {id:'l1',n:'Hip Thrust barre',          s:'5×10-12',     tip:'Dos sur banc, squeeze 2s en haut, descends 3s lent',               rest:120, rm:'8rm'},
+      {id:'l2',n:'Abducteur machine',          s:'4×25',        tip:'Squeeze 3s en position ouverte, retour 4s lent',                   rest:90,  rm:'15rm'},
+      {id:'l3',n:'Bulgarian split squat haltères', s:'3×10/côté', tip:'Incline le buste en avant pour cibler le fessier',               rest:90,  rm:'8rm'},
+      {id:'l4',n:'Kickback câble debout',      s:'3×15/côté',   tip:'Penche-toi en avant, pousse le talon vers le plafond',             rest:90,  rm:'15rm'},
+      {id:'l5',n:'Hip abduction câble debout', s:'3×20/côté',   tip:'Lent et contrôlé, squeeze en haut',                               rest:90,  rm:'15rm'},
+      {id:'l6',n:'Abducteur machine',          s:'2×15-15-15',  tip:'Charge normale → -30% → -30% sans repos',                         rest:120, drop:true, rm:'15rm'},
     ]
   },
   mardi: {
     emoji:'🏋️', label:'Mardi', sub:'Épaules · Dos',
     ex:[
-      {id:'m1',n:'Élévations latérales câble', s:'5×20',        tip:'Monte 3s, descends 4s. Charge légère = épaules rondes',            rest:90},
-      {id:'m2',n:'Tirage horizontal prise large',s:'4×10-12',   tip:'Tire vers nombril, squeeze omoplates 2s, retour 3s',              rest:90},
-      {id:'m3',n:'Oiseau haltères',             s:'3×15',        tip:'Penché 45°, ouvre sur les côtés, squeeze arrière 2s',             rest:90},
-      {id:'m4',n:'Face pull câble',             s:'3×20',        tip:'Corde à hauteur visage, coudes hauts, écarte les mains',         rest:90},
-      {id:'m5',n:'Élévations latérales',        s:'3 séries',    tip:'Lourd ×10 → -30% ×10 → -30% ×10 sans repos',                    rest:120, drop:true},
+      {id:'m1',n:'Élévations latérales câble', s:'5×20',        tip:'Monte 3s, descends 4s. Charge légère = épaules rondes',            rest:90,  rm:'20rm'},
+      {id:'m2',n:'Tirage horizontal prise large',s:'4×10-12',   tip:'Tire vers nombril, squeeze omoplates 2s, retour 3s',              rest:90,  rm:'8rm'},
+      {id:'m3',n:'Oiseau haltères',             s:'3×15',        tip:'Penché 45°, ouvre sur les côtés, squeeze arrière 2s',             rest:90,  rm:'15rm'},
+      {id:'m4',n:'Face pull câble',             s:'3×20',        tip:'Corde à hauteur visage, coudes hauts, écarte les mains',         rest:90,  rm:'15rm'},
+      {id:'m5',n:'Élévations latérales',        s:'3 séries',    tip:'Lourd ×10 → -30% ×10 → -30% ×10 sans repos',                    rest:120, drop:true, rm:'20rm'},
     ]
   },
   jeudi: {
     emoji:'🍑', label:'Jeudi', sub:'Ischio · Fessiers bas',
     ex:[
-      {id:'j1',n:'Romanian Deadlift barre',     s:'5×10',        tip:'Descends 4s, barre contre les jambes, pousse hanches',           rest:120},
-      {id:'j2',n:'Leg curl couché machine',      s:'4×12',        tip:'Squeeze 2s en haut, descends 4s très lent',                     rest:90},
-      {id:'j3',n:'Squat sumo barre',             s:'3×10',        tip:'Pieds très écartés, orteils 45°, genoux vers l\'extérieur',     rest:120},
-      {id:'j4',n:'Presse pieds hauts écartés',   s:'3×15',        tip:'Pieds en haut de la plateforme, amplitude complète',            rest:90},
-      {id:'j5',n:'Donkey kick câble',            s:'3×15/côté',   tip:'Genou fléchi 90°, squeeze 2s en haut, hanche fixe',            rest:90},
-      {id:'j6',n:'Leg curl assis',               s:'2 séries',    tip:'Lourd ×10 → réduis → ×15 squeeze maximal',                     rest:120, drop:true},
+      {id:'j1',n:'Romanian Deadlift barre',     s:'5×10',        tip:'Descends 4s, barre contre les jambes, pousse hanches',           rest:120, rm:'8rm'},
+      {id:'j2',n:'Leg curl couché machine',      s:'4×12',        tip:'Squeeze 2s en haut, descends 4s très lent',                     rest:90,  rm:'15rm'},
+      {id:'j3',n:'Squat sumo barre',             s:'3×10',        tip:'Pieds très écartés, orteils 45°, genoux vers l\'extérieur',     rest:120, rm:'8rm'},
+      {id:'j4',n:'Presse pieds hauts écartés',   s:'3×15',        tip:'Pieds en haut de la plateforme, amplitude complète',            rest:90,  rm:'15rm'},
+      {id:'j5',n:'Donkey kick câble',            s:'3×15/côté',   tip:'Genou fléchi 90°, squeeze 2s en haut, hanche fixe',            rest:90,  rm:'15rm'},
+      {id:'j6',n:'Leg curl assis',               s:'2 séries',    tip:'Lourd ×10 → réduis → ×15 squeeze maximal',                     rest:120, drop:true, rm:'15rm'},
     ]
   },
   vendredi: {
     emoji:'✨', label:'Vendredi', sub:'Bras · Taille · Cambrure',
     ex:[
-      {id:'v1',n:'Hyperextensions lombaires',    s:'4×15',        tip:'Remonte en contractant lombaires ET fessiers en haut',          rest:90},
-      {id:'v2',n:'Curl haltères alternés',        s:'3×12',        tip:'Léger, supination complète en haut, descends tout',            rest:90},
-      {id:'v3',n:'Triceps corde poulie',          s:'3×15',        tip:'Extension complète, écarte la corde en bas',                   rest:90},
-      {id:'v4',n:'Élévations latérales haltères', s:'3×20',        tip:'Très lent, entretien épaules',                                 rest:90},
-      {id:'v5',n:'Curl marteau',                  s:'3×12',        tip:'Galbe du bras vu de face',                                     rest:90},
+      {id:'v1',n:'Hyperextensions lombaires',    s:'4×15',        tip:'Remonte en contractant lombaires ET fessiers en haut',          rest:90,  rm:'10rm'},
+      {id:'v2',n:'Curl haltères alternés',        s:'3×12',        tip:'Léger, supination complète en haut, descends tout',            rest:90,  rm:'10rm'},
+      {id:'v3',n:'Triceps corde poulie',          s:'3×15',        tip:'Extension complète, écarte la corde en bas',                   rest:90,  rm:'15rm'},
+      {id:'v4',n:'Élévations latérales haltères', s:'3×20',        tip:'Très lent, entretien épaules',                                 rest:90,  rm:'20rm'},
+      {id:'v5',n:'Curl marteau',                  s:'3×12',        tip:'Galbe du bras vu de face',                                     rest:90,  rm:'10rm'},
       {id:'v6',n:'Gainage latéral',               s:'3×45s',       tip:'Bassin haut, corps en ligne droite',                           rest:60},
-      {id:'v7',n:'Crunch obliques câble',         s:'3×20/côté',   tip:'Rotation complète, coude vers hanche opposée',                 rest:60},
+      {id:'v7',n:'Crunch obliques câble',         s:'3×20/côté',   tip:'Rotation complète, coude vers hanche opposée',                 rest:60,  rm:'15rm'},
       {id:'v8',n:'Vacuum',                        s:'3×30s',       tip:'Expire tout, rentre ventre au maximum, tiens',                 rest:60},
     ]
   },
   weekend: {
     emoji:'🌿', label:'Weekend', sub:'Posture · Cardio',
     ex:[
-      {id:'w1',n:'Good morning barre légère',    s:'3×15',        tip:'Dos plat, incline buste, ressens ischios, cambrure',            rest:90},
-      {id:'w2',n:'Hyperextensions avec haltère', s:'3×15',        tip:'Ajoute charge pour progresser',                                rest:90},
+      {id:'w1',n:'Good morning barre légère',    s:'3×15',        tip:'Dos plat, incline buste, ressens ischios, cambrure',            rest:90,  rm:'10rm'},
+      {id:'w2',n:'Hyperextensions avec haltère', s:'3×15',        tip:'Ajoute charge pour progresser',                                rest:90,  rm:'10rm'},
       {id:'w3',n:'Stepmill',                      s:'25 minutes',  tip:'Allure modérée, meilleur cardio fessiers',                     rest:0, duration:1500},
       {id:'w4',n:'Étirements fléchisseurs hanche',s:'10 min',     tip:'Fente basse 60s/côté, cambrure naturelle',                     rest:0},
     ]
@@ -519,7 +538,7 @@ function openDay(day){
   document.getElementById('sess-sub').textContent=d.sub;
   var body=document.getElementById('sess-body');
   body.innerHTML='';
-  d.ex.forEach(function(ex,i){ body.appendChild(buildCard(ex,i+1,d.ex.length)); });
+  d.ex.forEach(function(ex,i){ body.appendChild(buildCard(ex,i+1,d.ex.length)); if(ex.rm) calc1rm(ex.id); });
   updateProg();
   show('p-session');
 }
@@ -533,8 +552,8 @@ function buildCard(ex, num, total){
   if(ex.drop) badges+='<span class="badge badge-drop">DROP SET</span>';
   if(ex.super) badges+='<span class="badge badge-super">SUPERSET</span>';
 
-  var ck='c_'+ex.id, tk='t_'+ex.id;
-  var cv=localStorage.getItem(ck)||'', tv=localStorage.getItem(tk)||'';
+  var ck='c_'+ex.id, tck='tc_'+ex.id, trk='tr_'+ex.id;
+  var cv=localStorage.getItem(ck)||'', tcv=localStorage.getItem(tck)||'', trv=localStorage.getItem(trk)||'';
 
   var durationHTML='';
   if(ex.duration){
@@ -576,12 +595,23 @@ function buildCard(ex, num, total){
         +'<div class="charge-wrap"><label>Ma charge</label>'
           +'<input type="number" class="charge-inp" id="'+ck+'" value="'+cv+'" placeholder="—" inputmode="decimal"'
           +' onchange="sv(\''+ck+'\',this.value)" oninput="sv(\''+ck+'\',this.value)">'
-          +'<div class="charge-unit">kg</div></div>'
-        +'<div class="charge-wrap"><label>Test charge</label>'
-          +'<input type="number" class="charge-inp" id="'+tk+'" value="'+tv+'" placeholder="—" inputmode="decimal"'
-          +' onchange="sv(\''+tk+'\',this.value)" oninput="sv(\''+tk+'\',this.value)">'
-          +'<div class="charge-unit">kg objectif</div></div>'
+          +'<div class="charge-unit">kg séance</div></div>'
+        +'<div></div>'
       +'</div>'
+      +(ex.rm ? '<div class="test-section">'
+        +'<div class="test-section-lbl">🧪 Test 1RM</div>'
+        +'<div class="test-inputs">'
+          +'<div class="charge-wrap"><label>Charge testée</label>'
+            +'<input type="number" class="charge-inp" id="'+tck+'" value="'+tcv+'" placeholder="—" inputmode="decimal"'
+            +' onchange="sv(\''+tck+'\',this.value);calc1rm(\''+ex.id+'\')" oninput="sv(\''+tck+'\',this.value);calc1rm(\''+ex.id+'\')">'
+            +'<div class="charge-unit">kg</div></div>'
+          +'<div class="charge-wrap"><label>Reps réalisées</label>'
+            +'<input type="number" class="charge-inp" id="'+trk+'" value="'+trv+'" placeholder="—" inputmode="numeric"'
+            +' onchange="sv(\''+trk+'\',this.value);calc1rm(\''+ex.id+'\')" oninput="sv(\''+trk+'\',this.value);calc1rm(\''+ex.id+'\')">'
+            +'<div class="charge-unit">reps</div></div>'
+        +'</div>'
+        +'<div class="rm-result" id="rm-'+ex.id+'"></div>'
+      +'</div>' : '')
       +'<div class="series-wrap">'
         +'<div class="series-lbl">Séries</div>'
         +'<div class="dots-row" id="dots-'+ex.id+'">'+dots+'</div>'
@@ -595,6 +625,36 @@ function buildCard(ex, num, total){
 }
 
 function sv(k,v){ localStorage.setItem(k,v); }
+
+function calc1rm(exId){
+  var tc=parseFloat(document.getElementById('tc_'+exId).value);
+  var tr=parseFloat(document.getElementById('tr_'+exId).value);
+  var box=document.getElementById('rm-'+exId);
+  if(!box) return;
+  if(!tc||!tr||tr<1){ box.classList.remove('on'); return; }
+  var oneRM=Math.round(tc*(1+tr/30));
+  var r8=Math.round(oneRM*0.80);
+  var r10=Math.round(oneRM*0.75);
+  var r15=Math.round(oneRM*0.67);
+  var r20=Math.round(oneRM*0.50);
+  var ex=null;
+  ['lundi','mardi','jeudi','vendredi','weekend'].forEach(function(d){
+    P[d].ex.forEach(function(e){ if(e.id===exId) ex=e; });
+  });
+  var rmType=ex?ex.rm:'10rm';
+  function line(label,val,type){
+    var cls='rm-line'+(rmType===type?' reco':'');
+    return '<div class="'+cls+'">'+label+' : <span>'+val+' kg</span></div>';
+  }
+  box.innerHTML='<div class="rm-1rm">Ton 1RM estimé : <strong>'+oneRM+' kg</strong></div>'
+    +'<div class="rm-targets">'
+    +line('→ 8 reps (force / volume)',r8,'8rm')
+    +line('→ 10 reps (sculpture / endurance)',r10,'10rm')
+    +line('→ 15 reps (pump / finisher)',r15,'15rm')
+    +line('→ 20 reps (élévations latérales)',r20,'20rm')
+    +'</div>';
+  box.classList.add('on');
+}
 
 function tick(id,total){
   if(!sc[id]) sc[id]=0;
