@@ -465,7 +465,7 @@ var P = {
       {id:'j1',n:'Romanian Deadlift barre',     s:'5×10',        tip:'Descends 4s, barre contre les jambes, pousse hanches',           rest:120, rm:'8rm'},
       {id:'j2',n:'Leg curl couché machine',      s:'4×12',        tip:'Squeeze 2s en haut, descends 4s très lent',                     rest:90,  rm:'15rm'},
       {id:'j3',n:'Squat sumo barre',             s:'3×10',        tip:'Pieds très écartés, orteils 45°, genoux vers l\'extérieur',     rest:120, rm:'8rm'},
-      {id:'j4',n:'Presse pieds hauts écartés',   s:'3×15',        tip:'Pieds en haut de la plateforme, amplitude complète',            rest:90,  rm:'15rm'},
+      {id:'j4',n:'Presse pieds hauts écartés',   s:'3×15',        tip:'Pieds en haut de la plateforme, amplitude complète',            rest:90,  rm:'8rm'},
       {id:'j5',n:'Donkey kick câble',            s:'3×15/côté',   tip:'Genou fléchi 90°, squeeze 2s en haut, hanche fixe',            rest:90,  rm:'15rm'},
       {id:'j6',n:'Leg curl assis',               s:'2 séries',    tip:'Lourd ×10 → réduis → ×15 squeeze maximal',                     rest:120, drop:true, rm:'15rm'},
     ]
@@ -473,22 +473,22 @@ var P = {
   vendredi: {
     emoji:'✨', label:'Vendredi', sub:'Bras · Taille · Cambrure',
     ex:[
-      {id:'v1',n:'Hyperextensions lombaires',    s:'4×15',        tip:'Remonte en contractant lombaires ET fessiers en haut',          rest:90,  rm:'10rm'},
-      {id:'v2',n:'Curl haltères alternés',        s:'3×12',        tip:'Léger, supination complète en haut, descends tout',            rest:90,  rm:'10rm'},
-      {id:'v3',n:'Triceps corde poulie',          s:'3×15',        tip:'Extension complète, écarte la corde en bas',                   rest:90,  rm:'15rm'},
+      {id:'v1',n:'Hyperextensions lombaires',    s:'4×15',        tip:'Remonte en contractant lombaires ET fessiers en haut',          rest:90,  rm:'posture'},
+      {id:'v2',n:'Curl haltères alternés',        s:'3×12',        tip:'Léger, supination complète en haut, descends tout',            rest:90,  rm:'12rm'},
+      {id:'v3',n:'Triceps corde poulie',          s:'3×15',        tip:'Extension complète, écarte la corde en bas',                   rest:90,  rm:'12rm'},
       {id:'v4',n:'Élévations latérales haltères', s:'3×20',        tip:'Très lent, entretien épaules',                                 rest:90,  rm:'20rm'},
-      {id:'v5',n:'Curl marteau',                  s:'3×12',        tip:'Galbe du bras vu de face',                                     rest:90,  rm:'10rm'},
+      {id:'v5',n:'Curl marteau',                  s:'3×12',        tip:'Galbe du bras vu de face',                                     rest:90,  rm:'12rm'},
       {id:'v6',n:'Gainage latéral',               s:'3×45s',       tip:'Bassin haut, corps en ligne droite',                           rest:60},
-      {id:'v7',n:'Hyperextension latérale sur banc lombaires', s:'3×15/côté', tip:'Positionne-toi sur le côté sur le banc à lombaires. Corps aligné, bras croisés sur la poitrine. Descends latéralement puis remonte en contractant l\'oblique. Change de côté. Taille cintrée + cambrure.', rest:60, rm:'15rm'},
+      {id:'v7',n:'Hyperextension latérale sur banc lombaires', s:'3×15/côté', tip:'Positionne-toi sur le côté sur le banc à lombaires. Corps aligné, bras croisés sur la poitrine. Descends latéralement puis remonte en contractant l\'oblique. Change de côté. Taille cintrée + cambrure.', rest:60, rm:'posture'},
       {id:'v8',n:'Vacuum',                        s:'3×30s',       tip:'Expire tout, rentre ventre au maximum, tiens',                 rest:60},
     ]
   },
   weekend: {
     emoji:'🌿', label:'Weekend', sub:'Posture · Cardio',
     ex:[
-      {id:'w1',n:'Good morning barre légère',    s:'3×15',        tip:'Dos plat, incline buste, ressens ischios, cambrure',            rest:90,  rm:'10rm'},
-      {id:'w2',n:'Hyperextensions avec haltère', s:'3×15',        tip:'Ajoute charge pour progresser',                                rest:90,  rm:'10rm'},
-      {id:'w2b',n:'Hyperextension latérale',     s:'3×15/côté',   tip:'Version latérale sur le banc lombaires. Complète l\'hyperextension classique pour la taille et les obliques.',  rest:60,  rm:'15rm'},
+      {id:'w1',n:'Good morning barre légère',    s:'3×15',        tip:'Dos plat, incline buste, ressens ischios, cambrure',            rest:90,  rm:'posture'},
+      {id:'w2',n:'Hyperextensions avec haltère', s:'3×15',        tip:'Ajoute charge pour progresser',                                rest:90,  rm:'posture'},
+      {id:'w2b',n:'Hyperextension latérale',     s:'3×15/côté',   tip:'Version latérale sur le banc lombaires. Complète l\'hyperextension classique pour la taille et les obliques.',  rest:60,  rm:'posture'},
       {id:'w3',n:'Stepmill',                      s:'25 minutes',  tip:'Allure modérée, meilleur cardio fessiers',                     rest:0, duration:1500},
       {id:'w4',n:'Étirements fléchisseurs hanche',s:'10 min',     tip:'Fente basse 60s/côté, cambrure naturelle',                     rest:0},
     ]
@@ -627,6 +627,13 @@ function buildCard(ex, num, total){
 
 function sv(k,v){ localStorage.setItem(k,v); }
 
+var RM_CFG = {
+  '8rm':    { pct:0.80, label:'8 reps (force / volume)' },
+  '12rm':   { pct:0.72, label:'12 reps (tonus)' },
+  '15rm':   { pct:0.67, label:'15 reps (pump / finisher)' },
+  'posture':{ pct:0.67, label:'15 reps' },
+  '20rm':   { pct:0.50, label:'20 reps' },
+};
 function calc1rm(exId){
   var tc=parseFloat(document.getElementById('tc_'+exId).value);
   var tr=parseFloat(document.getElementById('tr_'+exId).value);
@@ -634,25 +641,15 @@ function calc1rm(exId){
   if(!box) return;
   if(!tc||!tr||tr<1){ box.classList.remove('on'); return; }
   var oneRM=Math.round(tc*(1+tr/30));
-  var r8=Math.round(oneRM*0.80);
-  var r10=Math.round(oneRM*0.75);
-  var r15=Math.round(oneRM*0.67);
-  var r20=Math.round(oneRM*0.50);
   var ex=null;
   ['lundi','mardi','jeudi','vendredi','weekend'].forEach(function(d){
     P[d].ex.forEach(function(e){ if(e.id===exId) ex=e; });
   });
-  var rmType=ex?ex.rm:'10rm';
-  function line(label,val,type){
-    var cls='rm-line'+(rmType===type?' reco':'');
-    return '<div class="'+cls+'">'+label+' : <span>'+val+' kg</span></div>';
-  }
-  box.innerHTML='<div class="rm-1rm">Ton 1RM estimé : <strong>'+oneRM+' kg</strong></div>'
+  var cfg=RM_CFG[ex&&ex.rm]||RM_CFG['15rm'];
+  var recommended=Math.round(oneRM*cfg.pct);
+  box.innerHTML='<div class="rm-1rm">1RM estimé : <strong>'+oneRM+' kg</strong></div>'
     +'<div class="rm-targets">'
-    +line('→ 8 reps (force / volume)',r8,'8rm')
-    +line('→ 10 reps (sculpture / endurance)',r10,'10rm')
-    +line('→ 15 reps (pump / finisher)',r15,'15rm')
-    +line('→ 20 reps (élévations latérales)',r20,'20rm')
+    +'<div class="rm-line reco">→ Charge recommandée — '+cfg.label+' : <span>'+recommended+' kg</span></div>'
     +'</div>';
   box.classList.add('on');
 }
