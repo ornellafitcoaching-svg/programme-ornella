@@ -159,6 +159,7 @@
     .ex-name { font-size: .97rem; font-weight: 700; line-height: 1.3; }
     .ex-sets { font-size: .8rem; color: var(--rouge); font-weight: 600; margin-top: 3px; }
     .ex-tip { font-size: 14px; color: var(--gris); margin-top: 4px; line-height: 1.6; font-style: italic; }
+    .ex-note { font-size: 13px; color: #C96358; margin-top: 7px; line-height: 1.6; font-weight: 600; }
     .badge {
       display: inline-block; font-size: .62rem; font-weight: 800;
       padding: 2px 7px; border-radius: 10px; margin-left: 5px;
@@ -466,6 +467,7 @@ var P = {
       {id:'l4',n:'Kickback câble debout',      s:'3×15/côté',   tip:'Penche-toi en avant, pousse le talon vers le plafond',             rest:90,  rm:'15rm'},
       {id:'l5',n:'Hip abduction câble debout', s:'3×20/côté',   tip:'Lent et contrôlé, squeeze en haut',                               rest:90,  rm:'15rm'},
       {id:'l6',n:'Abducteur machine',          s:'2×15-15-15',  tip:'Charge normale → -30% → -30% sans repos',                         rest:120, drop:true, rm:'15rm'},
+      {id:'l7',n:'Hip Thrust unilatéral',      s:'3×12/côté',   tip:'Même position que le hip thrust mais une seule jambe. L\'autre jambe levée à 90°. Pousse avec un seul talon. Plus d\'isolation sur le haut du fessier que le kickback.',  rest:90, rm:'15rm'},
     ]
   },
   mardi: {
@@ -475,6 +477,7 @@ var P = {
       {id:'m2',n:'Tirage horizontal prise large',s:'4×10-12',   tip:'Tire vers nombril, squeeze omoplates 2s, retour 3s',              rest:90,  rm:'8rm'},
       {id:'m3',n:'Oiseau haltères',             s:'3×15',        tip:'Penché 45°, ouvre sur les côtés, squeeze arrière 2s',             rest:90,  rm:'15rm'},
       {id:'m4',n:'Face pull câble',             s:'3×20',        tip:'Corde à hauteur visage, coudes hauts, écarte les mains',         rest:90,  rm:'15rm'},
+      {id:'m4b',n:'Arnold Press haltères',      s:'3×12',        tip:'Haltères devant le visage paumes vers toi. Monte en tournant les paumes vers l\'avant. Descends en inversant. Travaille les 3 faisceaux de l\'épaule pour un galbe complet et féminin.',  rest:90, rm:'12rm'},
       {id:'m5',n:'Élévations latérales',        s:'3 séries',    tip:'Lourd ×10 → -30% ×10 → -30% ×10 sans repos',                    rest:120, drop:true, rm:'20rm'},
     ]
   },
@@ -483,6 +486,7 @@ var P = {
     ex:[
       {id:'j1',n:'Romanian Deadlift barre',     s:'5×10',        tip:'Descends 4s, barre contre les jambes, pousse hanches',           rest:120, rm:'8rm'},
       {id:'j2',n:'Leg curl couché machine',      s:'4×12',        tip:'Squeeze 2s en haut, descends 4s très lent',                     rest:90,  rm:'15rm'},
+      {id:'j2b',n:'Leg extension machine',       s:'3×15',        tip:'Pré-fatigue des quadriceps avant le squat sumo. Force les fessiers et ischios à prendre plus de charge pendant le squat. Amplitude complète, squeeze 2s en haut.',  rest:90, rm:'15rm'},
       {id:'j3',n:'Squat sumo barre',             s:'3×10',        tip:'Pieds très écartés, orteils 45°, genoux vers l\'extérieur',     rest:120, rm:'8rm'},
       {id:'j4',n:'Presse pieds hauts écartés',   s:'3×15',        tip:'Pieds en haut de la plateforme, amplitude complète',            rest:90,  rm:'8rm'},
       {id:'j5',n:'Donkey kick câble',            s:'3×15/côté',   tip:'Genou fléchi 90°, squeeze 2s en haut, hanche fixe',            rest:90,  rm:'15rm'},
@@ -499,7 +503,7 @@ var P = {
       {id:'v5',n:'Curl marteau',                  s:'3×12',        tip:'Galbe du bras vu de face',                                     rest:90,  rm:'12rm'},
       {id:'v6',n:'Gainage latéral',               s:'3×45s',       tip:'Bassin haut, corps en ligne droite',                           rest:60},
       {id:'v7',n:'Hyperextension latérale sur banc lombaires', s:'3×15/côté', tip:'Positionne-toi sur le côté sur le banc à lombaires. Corps aligné, bras croisés sur la poitrine. Descends latéralement puis remonte en contractant l\'oblique. Change de côté. Taille cintrée + cambrure.', rest:60, rm:'posture'},
-      {id:'v8',n:'Vacuum',                        s:'3×30s',       tip:'Expire tout, rentre ventre au maximum, tiens',                 rest:60},
+      {id:'v8',n:'Vacuum',                        s:'3×30s',       tip:'Expire tout, rentre ventre au maximum, tiens',                 rest:60, note:'💡 Conseil pro : le Vacuum est encore plus efficace à jeun le matin avant de manger — 5 min par jour pour une taille ultra fine.'},
     ]
   },
   weekend: {
@@ -613,6 +617,7 @@ function buildCard(ex, num, total){
         +'<div class="ex-name">'+ex.n+badges+'</div>'
         +'<div class="ex-sets">'+ex.s+'</div>'
         +'<div class="ex-tip">"'+ex.tip+'"</div>'
+        +(ex.note ? '<div class="ex-note">'+ex.note+'</div>' : '')
       +'</div>'
     +'</div>'
     +'<div class="ex-body">'
