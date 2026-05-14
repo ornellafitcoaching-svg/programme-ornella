@@ -167,6 +167,81 @@
     }
     .badge-drop { background: var(--violet); color: #fff; }
     .badge-super { background: #059669; color: #fff; }
+
+    /* ── BLOCS SUPERSET ── */
+    .ss-block {
+      background: #FFF0EE;
+      border-left: 4px solid #C96358;
+      border-radius: 14px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .ss-header {
+      background: #C96358;
+      color: #fff;
+      padding: 11px 14px;
+      font-size: .82rem;
+      line-height: 1.55;
+      font-weight: 700;
+    }
+    .ss-header small { opacity: .85; font-size: .74rem; font-weight: 500; display: block; margin-top: 2px; }
+    .ss-arrow {
+      text-align: center;
+      padding: 7px 14px;
+      font-size: .78rem;
+      font-weight: 700;
+      color: #C96358;
+      background: #FFE8E5;
+      letter-spacing: .04em;
+    }
+    .ss-block .ex-card {
+      border-radius: 0;
+      margin-bottom: 0;
+      background: #FFF0EE;
+      box-shadow: none;
+      border-bottom: 1px solid rgba(201,99,88,.12);
+    }
+    .badge-ab {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 22px; height: 22px;
+      background: #C96358; color: #fff;
+      font-weight: 800; font-size: .78rem;
+      border-radius: 50%;
+      margin-right: 6px; flex-shrink: 0;
+      vertical-align: middle;
+    }
+
+    /* ── BLOCS DROPSET ── */
+    .ds-block {
+      background: #FFF8E7;
+      border-left: 4px solid #E8A020;
+      border-radius: 14px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .ds-header {
+      background: #E8A020;
+      color: #fff;
+      padding: 11px 14px;
+      font-size: .82rem;
+      line-height: 1.55;
+      font-weight: 700;
+    }
+    .ds-header small { opacity: .9; font-size: .74rem; font-weight: 500; display: block; margin-top: 2px; }
+    .ds-block .ex-card {
+      border-radius: 0;
+      margin-bottom: 0;
+      background: #FFF8E7;
+      box-shadow: none;
+    }
+
+    /* ── BLOCS NORMAUX ── */
+    .norm-block { margin-bottom: 16px; }
+    .norm-header {
+      font-size: .68rem; color: var(--gris);
+      font-weight: 700; text-transform: uppercase;
+      letter-spacing: .08em; padding: 0 4px 6px;
+    }
     .ex-body { padding: 0 14px 14px; border-top: 1px solid rgba(0,0,0,.05); }
 
     /* Charges */
@@ -476,6 +551,7 @@ var P = {
       {id:'m1',n:'Élévations latérales câble',                      s:'5×20',       tip:'Monte 3s, descends 4s. Charge légère = épaules rondes.',                                                                          rest:90,  rm:'20rm'},
       {id:'m2',n:'Tirage horizontal prise large',                   s:'4×10-12',    tip:'Tire vers nombril, squeeze omoplates 2s, retour 3s.',                                                                              rest:120, rm:'8rm'},
       {id:'m3',n:'Développé Arnold haltères (Arnold Press)',         s:'3×12',       tip:'Paumes vers toi en bas, tourne en montant. Travaille les 3 faisceaux de l\'épaule.',                                             rest:90,  rm:'12rm'},
+      {id:'m3b',n:'Hyperextension lombaires barre (Good morning)',   s:'3×12',       tip:'Barre sur les épaules, pieds largeur hanches. Incline le buste en avant dos PLAT jusqu\'à sentir l\'étirement des ischios. Remonte en contractant les lombaires. Cambrure + posture bikini.', rest:90, rm:'posture'},
       {id:'m4',n:'Oiseau haltères',                                  s:'3×15',       tip:'Penché 45°, ouvre sur les côtés, squeeze arrière 2s.',                                                                            rest:0,   super:true, rm:'15rm'},
       {id:'m5',n:'Tirage visage corde (Face Pull)',                  s:'3×20',       tip:'Corde à hauteur visage, coudes hauts, écarte les mains.',                                                                         rest:90,  super:true, rm:'15rm'},
     ]
@@ -558,7 +634,35 @@ function openDay(day){
   document.getElementById('sess-sub').textContent=d.sub;
   var body=document.getElementById('sess-body');
   body.innerHTML='';
-  d.ex.forEach(function(ex,i){ body.appendChild(buildCard(ex,i+1,d.ex.length)); if(ex.rm) calc1rm(ex.id); });
+  var exList=d.ex, i=0, num=1;
+  while(i<exList.length){
+    var ex=exList[i];
+    if(ex.super && ex.rest===0 && exList[i+1] && exList[i+1].super){
+      // ── SUPERSET BLOCK ──
+      var exA=ex, exB=exList[i+1];
+      var block=document.createElement('div');
+      block.className='ss-block';
+      block.innerHTML='<div class="ss-header">🔴 SUPERSET — Enchaîne A puis B SANS repos<small>Repos 90s seulement APRÈS les deux exercices</small></div>';
+      block.appendChild(buildCard(exA,num,exList.length,'A')); if(exA.rm) calc1rm(exA.id); num++;
+      var arr=document.createElement('div'); arr.className='ss-arrow'; arr.textContent='↓ enchaîne directement sans poser'; block.appendChild(arr);
+      block.appendChild(buildCard(exB,num,exList.length,'B')); if(exB.rm) calc1rm(exB.id); num++;
+      body.appendChild(block); i+=2;
+    } else if(ex.drop){
+      // ── DROPSET BLOCK ──
+      var block=document.createElement('div');
+      block.className='ds-block';
+      block.innerHTML='<div class="ds-header">🔶 DROP SET — Ne pose pas la charge entre les séries<small>Série 1 : charge normale → Série 2 : −30% → Série 3 : −30%</small></div>';
+      block.appendChild(buildCard(ex,num,exList.length)); if(ex.rm) calc1rm(ex.id); num++;
+      body.appendChild(block); i++;
+    } else {
+      // ── SÉRIE NORMALE ──
+      var block=document.createElement('div');
+      block.className='norm-block';
+      block.innerHTML='<div class="norm-header">⬜ SÉRIE NORMALE — '+nSets(ex)+' séries · repose-toi entre chaque</div>';
+      block.appendChild(buildCard(ex,num,exList.length)); if(ex.rm) calc1rm(ex.id); num++;
+      body.appendChild(block); i++;
+    }
+  }
   var saveBtn=document.createElement('button');
   saveBtn.className='save-session-btn';
   saveBtn.innerHTML='💾 Enregistrer mes charges';
@@ -568,14 +672,14 @@ function openDay(day){
   show('p-session');
 }
 
-function buildCard(ex, num, total){
+function buildCard(ex, num, total, abLabel){
   var ns=nSets(ex);
   var dots='';
   for(var i=0;i<ns;i++) dots+='<div class="dot" id="dot-'+ex.id+'-'+i+'"><span>'+(i+1)+'</span></div>';
 
   var badges='';
+  if(abLabel) badges='<span class="badge-ab">'+abLabel+'</span>';
   if(ex.drop) badges+='<span class="badge badge-drop">DROP SET</span>';
-  if(ex.super) badges+='<span class="badge badge-super">SUPERSET</span>';
 
   var ck='c_'+ex.id, tck='tc_'+ex.id, trk='tr_'+ex.id;
   var cv=localStorage.getItem(ck)||'', tcv=localStorage.getItem(tck)||'', trv=localStorage.getItem(trk)||'';
