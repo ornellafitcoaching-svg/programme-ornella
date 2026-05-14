@@ -643,24 +643,31 @@ function openDay(day){
       var block=document.createElement('div');
       block.className='ss-block';
       block.innerHTML='<div class="ss-header">🔴 SUPERSET — Enchaîne A puis B SANS repos<small>Repos 90s seulement APRÈS les deux exercices</small></div>';
-      block.appendChild(buildCard(exA,num,exList.length,'A')); if(exA.rm) calc1rm(exA.id); num++;
+      block.appendChild(buildCard(exA,num,exList.length,'A')); num++;
       var arr=document.createElement('div'); arr.className='ss-arrow'; arr.textContent='↓ enchaîne directement sans poser'; block.appendChild(arr);
-      block.appendChild(buildCard(exB,num,exList.length,'B')); if(exB.rm) calc1rm(exB.id); num++;
-      body.appendChild(block); i+=2;
+      block.appendChild(buildCard(exB,num,exList.length,'B')); num++;
+      body.appendChild(block);
+      if(exA.rm) calc1rm(exA.id);
+      if(exB.rm) calc1rm(exB.id);
+      i+=2;
     } else if(ex.drop){
       // ── DROPSET BLOCK ──
       var block=document.createElement('div');
       block.className='ds-block';
       block.innerHTML='<div class="ds-header">🔶 DROP SET — Ne pose pas la charge entre les séries<small>Série 1 : charge normale → Série 2 : −30% → Série 3 : −30%</small></div>';
-      block.appendChild(buildCard(ex,num,exList.length)); if(ex.rm) calc1rm(ex.id); num++;
-      body.appendChild(block); i++;
+      block.appendChild(buildCard(ex,num,exList.length)); num++;
+      body.appendChild(block);
+      if(ex.rm) calc1rm(ex.id);
+      i++;
     } else {
       // ── SÉRIE NORMALE ──
       var block=document.createElement('div');
       block.className='norm-block';
       block.innerHTML='<div class="norm-header">⬜ SÉRIE NORMALE — '+nSets(ex)+' séries · repose-toi entre chaque</div>';
-      block.appendChild(buildCard(ex,num,exList.length)); if(ex.rm) calc1rm(ex.id); num++;
-      body.appendChild(block); i++;
+      block.appendChild(buildCard(ex,num,exList.length)); num++;
+      body.appendChild(block);
+      if(ex.rm) calc1rm(ex.id);
+      i++;
     }
   }
   var saveBtn=document.createElement('button');
