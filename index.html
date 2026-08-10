@@ -448,7 +448,7 @@
         <div class="day-card-body">
           <div class="day-card-name">Lundi</div>
           <div class="day-card-desc">Fessiers haut · Hanches</div>
-          <div class="day-card-pill">6 exercices · ~48-53 min</div>
+          <div class="day-card-pill">5 exercices · ~40-45 min (estimation)</div>
         </div>
         <div class="day-card-arrow">›</div>
       </div>
@@ -554,12 +554,11 @@ var P = {
   lundi: {
     emoji:'💪', label:'Lundi', sub:'Fessiers haut · Hanches',
     ex:[
-      {id:'l1',n:'Poussée de hanches barre (Hip Thrust)',           s:'5×10-12',    tip:'Dos sur banc, squeeze 2s en haut, descends 3s lent. Charge lourde — c\'est ton exercice roi.',                                   rest:120, rm:'8rm'},
-      {id:'l2',n:'Abducteur machine',                               s:'4×25',       tip:'Squeeze 3s en position ouverte, retour 4s lent.',                                                                                  rest:90,  rm:'15rm', note:'💡 Option finisher (remplace l\'ancien exercice dropset séparé) : sur la dernière série, dès que tu ne peux plus faire de rep propre, baisse la charge de 30% et enchaîne 8-10 reps de plus sans reposer.'},
-      {id:'l3',n:'Squat bulgare haltères (Bulgarian Split Squat)',   s:'3×10/côté',  tip:'Incline le buste en avant pour cibler le fessier.',                                                                                rest:120, rm:'8rm'},
-      {id:'l4',n:'Coup de pied arrière câble debout (Kickback)',     s:'3×15/côté',  tip:'Penche-toi en avant, pousse le talon vers le plafond, squeeze 2s en haut.',                                                       rest:75,  rm:'15rm'},
-      {id:'l5',n:'Presse pieds hauts écartés',                      s:'3×15',       tip:'Pieds tout en haut de la plateforme, amplitude complète, fesses qui décollent légèrement.',                                       rest:75,  rm:'15rm'},
-      {id:'l6',n:'Poussée de hanches unilatérale (Hip Thrust)',      s:'3×12/côté',  tip:'Une seule jambe, l\'autre à 90°. Plus d\'isolation sur le haut du fessier.',                                                     rest:90,  rm:'15rm'},
+      {id:'l1',n:'Poussée de hanches barre (Hip Thrust)',           s:'4×10-12',    tip:'Dos sur banc, squeeze 2s en haut, descends 3s lent. Charge lourde — c\'est ton exercice roi, on ne touche quasi pas à celui-là.',    rest:120, rm:'8rm'},
+      {id:'l2',n:'Abducteur machine',                               s:'3×20',       tip:'Squeeze 3s en position ouverte, retour 4s lent.',                                                                                  rest:75,  rm:'15rm', note:'💡 Option finisher : sur la dernière série, dès que tu ne peux plus faire de rep propre, baisse la charge de 30% et enchaîne 8-10 reps de plus sans reposer.'},
+      {id:'l3',n:'Squat bulgare haltères (Bulgarian Split Squat)',   s:'3×10/côté',  tip:'Incline le buste en avant pour cibler le fessier.',                                                                                rest:90,  rm:'8rm'},
+      {id:'l4',n:'Coup de pied arrière câble debout (Kickback)',     s:'2×15/côté',  tip:'Penche-toi en avant, pousse le talon vers le plafond, squeeze 2s en haut.',                                                       rest:60,  rm:'15rm'},
+      {id:'l5',n:'Presse pieds hauts écartés',                      s:'2×15',       tip:'Pieds tout en haut de la plateforme, amplitude complète, fesses qui décollent légèrement.',                                       rest:60,  rm:'15rm'},
     ]
   },
   mardi: {
@@ -886,6 +885,7 @@ function updateProg(){
 // REST TIMER
 // ─────────────────────────────
 function startRest(id,secs){
+  beep(1,0.001); // débloque le son au clic (iOS)
   if(rt[id]){ clearInterval(rt[id]); delete rt[id]; }
   rLeft[id]=secs; rPaused[id]=false;
   var disp=document.getElementById('rd-'+id);
@@ -894,6 +894,25 @@ function startRest(id,secs){
   if(pb){ pb.textContent='⏸ Pause'; pb.classList.remove('paused'); }
   runRest(id,secs);
 }
+// ─────────────────────────────
+// SON (bips chrono)
+// ─────────────────────────────
+var _actx=null;
+function beep(freq,dur){
+  try{
+    if(!_actx) _actx=new (window.AudioContext||window.webkitAudioContext)();
+    if(_actx.state==='suspended') _actx.resume();
+    var o=_actx.createOscillator(), g=_actx.createGain();
+    o.type='sine'; o.frequency.value=freq;
+    g.gain.setValueAtTime(0.001,_actx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.35,_actx.currentTime+0.01);
+    g.gain.exponentialRampToValueAtTime(0.001,_actx.currentTime+dur);
+    o.connect(g); g.connect(_actx.destination);
+    o.start(); o.stop(_actx.currentTime+dur);
+  }catch(e){}
+}
+function beepDouble(){ beep(880,0.18); setTimeout(function(){ beep(1046,0.28); },220); }
+
 function runRest(id,total){
   var count=document.getElementById('rc-'+id);
   var bar=document.getElementById('rb-'+id);
@@ -907,17 +926,20 @@ function runRest(id,total){
     if(rPaused[id]) return;
     rLeft[id]--;
     if(count) count.textContent=fmt(rLeft[id]);
+    if(rLeft[id]>0 && rLeft[id]<=3){ beep(660,0.12); }
     if(rLeft[id]<=0){
       clearInterval(rt[id]); delete rt[id];
       var disp=document.getElementById('rd-'+id);
       if(disp) disp.classList.remove('on');
       if(navigator.vibrate) navigator.vibrate([200,80,200,80,200]);
+      beepDouble();
       showToast('Repos terminé — à toi ! 💪');
     }
   },1000);
 }
 var dt={}, dtLeft={}, dtPaused={}, dtTotal={};
 function startDuration(id,secs){
+  beep(1,0.001); // débloque le son au clic (iOS)
   if(dt[id]){ clearInterval(dt[id]); delete dt[id]; }
   dtLeft[id]=secs; dtTotal[id]=secs; dtPaused[id]=false;
   var pb=document.getElementById('dp-'+id);
@@ -930,10 +952,12 @@ function startDuration(id,secs){
     if(dtPaused[id]) return;
     dtLeft[id]--;
     updateDurationCount(id);
+    if(dtLeft[id]>0 && dtLeft[id]<=3){ beep(660,0.12); }
     if(dtLeft[id]<=0){
       clearInterval(dt[id]); delete dt[id];
       if(navigator.vibrate) navigator.vibrate([300,100,300,100,300]);
-      showToast('Stepmill terminé — bravo ! 🔥');
+      beepDouble();
+      showToast('Chrono terminé — bravo ! 🔥');
     }
   },1000);
 }
