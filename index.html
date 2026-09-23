@@ -586,6 +586,7 @@
       <button class="suivi-row-btn alt" onclick="goAgenda()">📅 Planifier ma semaine dans l'agenda</button>
       <button class="suivi-row-btn miss" onclick="goMiss()">😣 J'ai raté une séance · que faire ?</button>
       <button class="suivi-row-btn alt" onclick="goNutri()">🍽️ Mon plan alimentaire</button>
+      <button class="suivi-row-btn alt" onclick="goCourses()">🛒 Ma liste de courses</button>
       <button class="suivi-row-btn alt" onclick="goMens()">📏 Mes mensurations &amp; notes</button>
     </div>
   </div>
@@ -737,6 +738,23 @@
   </div>
 
   <!-- AGENDA -->
+  <div class="page" id="p-courses">
+    <div class="sess-header"><div class="sess-header-top"><button class="back-btn" onclick="goHome()">‹</button>
+      <div style="flex:1"><div class="sess-header-title">Ma liste de courses</div><div class="sess-header-sub" id="co-sub">—</div></div></div></div>
+    <div class="x-body">
+      <div class="x-card"><div class="ag-weeks" id="co-weeks"></div><p class="x-small" id="co-info" style="margin-top:10px"></p></div>
+      <div id="co-list"></div>
+      <div class="x-card">
+        <label class="x-lab">Ajouter un article</label>
+        <div style="display:flex;gap:8px"><input id="co-new" class="x-in" placeholder="Ex : éponges, café…" onkeydown="if(event.key==='Enter')coAdd()"><button class="x-go" onclick="coAdd()">＋</button></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="x-go" style="flex:1" onclick="coShare()">📤 Envoyer / copier</button>
+        <button class="x-go" style="flex:1;background:#fff;color:var(--noir);border:2px solid var(--gris-light)" onclick="coReset()">↺ Tout décocher</button>
+      </div>
+    </div>
+  </div>
+
   <div class="page" id="p-agenda">
     <div class="sess-header"><div class="sess-header-top"><button class="back-btn" onclick="goHome()">‹</button>
       <div><div class="sess-header-title">Planifier ma semaine</div><div class="sess-header-sub">Calendrier iPhone · semaine par semaine</div></div></div></div>
@@ -2058,6 +2076,76 @@ function renderNutriPlans(){
   });
   el.innerHTML=h;
 }
+
+// ─────────────────────────────
+// LISTE DE COURSES — calculée depuis la journée type × tes jours séance / repos
+// ─────────────────────────────
+// Journée type (séance) ; jour de repos : riz 120 g cuit sans pain, pomme au lieu de banane, patate douce 100 g.
+// Dîner sur 7 jours : poisson blanc 3×, dinde 2×, saumon 2×. Le cheat meal n'est pas dans la liste (repas libre).
+var coMon=null;
+function coRound(g){return g<100?Math.ceil(g/5)*5:(g<1000?Math.ceil(g/10)*10:Math.ceil(g/50)*50);}
+function coFmt(g,u){if(u==='ml') return g>=1000?(g/1000).toFixed(2).replace(/\.?0+$/,'').replace('.',',')+' L':g+' ml';
+  return g>=1000?(g/1000).toFixed(2).replace(/\.?0+$/,'').replace('.',',')+' kg':g+' g';}
+function coItems(T,R){
+  var D=T+R, RAW=2.7; // riz cuit → cru : ×2,7 (130 kcal cuit / 350 kcal cru)
+  var L=[
+   ['🥩 Viandes & poissons','Blanc de poulet',130*D,'g','midi · 130 g/jour'],
+   ['🥩 Viandes & poissons','Poisson blanc (cabillaud, colin…)',150*3,'g','dîner ×3 · 150 g'],
+   ['🥩 Viandes & poissons','Escalopes de dinde',130*2,'g','dîner ×2 · 130 g'],
+   ['🥩 Viandes & poissons','Saumon',130*2,'g','dîner ×2 · 130 g'],
+   ['🥚 Frais','Œufs',D,'u','mug cake · 1/jour'],
+   ['🥚 Frais','Skyr nature 0 %',150*D,'g','collation · 150 g/jour'],
+   ['🥚 Frais','Fromage blanc 0 %',150*D,'g','« si faim le soir » : n\'achète que si besoin'],
+   ['🍚 Féculents','Riz basmati (cru)',Math.round(180/RAW)*T+Math.round(120/RAW)*R,'g','= 180 g cuit (séance) / 120 g cuit (repos)'],
+   ['🍚 Féculents','Patates douces',200*T+100*R,'g','dîner · 200 g (séance) / 100 g (repos)'],
+   ['🍚 Féculents','Flocons d\'avoine',40*D,'g','mug cake · 40 g/jour'],
+   ['🍚 Féculents','Pain complet',40*T,'g','midi, jours de séance · 40 g'],
+   ['🥦 Fruits & légumes','Légumes verts (brocolis, haricots, courgettes…)',400*D,'g','200 g midi + 200 g soir'],
+   ['🥦 Fruits & légumes','Bananes',T,'u','collation, jours de séance'],
+   ['🥦 Fruits & légumes','Pommes',R,'u','collation, jours de repos'],
+   ['🥦 Fruits & légumes','Fruits rouges (surgelés OK)',80*D,'g','mug cake · 80 g/jour'],
+   ['🥜 Épicerie','Amandes',15*D,'g','collation · 15 g/jour'],
+   ['🥜 Épicerie','Beurre d\'amande',5*D,'g','5 g/jour, pesé'],
+   ['🥜 Épicerie','Huile d\'olive',20*D,'ml','10 ml midi + 10 ml soir'],
+   ['🥜 Épicerie','Whey',30*D,'g','mug cake · 30 g/jour ('+D+' doses)'],
+   ['🥜 Épicerie','Cannelle',0,'','pour le fromage blanc'],
+   ['🥜 Épicerie','Créatine',(3+2)*D,'g','3-5 g/jour : vérifie ton pot']];
+  return L.filter(function(x){return x[2]>0||x[3]==='';}).map(function(x){
+    var q=x[3]==='u'?x[2]+(x[2]>1?' pièces':' pièce'):(x[3]===''?'':coFmt(coRound(x[2]),x[3]));
+    if(x[1]==='Œufs') q=x[2]+' œufs'; if(x[1]==='Créatine') q='~'+coFmt(x[2],'g');
+    return {r:x[0],n:x[1],q:q,h:x[4]};});
+}
+function coKey(){return 'co_'+iso(coMon);}
+function goCourses(){ if(!coMon){var n=new Date();coMon=mondayOf(n);if(n.getDay()===0||n.getDay()===6) coMon.setDate(coMon.getDate()+7);} renderCourses(); show('p-courses'); }
+function renderCourses(){
+  var thisMon=mondayOf(new Date()), h='';
+  [0,1].forEach(function(off){var m=new Date(thisMon);m.setDate(m.getDate()+7*off);var e=new Date(m);e.setDate(m.getDate()+6);
+    h+='<button class="ag-wk'+(iso(m)===iso(coMon)?' on':'')+'" onclick="coMon=new Date(\''+iso(m)+'T00:00:00\');renderCourses()">'+(off===0?'Cette semaine':'Semaine pro')+'<br><small>'+m.getDate()+'/'+(m.getMonth()+1)+' → '+e.getDate()+'/'+(e.getMonth()+1)+'</small></button>';});
+  document.getElementById('co-weeks').innerHTML=h;
+  var T=0,R=0,rest=[],JL=['dim','lun','mar','mer','jeu','ven','sam'];
+  for(var i=0;i<7;i++){var d=new Date(coMon);d.setDate(coMon.getDate()+i);if(isTrain(iso(d)))T++;else{R++;rest.push(JL[d.getDay()]);}}
+  document.getElementById('co-sub').textContent=T+' jour(s) de séance · '+R+' jour(s) de repos';
+  document.getElementById('co-info').innerHTML='Calculée sur ta journée type pour <b>7 jours</b> : '+T+' × séance (1 850 kcal) + '+R+' × repos (1 600 kcal)'+(rest.length?' → repos : '+rest.join(', '):'')+'. Change un jour en repos dans ton journal (« Entraînée ? ») et la liste se met à jour. Le cheat meal n\'y est pas (repas libre).';
+  var st=ld(coKey(),{c:{},x:[]}), items=coItems(T,R), out='', last='';
+  st.x.forEach(function(n){items.push({r:'➕ Ajouts',n:n,q:'',h:'',x:1});});
+  items.forEach(function(it,i){
+    if(it.r!==last){out+=(last?'</div>':'')+'<h3 class="x-h">'+it.r+'</h3><div class="x-card" style="padding:4px 12px">';last=it.r;}
+    var on=!!st.c[it.n];
+    out+='<label style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--gris-light);cursor:pointer'+(on?';opacity:.45;text-decoration:line-through':'')+'"><input type="checkbox" '+(on?'checked':'')+' onchange="coTick('+i+')" style="width:20px;height:20px;flex:0 0 auto"><span style="flex:1"><b>'+it.n+'</b>'+(it.h?'<br><small class="x-small">'+it.h+'</small>':'')+'</span><span style="font-weight:700;white-space:nowrap">'+it.q+'</span>'+(it.x?'<button class="j-x" onclick="event.preventDefault();coDel(\''+it.n.replace(/'/g,"\\'")+'\')">✕</button>':'')+'</label>';
+  });
+  document.getElementById('co-list').innerHTML=out+(last?'</div>':'');
+  coCur=items;
+}
+var coCur=[];
+function coTick(i){var st=ld(coKey(),{c:{},x:[]}),n=coCur[i].n;if(st.c[n]) delete st.c[n]; else st.c[n]=1;sd(coKey(),st);renderCourses();}
+function coAdd(){var el=document.getElementById('co-new'),n=cleanName(el.value);if(!n) return;var st=ld(coKey(),{c:{},x:[]});if(st.x.indexOf(n)<0) st.x.push(n);sd(coKey(),st);el.value='';renderCourses();}
+function coDel(n){var st=ld(coKey(),{c:{},x:[]});st.x=st.x.filter(function(x){return x!==n;});delete st.c[n];sd(coKey(),st);renderCourses();}
+function coReset(){var st=ld(coKey(),{c:{},x:[]});st.c={};sd(coKey(),st);renderCourses();showToast('Liste remise à zéro');}
+function coShare(){var st=ld(coKey(),{c:{},x:[]}),last='',t='🛒 Courses semaine du '+coMon.getDate()+'/'+(coMon.getMonth()+1)+'\n';
+  coCur.forEach(function(it){if(st.c[it.n]) return;if(it.r!==last){t+='\n'+it.r+'\n';last=it.r;}t+='☐ '+it.n+(it.q?' : '+it.q:'')+'\n';});
+  if(navigator.share){navigator.share({text:t}).catch(function(){});}
+  else if(navigator.clipboard){navigator.clipboard.writeText(t).then(function(){showToast('Liste copiée 📋');},function(){showToast('Copie impossible');});}
+  else showToast('Partage non disponible');}
 
 // ─────────────────────────────
 // AGENDA — planification semaine par semaine (.ics sans répétition)
