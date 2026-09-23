@@ -424,6 +424,39 @@
     .plan-btn.on{background:#E8634A;border-color:#E8634A;color:#fff}
     .ramp{background:#F5EFE6;border-left:3px solid #E8634A;border-radius:8px;padding:9px 11px;margin-bottom:10px;color:#1B3A2D}
     .plan-desc{padding:0 18px 6px;font-size:.82rem;color:#666;line-height:1.4}
+
+    .suivi-row{display:flex;flex-direction:column;gap:10px}
+    .suivi-row-btn.alt{background:#fff;color:var(--noir);border:2px solid var(--gris-light)}
+    .x-body{padding:16px 16px 40px}
+    .x-card{background:#fff;border-radius:16px;padding:14px 15px;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:14px;font-size:.9rem;line-height:1.5}
+    .x-card p{margin-bottom:6px}
+    .x-hl{border:2px solid var(--rouge-light)}
+    .x-h{font-size:1rem;margin:18px 2px 8px}
+    .x-small{font-size:.8rem;color:var(--gris)}
+    .x-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;text-align:center}
+    .x-kpis div{background:var(--beige);border-radius:10px;padding:8px 4px}
+    .x-kpis b{display:block;font-size:1.05rem;color:var(--rouge-dark)}
+    .x-kpis span{font-size:.68rem;color:var(--gris)}
+    .x-meal{padding:9px 0;border-bottom:1px solid var(--gris-light)}
+    .x-meal:last-child{border:none}
+    .x-mt{font-weight:700;margin-bottom:2px}
+    .x-mt em{font-style:normal;font-weight:500;font-size:.75rem;color:var(--rouge);margin-left:4px}
+    .x-ol{padding-left:20px}
+    .x-ol li{margin-bottom:4px}
+    .x-form{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+    .x-lab{display:block;font-size:.72rem;font-weight:700;text-transform:uppercase;color:var(--gris);margin-bottom:3px}
+    .x-in{width:100%;padding:10px;border-radius:10px;border:1.5px solid var(--gris-light);font-size:1rem;background:var(--beige);font-family:inherit}
+    .x-ta{min-height:80px;margin-bottom:12px;resize:vertical}
+    .x-tbl{width:100%;border-collapse:collapse;font-size:.82rem}
+    .x-tbl th,.x-tbl td{padding:6px 4px;border-bottom:1px solid var(--gris-light);text-align:right}
+    .x-tbl th:first-child,.x-tbl td:first-child{text-align:left}
+    .x-tbl th{font-size:.7rem;color:var(--gris);text-transform:uppercase}
+    .x-up{color:#c2410c;font-weight:700}.x-down{color:#15803d;font-weight:700}
+    .x-entry-h{display:flex;justify-content:space-between;align-items:center;font-weight:700;margin-bottom:6px}
+    .x-del{background:none;border:none;color:var(--gris);font-size:.78rem;text-decoration:underline;cursor:pointer}
+    .x-vals{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+    .x-vals span{background:var(--beige);border-radius:8px;padding:3px 8px;font-size:.78rem}
+    .x-note{font-size:.82rem;color:var(--noir-2);background:#FFF7ED;border-radius:8px;padding:7px 9px;white-space:pre-wrap}
 </style>
 </head>
 <body>
@@ -451,12 +484,100 @@
     <div class="plan-sel" id="plan-sel"></div>
     <div class="plan-desc" id="plan-desc"></div>
     <div class="days-list" id="days-list"></div>
-  </div>
     <div class="suivi-row">
       <button class="suivi-row-btn" onclick="goSuivi()">📊 Mon suivi — voir mes charges</button>
+      <button class="suivi-row-btn alt" onclick="goNutri()">🍽️ Mon plan alimentaire</button>
+      <button class="suivi-row-btn alt" onclick="goMens()">📏 Mes mensurations &amp; notes</button>
     </div>
   </div>
 
+
+  <!-- NUTRITION -->
+  <div class="page" id="p-nutri">
+    <div class="sess-header"><div class="sess-header-top"><button class="back-btn" onclick="goHome()">‹</button>
+      <div><div class="sess-header-title">Mon plan alimentaire</div><div class="sess-header-sub">30 ans · 1,64 m · 66 kg · phase sèche</div></div></div></div>
+    <div class="x-body">
+      <div class="x-card x-hl">
+        <div class="x-kpis">
+          <div><b>~2 200</b><span>kcal dépensées/jour</span></div>
+          <div><b>1 850</b><span>kcal lun → sam</span></div>
+          <div><b>1 600</b><span>kcal dimanche</span></div>
+        </div>
+        <div class="x-kpis">
+          <div><b>135 g</b><span>protéines</span></div>
+          <div><b>50-55 g</b><span>lipides</span></div>
+          <div><b>~200 g</b><span>glucides</span></div>
+        </div>
+        <p class="x-small">Métabolisme de base ~1 375 kcal × 1,6 (5 séances + RPM + métier debout). Déficit ~350 kcal → −0,4 à −0,6 kg/semaine sans perdre de muscle.</p>
+      </div>
+
+      <h3 class="x-h">Journée type (lundi → samedi)</h3>
+      <div class="x-card">
+        <div class="x-meal"><div class="x-mt">☀️ Matin <em>~410 kcal · 37 g prot.</em></div>Mug cake : 40 g avoine + 30 g whey + 1 œuf. Topping : <b>5 g beurre d'amande</b> (1 c. à café rase) + 80 g fruits rouges.</div>
+        <div class="x-meal"><div class="x-mt">🍽️ Midi — JAMAIS sauté <em>~620 kcal · 42 g prot.</em></div>130 g blanc de poulet (cru) + 180 g riz basmati cuit + 40 g pain complet + 200 g légumes + 10 g huile d'olive.<br><span class="x-small">Plan B pas le temps : 150 g skyr + 1 banane + 15 g amandes.</span></div>
+        <div class="x-meal"><div class="x-mt">⚡ Collation pré-séance (60-90 min avant) <em>~290 kcal · 20 g prot.</em></div>150 g skyr + 1 banane + 15 g amandes.</div>
+        <div class="x-meal"><div class="x-mt">🌙 Soir <em>~450 kcal · 32 g prot.</em></div>150 g poisson blanc ou 130 g dinde + 200 g patate douce + 200 g légumes + 10 g huile d'olive.</div>
+        <div class="x-meal"><div class="x-mt">🍓 Si faim le soir <em>~75 kcal</em></div>150 g fromage blanc 0 % + cannelle.</div>
+      </div>
+
+      <h3 class="x-h">Dimanche (~1 600 kcal)</h3>
+      <div class="x-card">Midi : riz 120 g, sans pain · Collation : pomme au lieu de banane · Soir : patate douce 100 g (saumon 130 g 2×/semaine).</div>
+
+      <h3 class="x-h">🍔 Cheat meal du week-end</h3>
+      <div class="x-card">
+        <p><b>1 par semaine, samedi soir</b> (ou resto dimanche midi), ~+600 kcal. Déjà compté : ta moyenne reste ~1 900 kcal/jour, tu sèches quand même.</p>
+        <ol class="x-ol">
+          <li>Un repas, pas un week-end : entrée + plat + dessert OK, pas de grignotage autour.</li>
+          <li>Protéines en premier.</li>
+          <li>Alcool : 2 verres max.</li>
+          <li>Pas de jeûne le lendemain pour compenser.</li>
+          <li>Pesées dimanche et lundi : on ne les compte pas (eau + sel).</li>
+        </ol>
+      </div>
+
+      <h3 class="x-h">Équivalences</h3>
+      <div class="x-card x-small">
+        <p><b>Protéines</b> : 130 g poulet = 130 g dinde = 150 g poisson blanc = 120 g thon = 4 œufs</p>
+        <p><b>Féculents</b> : 180 g riz cuit = 180 g pâtes cuites = 250 g pommes de terre = 220 g patate douce = 60 g flocons</p>
+        <p><b>Gras</b> : 10 g huile = 15 g amandes = ⅓ avocat = 10 g beurre d'amande</p>
+      </div>
+
+      <h3 class="x-h">Les 3 règles</h3>
+      <div class="x-card"><ol class="x-ol">
+        <li><b>Jamais de midi sauté</b> : déjeuner préparé la veille.</li>
+        <li><b>Beurre d'amande pesé</b> : 5 g, pas « 2 cuillères ».</li>
+        <li><b>1 cheat meal / semaine</b>, pas plus.</li>
+      </ol>
+      <p class="x-small">Batch cooking dimanche (30 min) + mercredi soir · 8 000-10 000 pas/jour · créatine 3-5 g/jour · sommeil : coucher avancé de 15 min/semaine jusqu'à 23 h 15.</p></div>
+
+      <h3 class="x-h">Ajustements (toutes les 2 semaines)</h3>
+      <div class="x-card x-small">
+        <p>Perte &lt; 0,3 kg/sem. et taille stable → −150 kcal (féculents du soir) ou +2 000 pas.</p>
+        <p>Perte 0,4-0,6 kg/sem. → on ne touche à rien.</p>
+        <p>Perte &gt; 0,8 kg/sem. ou force en baisse → +100-150 kcal autour de la séance.</p>
+        <p>Taille qui baisse, poids stable → recomposition, on garde.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MENSURATIONS -->
+  <div class="page" id="p-mens">
+    <div class="sess-header"><div class="sess-header-top"><button class="back-btn" onclick="goHome()">‹</button>
+      <div><div class="sess-header-title">Mes mensurations</div><div class="sess-header-sub">Historique, évolution &amp; notes</div></div></div></div>
+    <div class="x-body">
+      <div id="mens-evo"></div>
+      <h3 class="x-h">➕ Nouvelle prise de mesures</h3>
+      <div class="x-card">
+        <p class="x-small">Même jour de la semaine, le matin à jeun, mêmes repères. Laisse vide ce que tu n'as pas mesuré.</p>
+        <div class="x-form" id="mens-form"></div>
+        <label class="x-lab">Notes (cycle, sommeil, ressenti, écarts…)</label>
+        <textarea id="mf-note" class="x-in x-ta" placeholder="Ex : J3 des règles, semaine chargée, 4 séances sur 5…"></textarea>
+        <button class="save-session-btn" onclick="saveMens()">💾 Enregistrer mes mensurations</button>
+      </div>
+      <h3 class="x-h">Historique</h3>
+      <div id="mens-hist"></div>
+    </div>
+  </div>
   <!-- SESSION -->
   <div class="page" id="p-session">
     <div class="sess-header">
@@ -1039,6 +1160,75 @@ function buildSuivi(){
   body.appendChild(btn);
 }
 
+
+// ─────────────────────────────
+// NUTRITION & MENSURATIONS
+// ─────────────────────────────
+function goNutri(){ show('p-nutri'); }
+function goMens(){ buildMens(); show('p-mens'); }
+var MF=[['poids','Poids','kg'],['taille','Tour de taille','cm'],['hanches','Hanches','cm'],['fessiers','Fessiers','cm'],['cuisse','Cuisse','cm'],['bras','Bras','cm'],['sspoitrine','Sous-poitrine','cm'],['poitrine','Poitrine','cm'],['cou','Cou','cm']];
+var MENS_SEED=[
+  {date:'2026-07-04',poids:63,taille:66,hanches:89,fessiers:100.5,cuisse:58,bras:28,sspoitrine:72,poitrine:89,note:'Point de départ.'},
+  {date:'2026-09-12',poids:66,taille:69,hanches:90,fessiers:102,cuisse:62,bras:32,sspoitrine:74,poitrine:90,cou:33,note:'Poids approximatif (~66 kg). Après l\'été : midi souvent sauté, restos en août, 1-2 séances/semaine (fatigue, coucher après minuit).'}
+];
+function loadMens(){
+  var d=null;
+  try{ d=JSON.parse(localStorage.getItem('mens')||'null'); }catch(e){}
+  if(!d||!d.length){ d=MENS_SEED.slice(); try{localStorage.setItem('mens',JSON.stringify(d));}catch(e){} }
+  return d.sort(function(a,b){return a.date<b.date?-1:1;});
+}
+function storeMens(d){ try{localStorage.setItem('mens',JSON.stringify(d));}catch(e){} }
+function fdate(iso){ var p=iso.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
+function dif(a,b){ if(a==null||b==null||a===''||b==='') return ''; var v=Math.round((a-b)*10)/10; if(v===0) return '<span>=</span>'; return '<span class="'+(v>0?'x-up':'x-down')+'">'+(v>0?'+':'')+String(v).replace('.',',')+'</span>'; }
+function num(v){ return (v===undefined||v===null||v==='')?'—':String(v).replace('.',','); }
+function buildMens(){
+  var d=loadMens();
+  // form
+  var f=document.getElementById('mens-form');
+  var today=new Date(); var iso=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+  var h='<div style="grid-column:1/-1"><label class="x-lab">Date</label><input type="date" id="mf-date" class="x-in" value="'+iso+'"></div>';
+  MF.forEach(function(m){ h+='<div><label class="x-lab">'+m[1]+' ('+m[2]+')</label><input type="number" step="0.1" inputmode="decimal" id="mf-'+m[0]+'" class="x-in" placeholder="—"></div>'; });
+  f.innerHTML=h;
+  // evolution
+  function has(e,k){return e[k]!==undefined&&e[k]!==null&&e[k]!=='';}
+  function series(k){return d.filter(function(e){return has(e,k);});}
+  var t='<div class="x-card"><div class="x-entry-h">Évolution</div><table class="x-tbl"><tr><th>Mesure</th><th>Départ</th><th>Actuel</th><th>vs préc.</th><th>vs départ</th></tr>';
+  MF.forEach(function(m){ var k=m[0], sr=series(k); if(!sr.length){ t+='<tr><td>'+m[1]+'</td><td>—</td><td>—</td><td></td><td></td></tr>'; return; }
+    var f0=sr[0], l0=sr[sr.length-1], p0=sr.length>1?sr[sr.length-2]:null;
+    t+='<tr><td>'+m[1]+'<br><span class="x-small">'+fdate(l0.date)+'</span></td><td>'+num(f0[k])+'</td><td><b>'+num(l0[k])+'</b></td><td>'+(p0?dif(l0[k],p0[k]):'')+'</td><td>'+(sr.length>1?dif(l0[k],f0[k]):'')+'</td></tr>'; });
+  var st=series('taille'), sf=series('fessiers');
+  if(st.length&&sf.length){ var r1=(st[0].taille/sf[0].fessiers), r2=(st[st.length-1].taille/sf[sf.length-1].fessiers);
+    t+='<tr><td>Ratio taille/fessiers</td><td>'+r1.toFixed(2).replace('.',',')+'</td><td><b>'+r2.toFixed(2).replace('.',',')+'</b></td><td></td><td>'+(function(){var v=Math.round(r2*100)-Math.round(r1*100);return v===0?'=':'<span class="'+(v>0?'x-up':'x-down')+'">'+(v>0?'+':'−')+'0,'+String(Math.abs(v)).padStart(2,'0')+'</span>';})()+'</td></tr>'; }
+  t+='</table><p class="x-small" style="margin-top:8px">🟢 = baisse · 🟠 = hausse. Objectif : taille ↓, fessiers stables ou ↑, ratio ↓.</p></div>';
+  document.getElementById('mens-evo').innerHTML=t;
+  // history (newest first)
+  var hh='';
+  d.slice().reverse().forEach(function(e){
+    var vals=MF.filter(function(m){return e[m[0]]!==undefined&&e[m[0]]!==null&&e[m[0]]!=='';}).map(function(m){return '<span>'+m[1]+' : <b>'+num(e[m[0]])+'</b> '+m[2]+'</span>';}).join('');
+    hh+='<div class="x-card"><div class="x-entry-h">📅 '+fdate(e.date)+'<button class="x-del" onclick="delMens(\''+e.date+'\')">supprimer</button></div><div class="x-vals">'+vals+'</div>'+(e.note?'<div class="x-note">📝 '+e.note.replace(/</g,'&lt;')+'</div>':'')+'</div>';
+  });
+  document.getElementById('mens-hist').innerHTML=hh;
+}
+function saveMens(){
+  var date=document.getElementById('mf-date').value;
+  if(!date){ showToast('Ajoute une date'); return; }
+  var e={date:date}, any=false;
+  MF.forEach(function(m){ var v=document.getElementById('mf-'+m[0]).value; if(v!==''){ e[m[0]]=parseFloat(v); any=true; } });
+  var note=document.getElementById('mf-note').value.trim(); if(note) e.note=note;
+  if(!any&&!note){ showToast('Rien à enregistrer'); return; }
+  var d=loadMens().filter(function(x){return x.date!==date;});
+  d.push(e); storeMens(d);
+  document.getElementById('mf-note').value='';
+  buildMens(); window.scrollTo(0,0);
+  showToast('Mensurations enregistrées 📏');
+}
+var _delArm=null;
+function delMens(date){
+  if(_delArm!==date){ _delArm=date; showToast('Appuie encore sur « supprimer » pour confirmer'); setTimeout(function(){_delArm=null;},4000); return; }
+  _delArm=null;
+  var d=loadMens().filter(function(x){return x.date!==date;}); if(!d.length){ showToast('Garde au moins une mesure'); return; }
+  storeMens(d); buildMens(); showToast('Mesure supprimée');
+}
 // ─────────────────────────────
 // TOAST
 // ─────────────────────────────
