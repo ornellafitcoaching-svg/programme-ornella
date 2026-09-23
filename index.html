@@ -696,7 +696,7 @@
         • Priorité : fessiers lourd &gt; dos &gt; fessiers volume &gt; le reste.<br>
         • 2 séances ratées dans la semaine → tu passes en <b>Plan C</b> pour la fin de semaine.
       </div>
-      <button class="save-session-btn" style="margin-bottom:14px" onclick="setTrainDay(iso(new Date()),false);goHome()">🌿 Pas de séance aujourd'hui → objectif 1 600 kcal</button>
+      <button class="save-session-btn" style="margin-bottom:14px" onclick="goHome();setTrainDay(iso(new Date()),false)">🌿 Pas de séance aujourd'hui → objectif 1 600 kcal</button>
       <h3 class="x-h">Quelle séance as-tu ratée ?</h3>
       <div id="miss-list"></div>
       <div id="miss-res"></div>
@@ -730,6 +730,7 @@
   </div>
 
   <!-- AJOUT ALIMENT (sheet) -->
+  <div class="j-sheet" id="miss-alert" onclick="if(event.target===this)closeMissAlert()"><div class="j-sheet-in" id="miss-alert-b"></div></div>
   <div class="j-scan" id="j-scan"><p>📷 Vise le code-barres du produit</p><div id="j-scan-v"></div><p id="j-scan-m" class="x-small" style="color:rgba(255,255,255,.6)">Tiens le téléphone à 15-20 cm, bien à plat.</p><button class="x-del" style="color:#fff;border-color:#fff" onclick="stopScan()">Annuler</button></div>
   <div class="j-sheet" id="j-sheet" onclick="if(event.target===this)closeAdd()">
     <div class="j-sheet-in">
@@ -961,6 +962,10 @@ function renderToday(){
     +'<div class="x-small" style="margin-top:2px">Objectif du jour : <b style="color:var(--rouge-dark)">'+g.k+' kcal</b> · P '+g.p+' · G '+g.c+' · L '+g.f+(auto?' (par défaut)':'')+'<br>Séance = 1 850 · repos = 1 600'+(isCheat(td)?' · <b>+600 cheat meal aujourd\'hui</b>':'')+'</div>'
     +'<div style="display:flex;gap:8px;margin-top:10px"><button class="j-tab'+(tr?' on':'')+'" style="flex:1;padding:11px" onclick="setTrainDay(\''+td+'\',true)">💪 Oui</button>'
     +'<button class="j-tab'+(!tr?' on':'')+'" style="flex:1;padding:11px" onclick="setTrainDay(\''+td+'\',false)">🌿 Non, repos</button></div>';
+  var miss=missedThisWeek(); // consignes (MISS_DEMAIN) chargées plus bas : réaffiché en fin de script
+  if(miss.length && typeof MISS_DEMAIN!=='undefined'){var last=miss[miss.length-1], c=catchUp(last);
+    el.innerHTML+='<div style="margin-top:12px;padding:10px 12px;border-radius:12px;background:#FFF4E5;border:1.5px solid #f59e0b;font-size:.85rem">⚠️ <b>À rattraper</b> ('+miss.length+' séance'+(miss.length>1?'s ratées':' ratée')+' cette semaine)<br>'+c.d
+      +(c.go?'<br><button class="x-go" style="margin-top:8px" onclick="openDay(\''+c.go+'\')">▶ '+P[c.go].label+'</button>':'')+'</div>';}
 }
 function renderHome(){
   renderToday();
@@ -1491,6 +1496,41 @@ var MISS = {
     'Si tu as déjà fait Fessiers LOURD cette semaine, commence directement par Fessiers + Dos B.',
     'Lundi prochain, on repart en Plan A normalement, sans culpabilité.'], go:['c1','c2']}
 };
+// Consigne directe pour le lendemain quand la séance du jour saute (Plan A)
+var MISS_DEMAIN={
+  lundi:{d:'<b>Demain (mardi) : Fessiers LOURD</b> à la place du dos. Dos largeur mercredi (RPM gardé 20 min en fin de séance, ou supprimé cette semaine).',go:'lundi'},
+  mardi:{d:'<b>Demain (mercredi) : RPM comme prévu.</b> Vendredi : <b>Dos complet</b> à la place de Dos épaisseur.',go:'mercredi'},
+  mercredi:{d:'<b>Demain (jeudi) : Ischios + fessiers volume, comme prévu.</b> Samedi : +20 min de rameur ou vélo en fin de séance. Gainage 10 min à la maison quand tu peux.',go:'jeudi'},
+  jeudi:{d:'<b>Demain (vendredi) : Ischios + fessiers volume</b> à la place du dos. Samedi : Dos épaisseur (la séance pump saute).',go:'jeudi'},
+  vendredi:{d:'<b>Demain (samedi) : Fessiers + Dos B</b> à la place de Fessiers pump.',go:'c2'},
+  samedi:{d:'<b>Rien à rattraper</b> : tu as déjà eu 2 séances fessiers et 2 dos. Bonus dimanche si tu as 15 min : 3 × 20 pont fessier + 3 × 20 abduction élastique.',go:null},
+  deux:{d:'<b>2 séances ratées cette semaine → Plan C jusqu\'à dimanche</b> : Fessiers + Dos A, puis Fessiers + Dos B au moins 48 h après. Jamais 2 séances le même jour.',go:'c1'}
+};
+var JKEY=['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+// Séances ratées (bouton « Non, repos ») de la semaine en cours, lundi → samedi
+function missedThisWeek(){var m=mondayOf(new Date()),out=[],all=jAll();
+  for(var i=0;i<6;i++){var d=new Date(m);d.setDate(m.getDate()+i);var k=iso(d);if(all[k]&&all[k].train===false) out.push(k);}return out;}
+// Rattrapage à appliquer pour un jour raté donné (ou le cas « 2 ratées »)
+function catchUp(dt){
+  var miss=missedThisWeek(), w=new Date(dt+'T12:00:00').getDay(), today=iso(new Date());
+  if(curPlan!=='A') return {t:'Séance ratée ('+PLANS[curPlan].name.split(' · ')[0]+')',d:'<b>Fais la séance ratée à ta prochaine dispo</b>, pas le même jour qu\'une autre. '+(curPlan==='B'?'2 ratées → passe en <b>Plan C</b>.':'Plan C = ton minimum : garde au moins Fessiers + Dos A et B cette semaine.'),go:null,steps:[]};
+  if(miss.length>=2) return {t:'2 séances ratées cette semaine',d:MISS_DEMAIN.deux.d,go:MISS_DEMAIN.deux.go,steps:MISS.deux.steps.slice(1)};
+  var k=JKEY[w], M=MISS[k], D=MISS_DEMAIN[k];
+  return dt===today?{t:'Séance ratée : '+M.t,d:D.d,go:D.go,steps:[]}:{t:'Séance ratée : '+M.t,d:M.r,go:M.go[0]||null,steps:M.steps};
+}
+function showMissAlert(dt){
+  var w=new Date(dt+'T12:00:00').getDay(); if(w===0) return; // dimanche = repos prévu
+  var mon=mondayOf(new Date()); if(new Date(dt+'T12:00:00')<mon) return; // semaine passée : rien à rattraper
+  var c=catchUp(dt), g=goalFor(dt), el=document.getElementById('miss-alert-b');
+  el.innerHTML='<div style="font-size:1.1rem;font-weight:800">⚠️ '+c.t+'</div>'
+    +'<p class="x-small" style="margin:4px 0 10px">Pas de panique, une séance ratée ne casse rien. Voilà le plan.</p>'
+    +'<div class="x-card x-hl" style="margin:0 0 10px">🍽️ Objectif ce jour : <b>'+g.k+' kcal</b>'+(isCheat(dt)?' (cheat meal +600 compris)':'')+' → repos : −250 kcal, −70 g de glucides, protéines identiques (135 g).</div>'
+    +'<div class="x-card" style="margin:0 0 10px">🏋️ '+c.d+(c.steps.length?'<ul class="x-ol" style="margin-top:8px">'+c.steps.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul>':'')+'</div>'
+    +(c.go?'<button class="save-session-btn" onclick="closeMissAlert();openDay(\''+c.go+'\')">▶ Voir la séance : '+P[c.go].label+'</button>':'')
+    +'<button class="x-del" style="margin-top:10px;width:100%" onclick="closeMissAlert()">OK, compris</button>';
+  document.getElementById('miss-alert').classList.add('on');
+}
+function closeMissAlert(){document.getElementById('miss-alert').classList.remove('on');}
 function goMiss(){ buildMiss(null); show('p-miss'); }
 function buildMiss(sel){
   var h='';
@@ -1890,8 +1930,8 @@ function goalFor(d){var w=new Date(d+'T12:00:00').getDay();
   return g;}
 function setCheat(on){var k=cheatKey(jDate),was=cheatDay(jDate);sd(k,on?jDate:'');renderJournal();
   showToast(on?(was&&was!==jDate?'🍔 Cheat meal déplacé ici : +600 kcal':'🍔 Cheat meal : +600 kcal ce jour'):'Pas de cheat meal ce jour');}
-function setTrainDay(dt,v){var d=jDay(dt);d.train=v;jSave(dt,d);renderToday();showToast(v?'Jour d\'entraînement : objectif 1 850 kcal 💪':'Jour de repos : objectif 1 600 kcal 🌿');}
-function setTrain(v){var d=jDay(jDate);d.train=v;jSave(jDate,d);renderJournal();showToast(v?'Jour d\'entraînement : 1 850 kcal 💪':'Jour de repos : 1 600 kcal 🌿');}
+function setTrainDay(dt,v){var d=jDay(dt);d.train=v;jSave(dt,d);renderToday();if(v) showToast('Jour d\'entraînement : objectif '+goalFor(dt).k+' kcal 💪'); else showMissAlert(dt);}
+function setTrain(v){var d=jDay(jDate);d.train=v;jSave(jDate,d);renderJournal();if(!v) showMissAlert(jDate);showToast(v?'Jour d\'entraînement : 1 850 kcal 💪':'Jour de repos : 1 600 kcal 🌿');}
 // Séance faite (exercice bouclé ou charges enregistrées) → aujourd'hui = jour d'entraînement, sauf choix manuel
 function markTrainedToday(){var td=iso(new Date()), d=jDay(td); if(d.train==null){ d.train=true; jSave(td,d); }}
 function r0(x){return Math.round(x);} function r1(x){return Math.round(x*10)/10;}
@@ -2221,6 +2261,7 @@ function showToast(msg){
   t.textContent=msg; t.classList.add('show');
   setTimeout(function(){ t.classList.remove('show'); },2600);
 }
+renderToday(); // 2e passage : bannière « à rattraper » (consignes chargées)
 </script>
 </body>
 </html>
