@@ -1530,6 +1530,15 @@ var FOODS=[
  ['Blanc de poulet / dinde (tranches)',100,21,1,1.5,'Protéines',['tranche',30]],
  ['Tofu nature',120,13,2,7,'Protéines',['portion',100]],
  ['Whey',380,75,7,6,'Protéines',['dose',30]],
+ ['Surimi',105,7,15,1.5,'Protéines',['bâtonnet',17]],
+ ['Sardines à l\'huile (égouttées)',210,24,0,13,'Protéines',['boîte',95]],
+ ['Maquereau (conserve)',230,18,1,17,'Protéines',['boîte',120]],
+ ['Saumon fumé',180,22,0.5,10,'Protéines',['tranche',25]],
+ ['Poulet rôti (avec peau)',220,25,0,13,'Protéines',['cuisse',150]],
+ ['Porc (filet mignon)',125,22,0,4,'Protéines',['portion',130]],
+ ['Bœuf (steak, rumsteck)',130,22,0,4.5,'Protéines',['steak',130]],
+ ['Lardons',270,15,0.5,23,'Protéines',['portion',50]],
+ ['Saucisse / merguez',290,14,1.5,25,'Protéines',['pièce',70]],
  // Laitiers
  ['Skyr nature 0 %',63,11,4,0.2,'Laitiers',['pot',150]],
  ['Fromage blanc 0 %',47,7.5,4,0.2,'Laitiers',['bol',150]],
@@ -1540,6 +1549,39 @@ var FOODS=[
  ['Emmental / comté',390,28,0,31,'Laitiers',['portion',30]],
  ['Feta',265,14,4,21,'Laitiers',['portion',30]],
  ['Fromage frais type St Môret',230,6,4,21,'Laitiers',['c. à soupe',20]],
+ ['Skyr aromatisé / sucré (vanille, fruits)',80,8.5,10,0.2,'Laitiers',['pot',150]],
+ ['Dessert lacté type skyr / fromage frais aromatisé',95,6,12,2.5,'Laitiers',['pot',100]],
+ ['Yaourt / dessert protéiné (type HiPRO)',60,9.5,4,0.2,'Laitiers',['pot',160]],
+ ['Pudding / crème protéinée',75,10,6,1.2,'Laitiers',['pot',200]],
+ ['Boisson lactée protéinée',60,8,5,0.8,'Laitiers',['bouteille',300]],
+ ['Fromage blanc 3 %',75,7,4,3,'Laitiers',['bol',150]],
+ ['Yaourt aux fruits',95,3.5,15,2.5,'Laitiers',['pot',125]],
+ ['Petit-suisse nature',135,9,3,10,'Laitiers',['pot',60]],
+ ['Cottage cheese',100,11,3,4.5,'Laitiers',['portion',100]],
+ ['Lait écrémé',34,3.4,4.8,0.1,'Laitiers',['verre',200]],
+ ['Boisson amande (sans sucre)',15,0.5,0.3,1.2,'Laitiers',['verre',200]],
+ ['Fromage à pâte molle (camembert, brie)',300,20,0.5,24,'Laitiers',['portion',30]],
+ ['Portion fromage fondu (type vache / Kiri)',260,7,6,23,'Laitiers',['portion',18]],
+ // Snacks & barres (moyennes : si tu as l'emballage, l'étiquette fait foi)
+ ['Barre protéinée (moyenne)',370,30,35,12,'Snacks & barres',['barre',55]],
+ ['Barre protéinée enrobée chocolat (type Grenade / Barebells)',375,33,30,14,'Snacks & barres',['barre',55]],
+ ['Mini barre protéinée',380,28,38,12,'Snacks & barres',['barre',35]],
+ ['Barre de céréales',410,6,68,12,'Snacks & barres',['barre',25]],
+ ['Barre énergétique / fruits secs (type Nakd)',400,9,50,18,'Snacks & barres',['barre',35]],
+ ['Barre chocolatée (type Kinder, Mars)',470,5,65,21,'Snacks & barres',['barre',40]],
+ ['Cookie',490,5,63,24,'Snacks & barres',['cookie',30]],
+ ['Biscuit fourré chocolat (type Prince)',470,6,70,18,'Snacks & barres',['biscuit',13]],
+ ['Brioche / pain au lait',350,8,52,12,'Snacks & barres',['pain au lait',35]],
+ ['Compote sans sucre ajouté',55,0.3,12,0.1,'Snacks & barres',['gourde',90]],
+ ['Chips',540,6,50,34,'Snacks & barres',['petit paquet',30]],
+ ['Crackers / biscuits apéro',480,9,65,20,'Snacks & barres',['poignée',25]],
+ ['Pop-corn nature / salé',400,10,60,15,'Snacks & barres',['bol',20]],
+ ['Fruits secs (dattes, abricots)',280,2.5,63,0.4,'Snacks & barres',['3 pièces',25]],
+ ['Mélange noix & fruits secs',480,13,35,32,'Snacks & barres',['poignée',30]],
+ ['Pancake / crêpe',230,6,30,9,'Snacks & barres',['crêpe',60]],
+ ['Céréales petit-déj (type muesli, granola)',440,9,62,16,'Snacks & barres',['bol',45]],
+ ['Céréales chocolatées',390,8,78,4,'Snacks & barres',['bol',35]],
+ ['Pâte à tartiner (type Nutella)',540,6,57,31,'Snacks & barres',['c. à café',10]],
  // Gras
  ['Avocat',160,2,2,15,'Matières grasses',['1/2 avocat',80]],
  ['Huile d\'olive',900,0,0,100,'Matières grasses',['c. à soupe',10]],
@@ -1573,6 +1615,17 @@ var FOODS=[
  ['Carottes',36,0.8,7,0.3,'Fruits & légumes',['portion',150]],
  ['Courgettes',17,1.2,2,0.3,'Fruits & légumes',['portion',200]],
  ['Brocolis',34,2.8,4,0.4,'Fruits & légumes',['portion',200]],
+ ['Poire',55,0.4,12,0.1,'Fruits & légumes',['poire',160]],
+ ['Raisin',70,0.7,16,0.2,'Fruits & légumes',['grappe',120]],
+ ['Mangue',65,0.8,14,0.3,'Fruits & légumes',['1/2 mangue',150]],
+ ['Ananas',50,0.5,11,0.1,'Fruits & légumes',['tranche',80]],
+ ['Melon / pastèque',35,0.7,8,0.2,'Fruits & légumes',['tranche',200]],
+ ['Pêche / nectarine',42,0.9,9,0.2,'Fruits & légumes',['fruit',150]],
+ ['Haricots verts',30,1.8,4.5,0.2,'Fruits & légumes',['portion',200]],
+ ['Épinards',25,2.8,1.5,0.4,'Fruits & légumes',['portion',200]],
+ ['Champignons',25,3,1,0.4,'Fruits & légumes',['portion',150]],
+ ['Concombre',13,0.7,2,0.1,'Fruits & légumes',['1/2 concombre',150]],
+ ['Maïs (conserve)',95,2.8,17,1.5,'Fruits & légumes',['portion',80]],
  // Sucré & extras
  ['Miel',320,0.3,80,0,'Sucré & extras',['c. à café',8]],
  ['Confiture',250,0.4,60,0.1,'Sucré & extras',['c. à café',10]],
@@ -1704,9 +1757,20 @@ function delItem(i){var d=jDay(jDate);d.items.splice(i,1);jSave(jDate,d);renderJ
 function addItems(meal,arr,date){var dt=date||jDate||iso(new Date());var d=jDay(dt);arr.forEach(function(x){x.m=meal;d.items.push(x);});jSave(dt,d);
   var fav=ld('jrecent',[]);arr.forEach(function(x){if(x.src){fav=fav.filter(function(f){return f.src!==x.src;});fav.unshift({src:x.src,g:x.g});}});sd('jrecent',fav.slice(0,15));}
 function foodBy(n){for(var i=0;i<FOODS.length;i++) if(FOODS[i][0]===n) return FOODS[i]; return null;}
-function mkItem(src,g){
-  if(src.indexOf('R:')===0){var r=RECIPES.filter(function(x){return x.n===src.slice(2);})[0];return {n:r.n,g:0,k:r.k*g,p:r.p*g,c:r.c*g,f:r.f*g,src:src};}
-  var f=foodBy(src);var q=g/100;return {n:f[0],g:g,k:f[1]*q,p:f[2]*q,c:f[3]*q,f:f[4]*q,src:src};}
+// Mes aliments : produits trouvés en ligne ou saisis à la main, mémorisés sur le téléphone.
+// {n,k,p,c,f,u:[libellé,g],pp} — pp=true : valeurs pour 1 portion ; sinon pour 100 g.
+var jTmp=null; // produit en ligne choisi mais pas encore ajouté (mémorisé seulement si ajouté)
+function jCustom(){return ld('jcustom',[]);}
+function cleanName(n){return String(n||'').replace(/[<>"\\`]/g,'').replace(/\s+/g,' ').trim().slice(0,80);}
+function customBy(n){if(jTmp&&jTmp.n===n) return jTmp;var l=jCustom();for(var i=0;i<l.length;i++) if(l[i].n===n) return l[i];return null;}
+function saveCustom(x){var l=jCustom().filter(function(c){return c.n!==x.n;});l.unshift(x);sd('jcustom',l.slice(0,150));}
+function delCustom(i){var l=jCustom();l.splice(i,1);sd('jcustom',l);renderAdd();showToast('Retiré de Mes aliments');}
+function getFood(src){
+  if(src.indexOf('R:')===0){var r=RECIPES.filter(function(x){return x.n===src.slice(2);})[0];return r?{n:r.n,k:r.k,p:r.p,c:r.c,f:r.f,pp:true,info:'Recette à la portion'}:null;}
+  if(src.indexOf('C:')===0){var c=customBy(src.slice(2));return c?{n:c.n,k:c.k,p:c.p,c:c.c,f:c.f,u:c.u||['portion',100],pp:!!c.pp,info:c.pp?'Mes aliments · valeurs pour 1 portion':'Mes aliments · pour 100 g'}:null;}
+  var f=foodBy(src);return f?{n:f[0],k:f[1],p:f[2],c:f[3],f:f[4],u:f[6],pp:false}:null;}
+function mkItem(src,g){var f=getFood(src);if(!f) return null;var q=f.pp?g:g/100;
+  return {n:f.n,g:f.pp?0:g,k:f.k*q,p:f.p*q,c:f.c*q,f:f.f*q,src:src};}
 function openAdd(meal){jMeal=meal;jSel=null;jTab='rech';document.getElementById('j-add-t').textContent='Ajouter · '+MEALS.filter(function(m){return m[0]===meal;})[0][1];renderAdd();document.getElementById('j-sheet').classList.add('on');}
 function closeAdd(){document.getElementById('j-sheet').classList.remove('on');}
 function renderAdd(){
@@ -1714,15 +1778,16 @@ function renderAdd(){
   document.getElementById('j-tabs').innerHTML=T.map(function(t){return '<button class="j-tab'+(t[0]===jTab?' on':'')+'" onclick="jTab=\''+t[0]+'\';jSel=null;renderAdd()">'+t[1]+'</button>';}).join('');
   var b=document.getElementById('j-add-body');
   if(jSel){ // écran quantité
-    var isR=jSel.indexOf('R:')===0, f=isR?null:foodBy(jSel), u=f?f[6]:null;
-    var h='<div class="x-card"><b>'+(isR?jSel.slice(2):f[0])+'</b><div class="x-small">'+(isR?'Recette à la portion':f[1]+' kcal · P '+f[2]+' · G '+f[3]+' · L '+f[4]+' pour 100 g')+'</div>';
+    var F=getFood(jSel);if(!F){jSel=null;renderAdd();return;}
+    var isR=F.pp, u=F.u;
+    var h='<div class="x-card"><b>'+F.n+'</b><div class="x-small">'+(isR?(F.info||'Recette à la portion')+' : '+r0(F.k)+' kcal · P '+r1(F.p)+' g':r0(F.k)+' kcal · P '+F.p+' · G '+F.c+' · L '+F.f+' pour 100 g'+(F.info?' · '+F.info.split(' · ')[0]:''))+'</div>';
     h+='<label class="x-lab" style="margin-top:10px">'+(isR?'Nombre de portions':'Quantité (g)')+'</label><input id="j-g" type="text" inputmode="decimal" class="x-in" value="'+(isR?1:(u?u[1]:100))+'" oninput="jPrev()">';
     if(!isR){h+='<div class="j-qty">';(u[1]<=20?[['1 '+u[0],u[1]],['1/2 '+u[0],u[1]/2],['2 '+u[0],u[1]*2],['3 '+u[0],u[1]*3],['5 g',5],['10 g',10],['20 g',20]]:[[u[0],u[1]],['1/2 '+u[0],u[1]/2],['2 '+u[0],u[1]*2],['50 g',50],['100 g',100],['150 g',150],['200 g',200]]).forEach(function(q){h+='<button onclick="document.getElementById(\'j-g\').value='+q[1]+';jPrev()">'+q[0]+'</button>';});h+='</div>';}
     h+='<div class="j-prev" id="j-prev"></div><button class="save-session-btn" onclick="confirmAdd()">✓ Ajouter</button> <button class="x-del" style="margin-top:10px" onclick="jSel=null;renderAdd()">‹ Retour</button></div>';
     b.innerHTML=h; jPrev(); return;
   }
   if(jTab==='rech'){
-    b.innerHTML='<input id="j-q" class="x-in" placeholder="Ex : riz, quinoa, pâtes, avocat…" oninput="jSearch()" autocomplete="off"><p class="x-small" style="margin-top:6px">⚖️ Riz, pâtes, quinoa : choisis <b>cuit</b> si tu pèses dans l\'assiette, <b>cru</b> si tu pèses sec (x2,5 à x3 de différence). Valeurs moyennes Ciqual/USDA ; pour un produit emballé, l\'étiquette fait foi.</p><div id="j-res" class="j-res"></div>';
+    b.innerHTML='<input id="j-q" class="x-in" placeholder="Ex : riz, skyr, barre protéinée, ou une marque…" oninput="jSearch()" onkeydown="if(event.key===\'Enter\')jOnline()" autocomplete="off"><button class="x-go" style="margin-top:8px;width:100%" onclick="jOnline()">🌍 Chercher un produit de marque (ou un code-barres)</button><div id="j-on"></div><p class="x-small" style="margin-top:6px">⚖️ Riz, pâtes, quinoa : choisis <b>cuit</b> si tu pèses dans l\'assiette, <b>cru</b> si tu pèses sec (x2,5 à x3 de différence). Valeurs moyennes Ciqual/USDA ; pour un produit emballé, l\'étiquette fait foi.</p><div id="j-res" class="j-res"></div>';
     jSearch(); setTimeout(function(){var q=document.getElementById('j-q');if(q)q.focus();},100);
   } else if(jTab==='plans'){
     var key=(jMeal==='extra')?'collation':jMeal, list=PLANS_REPAS[key]||[];
@@ -1730,29 +1795,61 @@ function renderAdd(){
       return '<div class="j-plan"><div class="j-plan-h"><b>'+p[0]+'</b><span class="x-small" style="white-space:nowrap"><b style="color:var(--rouge-dark)">'+r0(s.k)+' kcal</b> · P '+r0(s.p)+' g</span></div><p>'+p[1].map(function(x){return x[0].indexOf('R:')===0?RECIPES.filter(function(r){return r.n===x[0].slice(2);})[0].d:(x[1]+' g '+x[0].replace(/ \(.*\)/,'').toLowerCase());}).join(' + ')+'</p><p><i>'+p[2]+'</i></p><button class="x-go" onclick="addPlan(\''+key+'\','+i+')">➕ Ajouter ce repas</button></div>';}).join('');
   } else if(jTab==='recent'){
     var rec=ld('jrecent',[]);
+    rec=rec.filter(function(r){return getFood(r.src);}).map(function(r){return {src:r.src,g:r.g||1};}); // g=0 = aliment à la portion → 1 portion
     b.innerHTML=rec.length?'<div class="j-res">'+rec.map(function(r){var it=mkItem(r.src,r.g);return '<button onclick="quickAdd(\''+r.src.replace(/'/g,"\\'")+'\','+r.g+')"><span>'+it.n+'<br><small>'+(it.g?it.g+' g':'1 portion')+'</small></span><small>'+r0(it.k)+' kcal ＋</small></button>';}).join('')+'</div>':'<p class="x-small">Tes aliments ajoutés apparaîtront ici pour les remettre en 1 clic.</p>';
   } else {
-    b.innerHTML='<div class="x-card"><p class="x-small">Pour un plat ou un produit absent de la liste (lis l\'étiquette).</p><label class="x-lab">Nom</label><input id="jm-n" class="x-in" placeholder="Ex : salade César resto"><div class="x-form"><div><label class="x-lab">Calories (kcal)</label><input id="jm-k" type="text" inputmode="decimal" class="x-in"></div><div><label class="x-lab">Protéines (g)</label><input id="jm-p" type="text" inputmode="decimal" class="x-in"></div><div><label class="x-lab">Glucides (g)</label><input id="jm-c" type="text" inputmode="decimal" class="x-in"></div><div><label class="x-lab">Lipides (g)</label><input id="jm-f" type="text" inputmode="decimal" class="x-in"></div></div><button class="save-session-btn" onclick="addManual()">✓ Ajouter</button></div>';
+    var cl=jCustom();
+    b.innerHTML='<div class="x-card"><p class="x-small">Pour un plat ou un produit absent de la liste. Valeurs pour <b>ce que tu as mangé</b> (1 barre, 1 pot…). <b>Emballage jeté ?</b> Cherche la marque avec 🌍 dans « Rechercher », ou prends une moyenne (ex : « Barre protéinée (moyenne) ») : une estimation vaut mieux qu\'un oubli.</p><label class="x-lab">Nom</label><input id="jm-n" class="x-in" placeholder="Ex : salade César resto"><div class="x-form"><div><label class="x-lab">Calories (kcal)</label><input id="jm-k" type="text" inputmode="decimal" class="x-in"></div><div><label class="x-lab">Protéines (g)</label><input id="jm-p" type="text" inputmode="decimal" class="x-in"></div><div><label class="x-lab">Glucides (g)</label><input id="jm-c" type="text" inputmode="decimal" class="x-in"></div><div><label class="x-lab">Lipides (g)</label><input id="jm-f" type="text" inputmode="decimal" class="x-in"></div></div><label class="x-small" style="display:flex;gap:8px;align-items:center;margin:10px 0"><input id="jm-s" type="checkbox" checked> ⭐ Mémoriser dans Mes aliments (retrouvable dans la recherche)</label><button class="save-session-btn" onclick="addManual()">✓ Ajouter</button></div>'
+      +(cl.length?'<h3 class="x-h" style="margin-top:14px">⭐ Mes aliments</h3><div class="j-res">'+cl.map(function(c,i){return '<button onclick="jSel=\'C:'+c.n.replace(/'/g,"\\'")+'\';renderAdd()"><span>'+c.n+'<br><small>'+r0(c.k)+' kcal '+(c.pp?'/ portion':'/ 100 g')+'</small></span><small onclick="event.stopPropagation();delCustom('+i+')" style="padding:4px 8px">✕</small></button>';}).join('')+'</div>':'');
   }
 }
 function norm(x){return x.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
 function jSearch(){
   var q=norm((document.getElementById('j-q')||{value:''}).value.trim()), out='', lastCat='';
   var list=[];
+  jCustom().forEach(function(c){if(!q||norm(c.n).indexOf(q)>=0) list.push(['C:'+c.n,c.n,r0(c.k)+' kcal / '+(c.pp?'portion':'100 g'),'⭐ Mes aliments']);});
   RECIPES.forEach(function(r){if(!q||norm(r.n).indexOf(q)>=0) list.push(['R:'+r.n,r.n,r.k+' kcal / portion','Recettes Ornella']);});
   FOODS.forEach(function(f){if(!q||norm(f[0]+' '+f[5]).indexOf(q)>=0) list.push([f[0],f[0],f[1]+' kcal / 100 g',f[5]]);});
   list.slice(0,q?40:200).forEach(function(x){ if(!q&&x[3]!==lastCat){out+='<div style="padding:8px 12px 4px;font-size:.7rem;font-weight:700;color:var(--gris);text-transform:uppercase;background:var(--beige)">'+x[3]+'</div>';lastCat=x[3];}
     out+='<button onclick="jSel=\''+x[0].replace(/'/g,"\\'")+'\';renderAdd()"><span>'+x[1]+'</span><small>'+x[2]+'</small></button>';});
-  if(!list.length) out='<p class="x-small" style="padding:12px">Pas trouvé : utilise l\'onglet ✏️ Manuel.</p>';
+  if(!list.length) out='<p class="x-small" style="padding:12px">Pas dans la liste : appuie sur 🌍 pour chercher le produit de marque, ou utilise l\'onglet ✏️ Manuel.</p>';
   document.getElementById('j-res').innerHTML=out;
 }
 function jPrev(){var g=pf(document.getElementById('j-g').value)||0, it=mkItem(jSel,g);
   document.getElementById('j-prev').innerHTML='<div><b>'+r0(it.k)+'</b><span>kcal</span></div><div><b>'+r1(it.p)+'</b><span>prot. (g)</span></div><div><b>'+r1(it.c)+'</b><span>gluc. (g)</span></div><div><b>'+r1(it.f)+'</b><span>lip. (g)</span></div>';}
-function confirmAdd(){var g=pf(document.getElementById('j-g').value)||0;if(g<=0){showToast('Quantité ?');return;}addItems(jMeal,[mkItem(jSel,g)]);closeAdd();renderJournal();showToast('Ajouté ✓');}
+function confirmAdd(){var g=pf(document.getElementById('j-g').value)||0;if(g<=0){showToast('Quantité ?');return;}
+  if(jTmp&&jSel==='C:'+jTmp.n){saveCustom(jTmp);}var it=mkItem(jSel,g);jTmp=null;addItems(jMeal,[it]);closeAdd();renderJournal();showToast('Ajouté ✓');}
 function quickAdd(src,g){addItems(jMeal,[mkItem(src,g)]);closeAdd();renderJournal();showToast('Ajouté ✓');}
 function addPlan(key,i){var p=PLANS_REPAS[key][i];addItems(jMeal,p[1].map(function(x){return mkItem(x[0],x[1]);}));closeAdd();renderJournal();showToast('Repas ajouté ✓');}
-function addManual(){var n=document.getElementById('jm-n').value.trim()||'Aliment perso',k=pf(document.getElementById('jm-k').value);if(!k){showToast('Indique les calories');return;}
-  addItems(jMeal,[{n:n,g:0,k:k,p:pf(document.getElementById('jm-p').value)||0,c:pf(document.getElementById('jm-c').value)||0,f:pf(document.getElementById('jm-f').value)||0}]);closeAdd();renderJournal();showToast('Ajouté ✓');}
+function addManual(){var n=cleanName(document.getElementById('jm-n').value)||'Aliment perso',k=pf(document.getElementById('jm-k').value);if(!k){showToast('Indique les calories');return;}
+  var x={n:n,k:k,p:pf(document.getElementById('jm-p').value)||0,c:pf(document.getElementById('jm-c').value)||0,f:pf(document.getElementById('jm-f').value)||0,pp:true};
+  var keep=document.getElementById('jm-s').checked;if(keep) saveCustom(x);
+  addItems(jMeal,[{n:n,g:0,k:x.k,p:x.p,c:x.c,f:x.f,src:keep?'C:'+n:undefined}]);closeAdd();renderJournal();showToast(keep?'Ajouté ✓ et mémorisé ⭐':'Ajouté ✓');}
+// Recherche en ligne (Open Food Facts : base collaborative gratuite des produits du commerce)
+var jOff=[];
+function offFood(pr){var nu=pr.nutriments||{}, k=nu['energy-kcal_100g'];
+  if(k==null&&nu.energy_100g!=null) k=nu.energy_100g/4.184;
+  if(k==null||isNaN(k)) return null;
+  var nm=cleanName(pr.product_name_fr||pr.product_name), br=cleanName((pr.brands||'').split(',')[0]);
+  if(!nm) return null;
+  var sq=pf(pr.serving_quantity);
+  return {n:cleanName(nm+(br&&norm(nm).indexOf(norm(br))<0?' · '+br:'')),k:r1(+k),p:r1(+nu.proteins_100g||0),c:r1(+nu.carbohydrates_100g||0),f:r1(+nu.fat_100g||0),u:[(sq>0&&sq<=500)?'portion':'100 g',(sq>0&&sq<=500)?sq:100],pp:false};}
+function jOnline(){
+  var el=document.getElementById('j-on'), q=((document.getElementById('j-q')||{}).value||'').trim();
+  if(q.length<2){showToast('Tape le nom ou la marque');return;}
+  el.innerHTML='<p class="x-small" style="padding:10px 2px">🔎 Recherche de « '+cleanName(q)+' »…</p>';
+  var F='code,product_name,product_name_fr,brands,nutriments,serving_quantity';
+  var bc=/^\d{8,14}$/.test(q.replace(/\s/g,''));
+  var url=bc?'https://world.openfoodfacts.org/api/v2/product/'+q.replace(/\s/g,'')+'.json?fields='+F
+            :'https://fr.openfoodfacts.org/cgi/search.pl?search_terms='+encodeURIComponent(q)+'&search_simple=1&action=process&json=1&page_size=25&sort_by=unique_scans_n&fields='+F;
+  fetch(url).then(function(r){return r.json();}).then(function(d){
+    var prods=bc?(d&&d.product?[d.product]:[]):((d&&d.products)||[]);
+    jOff=prods.map(offFood).filter(Boolean);
+    if(!jOff.length){el.innerHTML='<p class="x-small" style="padding:10px 2px">Aucun produit trouvé. Essaie avec la marque + le parfum (ex : « barebells caramel »), ou prends une moyenne dans la liste / l\'onglet ✏️ Manuel.</p>';return;}
+    el.innerHTML='<div style="padding:8px 2px 0;font-size:.7rem;font-weight:700;color:var(--gris);text-transform:uppercase">🌍 Produits du commerce</div><div class="j-res">'+jOff.map(function(x,i){return '<button onclick="pickOff('+i+')"><span>'+x.n+'</span><small>'+r0(x.k)+' kcal / 100 g</small></button>';}).join('')+'</div><p class="x-small" style="margin-top:4px">Source : Open Food Facts (base collaborative). Le produit choisi est mémorisé dans ⭐ Mes aliments.</p>';
+  }).catch(function(){el.innerHTML='<p class="x-small" style="padding:10px 2px">Pas de connexion (ou service indisponible). Réessaie plus tard, ou prends une moyenne dans la liste.</p>';});
+}
+function pickOff(i){jTmp=jOff[i];jSel='C:'+jTmp.n;renderAdd();}
 // Plans repas sur la page nutrition
 function renderNutriPlans(){
   var el=document.getElementById('n-plans'); if(!el) return;
