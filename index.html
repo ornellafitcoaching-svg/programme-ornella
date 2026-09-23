@@ -457,6 +457,12 @@
     .x-vals{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
     .x-vals span{background:var(--beige);border-radius:8px;padding:3px 8px;font-size:.78rem}
     .x-note{font-size:.82rem;color:var(--noir-2);background:#FFF7ED;border-radius:8px;padding:7px 9px;white-space:pre-wrap}
+
+    .suivi-row-btn.miss{background:#FFF7ED;color:#9a3412;border:2px solid #fed7aa}
+    .x-pick{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--gris-light);border-radius:14px;padding:12px 14px;margin-bottom:8px;font-size:.92rem;font-weight:600;cursor:pointer;font-family:inherit;color:var(--noir)}
+    .x-pick.on{border-color:var(--rouge);background:#FDF2F0}
+    .x-go{display:inline-block;margin:6px 6px 0 0;padding:9px 12px;border-radius:10px;background:var(--rouge);color:#fff;border:none;font-weight:700;font-size:.85rem;cursor:pointer;font-family:inherit}
+    .x-done{display:inline-block;margin-left:6px;background:#dcfce7;color:#15803d;border-radius:20px;padding:2px 8px;font-size:.7rem;font-weight:700}
 </style>
 </head>
 <body>
@@ -486,6 +492,7 @@
     <div class="days-list" id="days-list"></div>
     <div class="suivi-row">
       <button class="suivi-row-btn" onclick="goSuivi()">📊 Mon suivi — voir mes charges</button>
+      <button class="suivi-row-btn miss" onclick="goMiss()">😣 J'ai raté une séance · que faire ?</button>
       <button class="suivi-row-btn alt" onclick="goNutri()">🍽️ Mon plan alimentaire</button>
       <button class="suivi-row-btn alt" onclick="goMens()">📏 Mes mensurations &amp; notes</button>
     </div>
@@ -576,6 +583,24 @@
       </div>
       <h3 class="x-h">Historique</h3>
       <div id="mens-hist"></div>
+    </div>
+  </div>
+
+  <!-- SEANCE RATEE -->
+  <div class="page" id="p-miss">
+    <div class="sess-header"><div class="sess-header-top"><button class="back-btn" onclick="goHome()">‹</button>
+      <div><div class="sess-header-title">J'ai raté une séance</div><div class="sess-header-sub">Ton plan de rattrapage</div></div></div></div>
+    <div class="x-body">
+      <div class="x-card x-hl x-small" style="color:var(--noir)">
+        <b>Règles d'or</b><br>
+        • Jamais 2 séances le même jour.<br>
+        • Le dimanche reste ton repos (sauf les 10 min de posture).<br>
+        • Priorité : fessiers lourd &gt; dos &gt; fessiers volume &gt; le reste.<br>
+        • 2 séances ratées dans la semaine → tu passes en <b>Plan C</b> pour la fin de semaine.
+      </div>
+      <h3 class="x-h">Quelle séance as-tu ratée ?</h3>
+      <div id="miss-list"></div>
+      <div id="miss-res"></div>
     </div>
   </div>
   <!-- SESSION -->
@@ -749,7 +774,7 @@ function renderHome(){
     var s=P[d[0]];
     return '<div class="day-card" onclick="openDay(\''+d[0]+'\')"><div class="day-card-emoji">'+s.emoji+'</div><div class="day-card-body">'
       +'<div class="day-card-name">'+d[1]+(/^(Lundi|Mardi|Mercredi|Jeudi|Vendredi|Samedi|Dimanche)$/.test(s.label)?'':' · '+s.label)+'</div>'
-      +'<div class="day-card-desc">'+s.sub+'</div><div class="day-card-pill">'+s.ex.length+' exercices · '+d[2]+'</div></div><div class="day-card-arrow">›</div></div>';
+      +(doneThisWeek(d[0])?'<span class="x-done">✅ faite cette semaine</span>':'')+'<div class="day-card-desc">'+s.sub+'</div><div class="day-card-pill">'+s.ex.length+' exercices · '+d[2]+'</div></div><div class="day-card-arrow">›</div></div>';
   }).join('');
 }
 
@@ -778,7 +803,7 @@ if(sessionStorage.getItem('pa')==='1'){
 // ─────────────────────────────
 renderHome();
 function show(id){ document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');}); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
-function goHome(){ show('p-home'); }
+function goHome(){ renderHome(); show('p-home'); }
 function goSuivi(){ buildSuivi(); show('p-suivi'); }
 
 // ─────────────────────────────
@@ -1228,6 +1253,55 @@ function delMens(date){
   _delArm=null;
   var d=loadMens().filter(function(x){return x.date!==date;}); if(!d.length){ showToast('Garde au moins une mesure'); return; }
   storeMens(d); buildMens(); showToast('Mesure supprimée');
+}
+
+// ─────────────────────────────
+// SEANCE RATEE
+// ─────────────────────────────
+var MISS = {
+  lundi:{t:'Lundi · Fessiers LOURD', r:'C\'est ta séance la plus importante : on la sauve.', steps:[
+    'Tu peux mardi → fais <b>Fessiers LOURD mardi</b>, et décale : Dos largeur mercredi (RPM supprimé cette semaine ou gardé en fin de séance 20 min).',
+    'Tu ne peux pas décaler → <b>samedi, remplace « Fessiers pump » par « Fessiers LOURD »</b>.'], go:['lundi']},
+  mardi:{t:'Mardi · Dos LARGEUR', r:'On regroupe tout le dos sur une seule séance.', steps:[
+    '<b>Vendredi, fais « Dos complet »</b> à la place de « Dos épaisseur » (largeur + épaisseur + épaules en 50 min).'], go:['dosComplet']},
+  mercredi:{t:'Mercredi · RPM', r:'Le cardio est le moins prioritaire : on ne décale rien.', steps:[
+    'Ajoute <b>20 min de rameur ou vélo</b> à la fin de ta séance de samedi.',
+    'Fais le <b>gainage (vacuum, dead bug, Pallof) 10 min à la maison</b> quand tu peux.',
+    'Et vise tes 8 000-10 000 pas ce jour-là.'], go:['mercredi']},
+  jeudi:{t:'Jeudi · Ischios + fessiers volume', r:'Deuxième séance fessiers : on la garde, samedi saute.', steps:[
+    'Tu peux vendredi → <b>Ischios + fessiers volume vendredi</b>, et <b>Dos épaisseur samedi</b> (la séance pump saute cette semaine).',
+    'Tu ne peux pas → <b>samedi, remplace « Fessiers pump » par « Ischios + fessiers volume »</b>.'], go:['jeudi']},
+  vendredi:{t:'Vendredi · Dos ÉPAISSEUR', r:'On combine fessiers et dos samedi.', steps:[
+    '<b>Samedi, fais « Fessiers + Dos B »</b> à la place de « Fessiers pump » : tu gardes 3 stimuli fessiers et 2 dos dans la semaine.'], go:['c2']},
+  samedi:{t:'Samedi · Fessiers pump', r:'Aucun rattrapage nécessaire.', steps:[
+    'C\'est la séance la moins prioritaire : tu as déjà eu 2 séances fessiers et 2 dos. On passe.',
+    'Bonus si tu as 15 min dimanche : 3 × 20 pont fessier + 3 × 20 abduction élastique à la maison.'], go:[]},
+  deux:{t:'J\'en ai raté 2 (ou plus) cette semaine', r:'On ne court pas après : on sécurise l\'essentiel.', steps:[
+    'Passe en <b>Plan C</b> pour le reste de la semaine : <b>Fessiers + Dos A</b>, puis <b>Fessiers + Dos B</b> au moins 48 h après.',
+    'Si tu as déjà fait Fessiers LOURD cette semaine, commence directement par Fessiers + Dos B.',
+    'Lundi prochain, on repart en Plan A normalement, sans culpabilité.'], go:['c1','c2']}
+};
+function goMiss(){ buildMiss(null); show('p-miss'); }
+function buildMiss(sel){
+  var h='';
+  Object.keys(MISS).forEach(function(k){ h+='<button class="x-pick'+(k===sel?' on':'')+'" onclick="buildMiss(\''+k+'\')">'+MISS[k].t+'</button>'; });
+  document.getElementById('miss-list').innerHTML=h;
+  var r=document.getElementById('miss-res');
+  if(!sel){ r.innerHTML=''; return; }
+  var m=MISS[sel];
+  var o='<div class="x-card x-hl"><b>'+m.r+'</b><ul class="x-ol" style="margin-top:8px">'+m.steps.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul>';
+  if(m.go.length) o+='<div>'+m.go.map(function(g){return '<button class="x-go" onclick="openDay(\''+g+'\')">▶ Ouvrir : '+P[g].label+'</button>';}).join('')+'</div>';
+  o+='</div>';
+  r.innerHTML=o;
+  r.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function doneThisWeek(day){
+  var v=null; try{ v=localStorage.getItem('ls_'+day); }catch(e){}
+  if(!v) return false;
+  var p=v.split('/'); if(p.length<3) return false;
+  var d=new Date(+p[2],+p[1]-1,+p[0]); var now=new Date();
+  var mon=new Date(now.getFullYear(),now.getMonth(),now.getDate()-((now.getDay()+6)%7));
+  return d>=mon;
 }
 // ─────────────────────────────
 // TOAST
