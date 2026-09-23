@@ -519,6 +519,10 @@
     .j-res{background:#fff;border-radius:12px;overflow:hidden;margin-top:8px}
     .j-res button{display:flex;justify-content:space-between;width:100%;text-align:left;padding:11px 12px;border:none;border-bottom:1px solid var(--gris-light);background:#fff;font-size:.88rem;cursor:pointer;font-family:inherit;color:var(--noir);gap:8px}
     .j-res button small{color:var(--gris);font-size:.72rem;white-space:nowrap}
+    .j-scan{position:fixed;inset:0;background:#000;z-index:300;display:none;flex-direction:column;align-items:center;justify-content:center;padding:16px}
+    .j-scan.on{display:flex}
+    .j-scan #j-scan-v{width:100%;max-width:420px;border-radius:14px;overflow:hidden;background:#111}
+    .j-scan p{color:#fff;text-align:center;margin:14px 0;font-size:.9rem}
     .j-qty{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
     .j-qty button{padding:7px 10px;border-radius:10px;border:1.5px solid var(--gris-light);background:#fff;font-size:.8rem;cursor:pointer;font-family:inherit}
     .j-prev{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center;margin:10px 0}
@@ -722,6 +726,7 @@
   </div>
 
   <!-- AJOUT ALIMENT (sheet) -->
+  <div class="j-scan" id="j-scan"><p>📷 Vise le code-barres du produit</p><div id="j-scan-v"></div><p id="j-scan-m" class="x-small" style="color:rgba(255,255,255,.6)">Tiens le téléphone à 15-20 cm, bien à plat.</p><button class="x-del" style="color:#fff;border-color:#fff" onclick="stopScan()">Annuler</button></div>
   <div class="j-sheet" id="j-sheet" onclick="if(event.target===this)closeAdd()">
     <div class="j-sheet-in">
       <div class="j-sheet-h"><b id="j-add-t">Ajouter</b><button class="x-del" onclick="closeAdd()">Fermer</button></div>
@@ -1787,7 +1792,7 @@ function renderAdd(){
     b.innerHTML=h; jPrev(); return;
   }
   if(jTab==='rech'){
-    b.innerHTML='<input id="j-q" class="x-in" placeholder="Ex : riz, skyr, barre protéinée, ou une marque…" oninput="jSearch()" onkeydown="if(event.key===\'Enter\')jOnline()" autocomplete="off"><button class="x-go" style="margin-top:8px;width:100%" onclick="jOnline()">🌍 Chercher un produit de marque (ou un code-barres)</button><div id="j-on"></div><p class="x-small" style="margin-top:6px">⚖️ Riz, pâtes, quinoa : choisis <b>cuit</b> si tu pèses dans l\'assiette, <b>cru</b> si tu pèses sec (x2,5 à x3 de différence). Valeurs moyennes Ciqual/USDA ; pour un produit emballé, l\'étiquette fait foi.</p><div id="j-res" class="j-res"></div>';
+    b.innerHTML='<input id="j-q" class="x-in" placeholder="Ex : riz, skyr, barre protéinée, ou une marque…" oninput="jSearch()" onkeydown="if(event.key===\'Enter\')jOnline()" autocomplete="off"><div style="display:flex;gap:8px;margin-top:8px"><button class="x-go" style="flex:1" onclick="startScan()">📷 Scanner</button><button class="x-go" style="flex:1.4" onclick="jOnline()">🌍 Chercher la marque</button></div><div id="j-on"></div><p class="x-small" style="margin-top:6px">⚖️ Riz, pâtes, quinoa : choisis <b>cuit</b> si tu pèses dans l\'assiette, <b>cru</b> si tu pèses sec (x2,5 à x3 de différence). Valeurs moyennes Ciqual/USDA ; pour un produit emballé, l\'étiquette fait foi.</p><div id="j-res" class="j-res"></div>';
     jSearch(); setTimeout(function(){var q=document.getElementById('j-q');if(q)q.focus();},100);
   } else if(jTab==='plans'){
     var key=(jMeal==='extra')?'collation':jMeal, list=PLANS_REPAS[key]||[];
@@ -1845,11 +1850,32 @@ function jOnline(){
   fetch(url).then(function(r){return r.json();}).then(function(d){
     var prods=bc?(d&&d.product?[d.product]:[]):((d&&d.products)||[]);
     jOff=prods.map(offFood).filter(Boolean);
+    if(bc&&!jOff.length){el.innerHTML='<p class="x-small" style="padding:10px 2px">Code '+cleanName(q)+' : produit pas (encore) dans la base. Ajoute-le une fois dans ✏️ Manuel avec l\'étiquette : il sera mémorisé ⭐ pour la prochaine fois.</p>';return;}
+    if(bc&&jOff.length===1){pickOff(0);return;}
     if(!jOff.length){el.innerHTML='<p class="x-small" style="padding:10px 2px">Aucun produit trouvé. Essaie avec la marque + le parfum (ex : « barebells caramel »), ou prends une moyenne dans la liste / l\'onglet ✏️ Manuel.</p>';return;}
     el.innerHTML='<div style="padding:8px 2px 0;font-size:.7rem;font-weight:700;color:var(--gris);text-transform:uppercase">🌍 Produits du commerce</div><div class="j-res">'+jOff.map(function(x,i){return '<button onclick="pickOff('+i+')"><span>'+x.n+'</span><small>'+r0(x.k)+' kcal / 100 g</small></button>';}).join('')+'</div><p class="x-small" style="margin-top:4px">Source : Open Food Facts (base collaborative). Le produit choisi est mémorisé dans ⭐ Mes aliments.</p>';
   }).catch(function(){el.innerHTML='<p class="x-small" style="padding:10px 2px">Pas de connexion (ou service indisponible). Réessaie plus tard, ou prends une moyenne dans la liste.</p>';});
 }
 function pickOff(i){jTmp=jOff[i];jSel='C:'+jTmp.n;renderAdd();}
+// Scan code-barres (caméra) : bibliothèque html5-qrcode chargée seulement au 1er scan
+var jScanner=null;
+function loadScanLib(cb){if(window.Html5Qrcode) return cb();var sc=document.createElement('script');
+  sc.src='https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js';sc.onload=function(){cb();};
+  sc.onerror=function(){stopScan();showToast('Scanner indisponible : tape le code-barres dans la recherche');};document.head.appendChild(sc);}
+function startScan(){
+  document.getElementById('j-scan').classList.add('on');
+  document.getElementById('j-scan-m').textContent='Tiens le téléphone à 15-20 cm, bien à plat.';
+  loadScanLib(function(){
+    var F=Html5QrcodeSupportedFormats;
+    jScanner=new Html5Qrcode('j-scan-v',{formatsToSupport:[F.EAN_13,F.EAN_8,F.UPC_A,F.UPC_E],experimentalFeatures:{useBarCodeDetectorIfSupported:true},verbose:false});
+    jScanner.start({facingMode:'environment'},{fps:10,qrbox:function(w,h){return {width:Math.round(w*0.8),height:Math.round(Math.min(h,w)*0.35)};}},
+      function(code){if(navigator.vibrate) navigator.vibrate(80);stopScan();jScanned(code);},function(){})
+    .catch(function(){document.getElementById('j-scan-m').textContent='Caméra refusée ou indisponible. Autorise la caméra (Réglages › Safari › Caméra) ou tape les chiffres du code-barres dans la recherche.';});
+  });
+}
+function stopScan(){var s=jScanner;jScanner=null;if(s){try{s.stop().then(function(){s.clear();}).catch(function(){});}catch(e){}}
+  document.getElementById('j-scan').classList.remove('on');}
+function jScanned(code){jTab='rech';jSel=null;renderAdd();var q=document.getElementById('j-q');q.value=code;jSearch();jOnline();}
 // Plans repas sur la page nutrition
 function renderNutriPlans(){
   var el=document.getElementById('n-plans'); if(!el) return;
