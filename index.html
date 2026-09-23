@@ -577,6 +577,7 @@
       <div class="home-hero-title">Programme Salle</div>
       <div class="home-hero-sub">Phase sèche · Fessiers &amp; dos · 8 semaines</div>
     </div>
+    <div class="x-card" id="home-today" style="margin:14px 16px 0"></div>
     <div class="plan-sel" id="plan-sel"></div>
     <div class="plan-desc" id="plan-desc"></div>
     <div class="days-list" id="days-list"></div>
@@ -695,6 +696,7 @@
         • Priorité : fessiers lourd &gt; dos &gt; fessiers volume &gt; le reste.<br>
         • 2 séances ratées dans la semaine → tu passes en <b>Plan C</b> pour la fin de semaine.
       </div>
+      <button class="save-session-btn" style="margin-bottom:14px" onclick="setTrainDay(iso(new Date()),false);goHome()">🌿 Pas de séance aujourd'hui → objectif 1 600 kcal</button>
       <h3 class="x-h">Quelle séance as-tu ratée ?</h3>
       <div id="miss-list"></div>
       <div id="miss-res"></div>
@@ -952,7 +954,16 @@ var curPlan='A';
 try{ curPlan=LS.getItem('plan')||'A'; }catch(e){}
 if(!PLANS[curPlan]) curPlan='A';
 function setPlan(k){ curPlan=k; try{LS.setItem('plan',k);}catch(e){} renderHome(); }
+function renderToday(){
+  var el=document.getElementById('home-today'); if(!el) return;
+  var td=iso(new Date()), tr=isTrain(td), g=goalFor(td), auto=jDay(td).train==null;
+  el.innerHTML='<div style="font-weight:800">📅 Aujourd\'hui, je me suis entraînée ?</div>'
+    +'<div class="x-small" style="margin-top:2px">Objectif du jour : <b style="color:var(--rouge-dark)">'+g.k+' kcal</b> · P '+g.p+' · G '+g.c+' · L '+g.f+(auto?' (par défaut)':'')+'<br>Séance = 1 850 · repos = 1 600'+(isCheat(td)?' · <b>+600 cheat meal aujourd\'hui</b>':'')+'</div>'
+    +'<div style="display:flex;gap:8px;margin-top:10px"><button class="j-tab'+(tr?' on':'')+'" style="flex:1;padding:11px" onclick="setTrainDay(\''+td+'\',true)">💪 Oui</button>'
+    +'<button class="j-tab'+(!tr?' on':'')+'" style="flex:1;padding:11px" onclick="setTrainDay(\''+td+'\',false)">🌿 Non, repos</button></div>';
+}
 function renderHome(){
+  renderToday();
   var pl=PLANS[curPlan];
   var sel=document.getElementById('plan-sel');
   sel.innerHTML=['A','B','C'].map(function(k){return '<button class="plan-btn'+(k===curPlan?' on':'')+'" onclick="setPlan(\''+k+'\')">Plan '+k+'</button>';}).join('');
@@ -1868,17 +1879,18 @@ function jSave(d,day){var a=jAll();a[d]=day;sd('journal',a);}
 // Jour d'entraînement : choisi avec le bouton Oui / Non ; sinon par défaut lun→sam = séance, dimanche = repos.
 function isTrain(d){var t=(jAll()[d]||{}).train;return t==null?new Date(d+'T12:00:00').getDay()!==0:!!t;}
 // Cheat meal : 1 par semaine, +600 kcal (≈ +90 g glucides, +27 g lipides). Samedi par défaut, déplaçable.
-var CHEAT={k:600,c:90,f:27};
+function cheatAdd(){return {k:600,c:90,f:27};} // fonction (et non var) : utilisable dès l'affichage de l'accueil
 function cheatKey(d){return 'cheat_'+iso(mondayOf(new Date(d+'T12:00:00')));}
 function cheatDay(d){var v=ld(cheatKey(d),null);if(v!=null) return v;var m=mondayOf(new Date(d+'T12:00:00'));m.setDate(m.getDate()+5);return iso(m);} // '' = pas de cheat meal cette semaine
 function isCheat(d){return cheatDay(d)===d;}
 function goalFor(d){var w=new Date(d+'T12:00:00').getDay();
   // Séance : 135×4 + 210×4 + 52×9 = 1 848 kcal · Repos : 135×4 + 140×4 + 55×9 = 1 595 kcal (−70 g glucides, +3 g lipides)
   var g=isTrain(d)?{k:1850,p:135,c:210,f:52,lab:'Jour d\'entraînement'}:{k:1600,p:135,c:140,f:55,lab:(w===0?'Dimanche · ':'')+'Repos · glucides réduits'};
-  if(isCheat(d)){g.k+=CHEAT.k;g.c+=CHEAT.c;g.f+=CHEAT.f;g.lab+=' · 🍔 cheat meal inclus (+600 kcal)';}
+  if(isCheat(d)){g.k+=cheatAdd().k;g.c+=cheatAdd().c;g.f+=cheatAdd().f;g.lab+=' · 🍔 cheat meal inclus (+600 kcal)';}
   return g;}
 function setCheat(on){var k=cheatKey(jDate),was=cheatDay(jDate);sd(k,on?jDate:'');renderJournal();
   showToast(on?(was&&was!==jDate?'🍔 Cheat meal déplacé ici : +600 kcal':'🍔 Cheat meal : +600 kcal ce jour'):'Pas de cheat meal ce jour');}
+function setTrainDay(dt,v){var d=jDay(dt);d.train=v;jSave(dt,d);renderToday();showToast(v?'Jour d\'entraînement : objectif 1 850 kcal 💪':'Jour de repos : objectif 1 600 kcal 🌿');}
 function setTrain(v){var d=jDay(jDate);d.train=v;jSave(jDate,d);renderJournal();showToast(v?'Jour d\'entraînement : 1 850 kcal 💪':'Jour de repos : 1 600 kcal 🌿');}
 // Séance faite (exercice bouclé ou charges enregistrées) → aujourd'hui = jour d'entraînement, sauf choix manuel
 function markTrainedToday(){var td=iso(new Date()), d=jDay(td); if(d.train==null){ d.train=true; jSave(td,d); }}
@@ -1924,7 +1936,7 @@ function renderJournal(){
   var mh='';
   MEALS.forEach(function(m){
     var its=day.items.map(function(x,i){x._i=i;return x;}).filter(function(x){return x.m===m[0];}), st=sumItems(its);
-    var ch=isCheat(jDate), target=r0((g.k-(ch?CHEAT.k:0))*m[2]+(ch&&m[0]==='soir'?CHEAT.k:0)); // cheat meal = +600 sur le dîner
+    var ch=isCheat(jDate), target=r0((g.k-(ch?cheatAdd().k:0))*m[2]+(ch&&m[0]==='soir'?cheatAdd().k:0)); // cheat meal = +600 sur le dîner
     mh+='<div class="x-card"><div class="j-meal-h"><div><b>'+m[1]+'</b><div class="j-meal-k">'+r0(st.k)+(m[0]!=='extra'?' / ~'+target:'')+' kcal · P '+r0(st.p)+' g</div></div><button class="j-add" onclick="openAdd(\''+m[0]+'\')">+</button></div>';
     if(its.length) its.forEach(function(x){mh+='<div class="j-item"><div>'+x.n+'<small>'+(x.g?x.g+' g · ':'')+'P '+r1(x.p)+' · G '+r1(x.c)+' · L '+r1(x.f)+'</small></div><div style="display:flex;align-items:center;gap:6px"><span class="k">'+r0(x.k)+' kcal</span><button class="j-x" onclick="delItem('+x._i+')">✕</button></div></div>';});
     else mh+='<div class="j-empty">Rien pour l\'instant</div>';
