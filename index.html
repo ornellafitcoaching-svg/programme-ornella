@@ -531,12 +531,18 @@
     .j-plan p{font-size:.78rem;color:var(--gris);margin:4px 0 0}
     .j-plan .x-go{margin-top:8px;padding:7px 11px;font-size:.78rem}
 
-    .ag-row{display:grid;grid-template-columns:auto 1fr 104px 74px;gap:6px;align-items:center;padding:9px 0;border-bottom:1px solid var(--gris-light)}
+    .ag-weeks{display:flex;gap:6px;flex-wrap:wrap}
+    .ag-wk{padding:8px 11px;border-radius:10px;border:1.5px solid var(--gris-light);background:#fff;font-size:.8rem;font-weight:600;cursor:pointer;font-family:inherit;color:var(--noir)}
+    .ag-wk.on{background:var(--noir);color:#fff;border-color:var(--noir)}
+    .ag-row{padding:10px 0;border-bottom:1px solid var(--gris-light)}
     .ag-row:last-child{border:none}
-    .ag-row input[type=checkbox]{width:22px;height:22px;accent-color:var(--rouge)}
-    .ag-row b{font-size:.88rem;display:block}
-    .ag-row small{font-size:.72rem;color:var(--gris)}
-    .ag-row input[type=time],.ag-row select{padding:8px 6px;font-size:.9rem}
+    .ag-row-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+    .ag-row-h b{font-size:.9rem}
+    .ag-row-h span{font-size:.72rem;color:var(--gris)}
+    .ag-row-f{display:grid;grid-template-columns:1fr 92px 74px;gap:6px}
+    .ag-row-f select,.ag-row-f input{padding:9px 6px;font-size:.85rem}
+    .ag-row.off .ag-row-f input,.ag-row.off .ag-row-f select.ag-dur{opacity:.35}
+    .ag-past{opacity:.45}
 
     .ds-calc{background:#FFF7ED;border:1.5px solid #fed7aa;border-radius:12px;padding:8px 10px;font-size:.78rem;color:#7c2d12;align-self:stretch}
     .ds-empty{font-size:.72rem;line-height:1.35}
@@ -573,7 +579,7 @@
     <div class="suivi-row">
       <button class="suivi-row-btn" onclick="goSuivi()">📊 Mon suivi — voir mes charges</button>
       <button class="suivi-row-btn food" onclick="goJournal()">📒 Mon journal alimentaire · compteur calories</button>
-      <button class="suivi-row-btn alt" onclick="goAgenda()">📅 Mettre mes séances dans mon agenda</button>
+      <button class="suivi-row-btn alt" onclick="goAgenda()">📅 Planifier ma semaine dans l'agenda</button>
       <button class="suivi-row-btn miss" onclick="goMiss()">😣 J'ai raté une séance · que faire ?</button>
       <button class="suivi-row-btn alt" onclick="goNutri()">🍽️ Mon plan alimentaire</button>
       <button class="suivi-row-btn alt" onclick="goMens()">📏 Mes mensurations &amp; notes</button>
@@ -727,21 +733,25 @@
   <!-- AGENDA -->
   <div class="page" id="p-agenda">
     <div class="sess-header"><div class="sess-header-top"><button class="back-btn" onclick="goHome()">‹</button>
-      <div><div class="sess-header-title">Mes séances dans l'agenda</div><div class="sess-header-sub">Calendrier iPhone · rappel 30 min avant</div></div></div></div>
+      <div><div class="sess-header-title">Planifier ma semaine</div><div class="sess-header-sub">Calendrier iPhone · semaine par semaine</div></div></div></div>
     <div class="x-body">
-      <div class="x-card x-small" style="color:var(--noir)">Choisis tes jours et tes heures, puis touche le bouton : ton iPhone propose <b>« Ajouter tout »</b> au Calendrier. Les séances se répètent chaque semaine pendant la durée choisie. Traite-les comme des rendez-vous clients 💪</div>
+      <div class="x-card x-small" style="color:var(--noir)">Chaque dimanche soir (ou quand tu veux), regarde ta semaine : place chaque séance <b>le jour et à l'heure où tu es dispo</b>, puis ajoute-les à ton Calendrier. Rien ne se répète : la semaine suivante, tu recommences selon ton planning.</div>
+      <div class="x-card">
+        <label class="x-lab">Semaine</label>
+        <div class="ag-weeks" id="ag-weeks"></div>
+        <label class="x-lab" style="margin-top:12px">Pré-remplir avec</label>
+        <div class="ag-weeks" id="ag-presets"></div>
+      </div>
       <div class="x-card"><div id="ag-list"></div></div>
       <div class="x-card">
-        <div class="x-form">
-          <div><label class="x-lab">À partir du</label><input type="date" id="ag-start" class="x-in"></div>
-          <div><label class="x-lab">Pendant</label><select id="ag-weeks" class="x-in"><option value="4">4 semaines</option><option value="8" selected>8 semaines</option><option value="12">12 semaines</option></select></div>
-          <div style="grid-column:1/-1"><label class="x-lab">Rappel</label><select id="ag-alarm" class="x-in"><option value="0">Aucun</option><option value="15">15 min avant</option><option value="30" selected>30 min avant</option><option value="60">1 h avant</option><option value="120">2 h avant</option></select></div>
-        </div>
-        <button class="save-session-btn" onclick="exportAgenda(false)">📅 Ajouter à mon calendrier</button>
+        <label class="x-lab">Rappel</label><select id="ag-alarm" class="x-in" style="margin-bottom:12px"><option value="0">Aucun</option><option value="15">15 min avant</option><option value="30" selected>30 min avant</option><option value="60">1 h avant</option><option value="120">2 h avant</option></select>
+        <div id="ag-sum" class="x-small" style="margin-bottom:10px"></div>
+        <button class="save-session-btn" onclick="exportAgenda(false)">📅 Ajouter cette semaine à mon calendrier</button>
         <p class="x-small" style="margin-top:10px;text-align:center">Rien ne s'ouvre ? <a href="#" onclick="exportAgenda(true);return false" style="color:var(--rouge-dark);font-weight:700">Essaie ce lien</a> (ou ouvre l'appli dans Safari plutôt que depuis l'écran d'accueil).</p>
       </div>
     </div>
   </div>
+
   <!-- SESSION -->
   <div class="page" id="p-session">
     <div class="sess-header">
@@ -1757,47 +1767,56 @@ function renderNutriPlans(){
 }
 
 // ─────────────────────────────
-// AGENDA (.ics pour Calendrier iPhone)
+// AGENDA — planification semaine par semaine (.ics sans répétition)
 // ─────────────────────────────
-var AG_DAYS=[['lundi',1,'09:00',60],['mardi',2,'09:00',60],['mercredi',3,'19:00',60],['jeudi',4,'09:00',60],['vendredi',5,'09:00',60],['samedi',6,'10:00',60],['dimanche',0,'20:30',10]];
 var JN=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
-function agCfg(){ return ld('agenda',null) || AG_DAYS.map(function(d){return {k:d[0],on:d[0]!=='dimanche',t:d[2],dur:d[3]};}); }
-function goAgenda(){
-  var c=agCfg(), h='';
-  c.forEach(function(x,i){ var d=AG_DAYS[i], se=P[x.k];
-    h+='<div class="ag-row"><input type="checkbox" id="ag-on-'+i+'" '+(x.on?'checked':'')+' onchange="agSave()"><div><b>'+JN[d[1]]+'</b><small>'+se.sub+'</small></div>'
-     +'<input type="time" id="ag-t-'+i+'" class="x-in" value="'+x.t+'" onchange="agSave()">'
-     +'<select id="ag-d-'+i+'" class="x-in" onchange="agSave()">'+[10,30,45,60,75,90].map(function(m){return '<option value="'+m+'"'+(m==x.dur?' selected':'')+'>'+(m<60?m+' min':(m===60?'1 h':(Math.floor(m/60)+' h '+(m%60||''))))+'</option>';}).join('')+'</select></div>'; });
-  document.getElementById('ag-list').innerHTML=h;
-  var n=new Date(); var add=(8-n.getDay())%7; if(add===0) add=7; // lundi prochain
-  var st=document.getElementById('ag-start'); if(!st.value){ var m=new Date(n); m.setDate(n.getDate()+add); st.value=iso(m); }
-  show('p-agenda');
+var AG_SESS=[['','— Repos / rien —'],['lundi','💪 Fessiers LOURD'],['mardi','🏋️ Dos LARGEUR + épaules'],['mercredi','🚴‍♀️ RPM + gainage'],['jeudi','🍑 Ischios + fessiers volume'],['vendredi','✨ Dos ÉPAISSEUR + posture'],['samedi','🔥 Fessiers pump + métabolique'],['dosComplet','🏋️ Dos complet (plan B)'],['c1','⚡ Fessiers + Dos A (plan C)'],['c2','🔥 Fessiers + Dos B (plan C)'],['dimanche','🌿 Posture 10 min']];
+var AG_PRE={A:['','lundi','mardi','mercredi','jeudi','vendredi','samedi'],B:['','lundi','dosComplet','mercredi','jeudi','',''],C:['','c1','','mercredi','c2','','']};
+var AG_DUR={'':60,dimanche:10};
+var agMon=null, agRows=null;
+function mondayOf(d){var m=new Date(d);m.setHours(0,0,0,0);m.setDate(m.getDate()-((m.getDay()+6)%7));return m;}
+function agKey(){return 'ag_'+iso(agMon);}
+function agDefaultRows(pre){var last=ld('ag_last',{});return [1,2,3,4,5,6,0].map(function(dow){var k=AG_PRE[pre||'A'][dow]||'';var lt=last[k]||{};return {dow:dow,k:k,t:lt.t||(dow===3?'19:00':(dow===6?'10:00':'09:00')),dur:lt.dur||(AG_DUR[k]||60)};});}
+function goAgenda(){ if(!agMon){ var n=new Date(); agMon=mondayOf(n); if(n.getDay()===0||n.getDay()===6){agMon.setDate(agMon.getDate()+7);} } agLoad(); renderAgenda(); show('p-agenda'); }
+function agLoad(){ agRows=ld(agKey(),null)||agDefaultRows(curPlan||'A'); }
+function agStore(){ sd(agKey(),agRows); var last=ld('ag_last',{}); agRows.forEach(function(r){ if(r.k) last[r.k]={t:r.t,dur:r.dur}; }); sd('ag_last',last); }
+function renderAgenda(){
+  var thisMon=mondayOf(new Date()), h='';
+  [0,1,2].forEach(function(off){var m=new Date(thisMon);m.setDate(m.getDate()+7*off);var e=new Date(m);e.setDate(m.getDate()+6);
+    h+='<button class="ag-wk'+(iso(m)===iso(agMon)?' on':'')+'" onclick="agMon=new Date(\''+iso(m)+'T00:00:00\');agLoad();renderAgenda()">'+(off===0?'Cette semaine':(off===1?'Semaine pro':'Dans 2 sem.'))+'<br><small>'+m.getDate()+'/'+(m.getMonth()+1)+' → '+e.getDate()+'/'+(e.getMonth()+1)+'</small></button>';});
+  document.getElementById('ag-weeks').innerHTML=h;
+  document.getElementById('ag-presets').innerHTML=['A','B','C'].map(function(p){return '<button class="ag-wk" onclick="agRows=agDefaultRows(\''+p+'\');agStore();renderAgenda()">Plan '+p+'</button>';}).join('')+'<button class="ag-wk" onclick="agRows=agRows.map(function(r){r.k=\'\';return r;});agStore();renderAgenda()">Tout vider</button>';
+  var today=new Date(); today.setHours(0,0,0,0), L='';
+  agRows.forEach(function(r,i){ var d=new Date(agMon); d.setDate(agMon.getDate()+((r.dow+6)%7)); var past=d<today;
+    L+='<div class="ag-row'+(r.k?'':' off')+(past?' ag-past':'')+'"><div class="ag-row-h"><b>'+JN[r.dow]+' '+d.getDate()+'/'+(d.getMonth()+1)+'</b>'+(past?'<span>passé</span>':'')+'</div><div class="ag-row-f">'
+      +'<select class="x-in" onchange="agRows['+i+'].k=this.value;if(this.value===\'dimanche\')agRows['+i+'].dur=10;agStore();renderAgenda()">'+AG_SESS.map(function(o){return '<option value="'+o[0]+'"'+(o[0]===r.k?' selected':'')+'>'+o[1]+'</option>';}).join('')+'</select>'
+      +'<input type="time" class="x-in" value="'+r.t+'" onchange="agRows['+i+'].t=this.value;agStore();agSum()">'
+      +'<select class="x-in ag-dur" onchange="agRows['+i+'].dur=+this.value;agStore();agSum()">'+[10,30,45,60,75,90].map(function(m){return '<option value="'+m+'"'+(m==r.dur?' selected':'')+'>'+(m<60?m+' min':(m===60?'1 h':('1 h '+(m-60))))+'</option>';}).join('')+'</select></div></div>'; });
+  document.getElementById('ag-list').innerHTML=L; agSum();
 }
-function agSave(){ var c=AG_DAYS.map(function(d,i){return {k:d[0],on:document.getElementById('ag-on-'+i).checked,t:document.getElementById('ag-t-'+i).value||d[2],dur:+document.getElementById('ag-d-'+i).value};}); sd('agenda',c); return c; }
+function agSum(){ var n=agRows.filter(function(r){return r.k&&r.k!=='dimanche'&&r.k!=='mercredi';}).length, rpm=agRows.some(function(r){return r.k==='mercredi';});
+  var fes=agRows.filter(function(r){return ['lundi','jeudi','samedi','c1','c2'].indexOf(r.k)>=0;}).length, dos=agRows.filter(function(r){return ['mardi','vendredi','dosComplet','c1','c2'].indexOf(r.k)>=0;}).length;
+  var dup={}, warn=''; agRows.forEach(function(r){ if(r.k&&r.k!=='dimanche'){dup[r.k]=(dup[r.k]||0)+1;} }); Object.keys(dup).forEach(function(k){ if(dup[k]>1) warn=' ⚠️ Une séance est placée 2 fois.'; });
+  document.getElementById('ag-sum').innerHTML='<b>'+n+' séance(s) muscu'+(rpm?' + RPM':'')+'</b> · fessiers ×'+fes+' · dos ×'+dos+(n<2?' · <span style="color:#c2410c">minimum Plan C = 2 séances + RPM</span>':'')+warn; }
 function icsEsc(t){ return String(t).replace(/\\/g,'\\\\').replace(/;/g,'\;').replace(/,/g,'\\,').replace(/\n/g,'\\n'); }
 function icsFold(line){ var cps=Array.from(line), out=[], i=0; while(cps.length-i>60){ out.push(cps.slice(i,i+60).join('')); i+=60; } out.push(cps.slice(i).join('')); return out.join('\r\n '); }
 function fmtLocal(d){ return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'T'+String(d.getHours()).padStart(2,'0')+String(d.getMinutes()).padStart(2,'0')+'00'; }
 function exportAgenda(dataUrl){
-  var c=agSave(), start=new Date(document.getElementById('ag-start').value+'T00:00:00'), weeks=+document.getElementById('ag-weeks').value, al=+document.getElementById('ag-alarm').value;
-  if(isNaN(start)){ showToast('Choisis une date de début'); return; }
-  var now=new Date(), stamp=now.toISOString().replace(/[-:]/g,'').replace(/\.\d+Z$/,'Z');
-  var L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Ornella Fit Coaching//Programme//FR','CALSCALE:GREGORIAN','METHOD:PUBLISH','X-WR-CALNAME:Programme Ornella'];
-  var nb=0;
-  c.forEach(function(x,i){ if(!x.on) return; var d=AG_DAYS[i], se=P[x.k];
-    var first=new Date(start); first.setDate(start.getDate()+((d[1]-start.getDay()+7)%7));
-    var hm=x.t.split(':'); first.setHours(+hm[0],+hm[1],0,0);
-    var end=new Date(first.getTime()+x.dur*60000);
+  var al=+document.getElementById('ag-alarm').value, stamp=new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d+Z$/,'Z');
+  var L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Ornella Fit Coaching//Programme//FR','CALSCALE:GREGORIAN','METHOD:PUBLISH'], nb=0;
+  agRows.forEach(function(r){ if(!r.k) return; var se=P[r.k]; var d=new Date(agMon); d.setDate(agMon.getDate()+((r.dow+6)%7));
+    var hm=(r.t||'09:00').split(':'); d.setHours(+hm[0],+hm[1],0,0); var end=new Date(d.getTime()+r.dur*60000);
     var desc=se.sub+'\n\n'+se.ex.map(function(e,j){return (j+1)+'. '+e.n+' · '+e.s;}).join('\n')+'\n\nOuvre ton appli : https://ornellafitcoaching-svg.github.io/programme-ornella/\nSéance impossible ? Bouton « J\'ai raté une séance ».';
-    L.push('BEGIN:VEVENT','UID:ofc-'+x.k+'-'+iso(start)+'@ornellafitcoaching.com','DTSTAMP:'+stamp,'DTSTART:'+fmtLocal(first),'DTEND:'+fmtLocal(end),
-      'RRULE:FREQ=WEEKLY;COUNT='+weeks, icsFold('SUMMARY:'+icsEsc(se.emoji+' '+(x.k==='mercredi'?'RPM + gainage':se.sub))), icsFold('DESCRIPTION:'+icsEsc(desc)),'URL:https://ornellafitcoaching-svg.github.io/programme-ornella/');
+    var title=AG_SESS.filter(function(o){return o[0]===r.k;})[0][1];
+    L.push('BEGIN:VEVENT','UID:ofc-'+iso(d)+'-'+r.k+'@ornellafitcoaching.com','DTSTAMP:'+stamp,'DTSTART:'+fmtLocal(d),'DTEND:'+fmtLocal(end),icsFold('SUMMARY:'+icsEsc(title)),icsFold('DESCRIPTION:'+icsEsc(desc)),'URL:https://ornellafitcoaching-svg.github.io/programme-ornella/');
     if(al>0) L.push('BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+icsEsc('Séance dans '+al+' min 💪'),'TRIGGER:-PT'+al+'M','END:VALARM');
     L.push('END:VEVENT'); nb++; });
   L.push('END:VCALENDAR');
-  if(!nb){ showToast('Coche au moins une séance'); return; }
+  if(!nb){ showToast('Place au moins une séance'); return; }
   var ics=L.join('\r\n');
   if(dataUrl){ window.location.href='data:text/calendar;charset=utf-8,'+encodeURIComponent(ics); return; }
   try{ var blob=new Blob([ics],{type:'text/calendar;charset=utf-8'}), u=URL.createObjectURL(blob), a=document.createElement('a');
-    a.href=u; a.download='seances-ornella.ics'; document.body.appendChild(a); a.click(); setTimeout(function(){URL.revokeObjectURL(u);a.remove();},4000);
+    a.href=u; a.download='semaine-'+iso(agMon)+'.ics'; document.body.appendChild(a); a.click(); setTimeout(function(){URL.revokeObjectURL(u);a.remove();},4000);
     showToast(nb+' séances prêtes · touche « Ajouter tout » 📅');
   }catch(e){ window.location.href='data:text/calendar;charset=utf-8,'+encodeURIComponent(ics); }
 }
