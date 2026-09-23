@@ -628,7 +628,7 @@
 
       <h3 class="x-h">🍔 Cheat meal du week-end</h3>
       <div class="x-card">
-        <p><b>1 par semaine, samedi soir</b> (ou resto dimanche midi), ~+600 kcal. Déjà compté : ta moyenne reste ~1 900 kcal/jour, tu sèches quand même.</p>
+        <p><b>1 par semaine, samedi soir</b> (ou resto dimanche midi), ~+600 kcal, <b>ajoutées automatiquement à ton objectif du jour dans le journal</b> (tu peux le déplacer sur un autre jour). Déjà compté : ta moyenne reste ~1 900 kcal/jour, tu sèches quand même.</p>
         <ol class="x-ol">
           <li>Un repas, pas un week-end : entrée + plat + dessert OK, pas de grignotage autour.</li>
           <li>Protéines en premier.</li>
@@ -1849,9 +1849,17 @@ function jDay(d){return jAll()[d]||{items:[],water:0};}
 function jSave(d,day){var a=jAll();a[d]=day;sd('journal',a);}
 // Jour d'entraînement : choisi avec le bouton Oui / Non ; sinon par défaut lun→sam = séance, dimanche = repos.
 function isTrain(d){var t=(jAll()[d]||{}).train;return t==null?new Date(d+'T12:00:00').getDay()!==0:!!t;}
+// Cheat meal : 1 par semaine, +600 kcal (≈ +90 g glucides, +27 g lipides). Samedi par défaut, déplaçable.
+var CHEAT={k:600,c:90,f:27};
+function cheatKey(d){return 'cheat_'+iso(mondayOf(new Date(d+'T12:00:00')));}
+function cheatDay(d){var v=ld(cheatKey(d),null);if(v!=null) return v;var m=mondayOf(new Date(d+'T12:00:00'));m.setDate(m.getDate()+5);return iso(m);} // '' = pas de cheat meal cette semaine
+function isCheat(d){return cheatDay(d)===d;}
 function goalFor(d){var w=new Date(d+'T12:00:00').getDay();
-  if(!isTrain(d)) return {k:1600,p:135,c:140,f:57,lab:(w===0?'Dimanche · ':'')+'Repos · glucides réduits'};
-  return w===6?{k:1850,p:135,c:200,f:52,lab:'Samedi · cheat meal autorisé ce soir (+600 kcal hors objectif)'}:{k:1850,p:135,c:200,f:52,lab:'Jour d\'entraînement'};}
+  var g=isTrain(d)?{k:1850,p:135,c:200,f:52,lab:'Jour d\'entraînement'}:{k:1600,p:135,c:140,f:57,lab:(w===0?'Dimanche · ':'')+'Repos · glucides réduits'};
+  if(isCheat(d)){g.k+=CHEAT.k;g.c+=CHEAT.c;g.f+=CHEAT.f;g.lab+=' · 🍔 cheat meal inclus (+600 kcal)';}
+  return g;}
+function setCheat(on){var k=cheatKey(jDate),was=cheatDay(jDate);sd(k,on?jDate:'');renderJournal();
+  showToast(on?(was&&was!==jDate?'🍔 Cheat meal déplacé ici : +600 kcal':'🍔 Cheat meal : +600 kcal ce jour'):'Pas de cheat meal ce jour');}
 function setTrain(v){var d=jDay(jDate);d.train=v;jSave(jDate,d);renderJournal();showToast(v?'Jour d\'entraînement : 1 850 kcal 💪':'Jour de repos : 1 600 kcal 🌿');}
 // Séance faite (exercice bouclé ou charges enregistrées) → aujourd'hui = jour d'entraînement, sauf choix manuel
 function markTrainedToday(){var td=iso(new Date()), d=jDay(td); if(d.train==null){ d.train=true; jSave(td,d); }}
@@ -1872,6 +1880,10 @@ function renderJournal(){
   var tr=isTrain(jDate), auto=day.train==null;
   document.getElementById('j-train').innerHTML='<div><b>🏋️ '+(jDate===today?'Entraînée aujourd\'hui ?':'Séance ce jour-là ?')+'</b><div class="j-meal-k">'+(tr?'Oui → 1 850 kcal · 200 g glucides':'Non → 1 600 kcal · 140 g glucides (−250 kcal, pris sur les glucides)')+(auto?' · par défaut':'')+'</div></div>'
     +'<div style="display:flex;gap:8px;margin-top:8px"><button class="j-tab'+(tr?' on':'')+'" style="flex:1" onclick="setTrain(true)">💪 Oui</button><button class="j-tab'+(!tr?' on':'')+'" style="flex:1" onclick="setTrain(false)">🌿 Non, repos</button></div>';
+  var ch=isCheat(jDate), cd=cheatDay(jDate), JL=['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+  document.getElementById('j-train').innerHTML+='<div style="border-top:1px solid var(--gris-light);margin-top:12px;padding-top:12px"><b>🍔 Cheat meal</b><div class="j-meal-k">'
+    +(ch?'Ce jour : +600 kcal ajoutées à ton objectif. 1 repas, pas une journée !':(cd?'Cette semaine : '+JL[new Date(cd+'T12:00:00').getDay()]+' (1 par semaine).':'Pas de cheat meal prévu cette semaine.'))+'</div>'
+    +'<button class="j-tab'+(ch?' on':'')+'" style="width:100%;margin-top:8px" onclick="setCheat('+(!ch)+')">'+(ch?'✓ Cheat meal ce jour (annuler)':(cd?'Le mettre ce jour à la place':'Le mettre ce jour'))+'</button></div>';
   var left=g.k-t.k, pct=Math.min(t.k/g.k,1);
   var ring=document.getElementById('j-ring'); ring.style.strokeDashoffset=(326.7*(1-pct)); ring.classList.toggle('over',left<0);
   document.getElementById('j-left').textContent=r0(Math.abs(left));
@@ -1910,7 +1922,7 @@ function renderJournal(){
   for(var q=0;q<7;q++){var x=new Date(mon);x.setDate(mon.getDate()+q);var kk=iso(x), dy=all[kk], s2=dy?sumItems(dy.items||[]).k:0, gg=goalFor(kk).k;
     if(s2>0){tot+=s2;nd++;gt+=gg;}
     wk+='<div><span style="font-size:.62rem">'+(s2?r0(s2):'')+'</span><i class="'+(s2===0?'none':(s2>gg+150?'over':''))+'" style="height:'+(s2?Math.max(6,Math.min(s2/2400,1)*80):3)+'px"></i>'+J[x.getDay()]+'</div>';}
-  wk+='</div><p class="x-small" style="margin-top:8px">'+(nd?'Moyenne : <b>'+r0(tot/nd)+' kcal/jour</b> sur '+nd+' jour(s) saisis · cible ~'+r0(gt/nd).toLocaleString('fr-FR')+' selon tes jours séance / repos (hors cheat meal).':'Aucun jour saisi cette semaine.')+'</p>';
+  wk+='</div><p class="x-small" style="margin-top:8px">'+(nd?'Moyenne : <b>'+r0(tot/nd)+' kcal/jour</b> sur '+nd+' jour(s) saisis · cible ~'+r0(gt/nd).toLocaleString('fr-FR')+' selon tes jours séance / repos et ton cheat meal.':'Aucun jour saisi cette semaine.')+'</p>';
   document.getElementById('j-week').innerHTML=wk;
 }
 function setWater(n){var d=jDay(jDate);d.water=(d.water===n?n-1:n);jSave(jDate,d);renderJournal();}
