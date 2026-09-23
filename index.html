@@ -599,8 +599,8 @@
       <div class="x-card x-hl">
         <div class="x-kpis">
           <div><b>~2 200</b><span>kcal dépensées/jour</span></div>
-          <div><b>1 850</b><span>kcal lun → sam</span></div>
-          <div><b>1 600</b><span>kcal dimanche</span></div>
+          <div><b>1 850</b><span>kcal jour d'entraînement</span></div>
+          <div><b>1 600</b><span>kcal jour de repos</span></div>
         </div>
         <div class="x-kpis">
           <div><b>135 g</b><span>protéines</span></div>
@@ -623,7 +623,7 @@
       <h3 class="x-h" style="font-size:1.15rem;margin-top:24px">⭐ Plans repas au choix (à mixer)</h3>
       <p class="x-small">Prends 1 option par repas : tu arrives entre ~1 500 et 1 800 kcal. Le reste (jusqu'à 1 850) = un fruit, un carré de chocolat ou un peu plus de féculents autour de ta séance. Le journal te dit exactement où tu en es.</p>
       <div id="n-plans"></div>
-      <h3 class="x-h">Dimanche (~1 600 kcal)</h3>
+      <h3 class="x-h">Jour de repos / dimanche (~1 600 kcal)</h3>
       <div class="x-card">Midi : riz 120 g, sans pain · Collation : pomme au lieu de banane · Soir : patate douce 100 g (saumon 130 g 2×/semaine).</div>
 
       <h3 class="x-h">🍔 Cheat meal du week-end</h3>
@@ -717,6 +717,7 @@
           <div><span>Mangé</span><b id="j-eaten">—</b></div>
         </div>
       </div>
+      <div class="x-card" id="j-train"></div>
       <div class="x-card"><div id="j-macros"></div><div id="j-tip" class="j-tip"></div></div>
       <div id="j-meals"></div>
       <div class="x-card j-water"><div><b>💧 Eau</b> <span id="j-water-t" class="x-small"></span></div><div id="j-water" class="j-glasses"></div></div>
@@ -1141,7 +1142,7 @@ function saveSessionCharges(){
     var tc=LS.getItem('tc_'+ex.id);
     if(tc) LS.setItem('cd_'+ex.id, now);
   });
-  LS.setItem('ls_'+curDay, new Date().toLocaleDateString('fr-FR'));
+  LS.setItem('ls_'+curDay, new Date().toLocaleDateString('fr-FR')); markTrainedToday();
   var btn=document.querySelector('.save-session-btn');
   if(btn){ btn.innerHTML='✅ Charges enregistrées !'; btn.style.background='#22c55e';
     setTimeout(function(){ btn.innerHTML='💾 Enregistrer mes charges'; btn.style.background=''; },2500); }
@@ -1187,7 +1188,7 @@ function tick(id,total){
     btn.textContent='✅ Terminé !'; btn.classList.add('all-done');
     if(navigator.vibrate) navigator.vibrate([80,40,80]);
     showToast('Exercice bouclé 🔥');
-    LS.setItem('ls_'+curDay, new Date().toLocaleDateString('fr-FR'));
+    LS.setItem('ls_'+curDay, new Date().toLocaleDateString('fr-FR')); markTrainedToday();
   } else {
     btn.textContent='✓ Série terminée — '+(n+1)+'/'+total;
   }
@@ -1846,7 +1847,14 @@ function sd(k,v){try{LS.setItem(k,JSON.stringify(v));}catch(e){}}
 function jAll(){return ld('journal',{});}
 function jDay(d){return jAll()[d]||{items:[],water:0};}
 function jSave(d,day){var a=jAll();a[d]=day;sd('journal',a);}
-function goalFor(d){var w=new Date(d+'T12:00:00').getDay();return w===0?{k:1600,p:135,c:140,f:57,lab:'Dimanche · glucides réduits'}:(w===6?{k:1850,p:135,c:200,f:52,lab:'Samedi · cheat meal autorisé ce soir (+600 kcal hors objectif)'}:{k:1850,p:135,c:200,f:52,lab:'Jour d\'entraînement'});}
+// Jour d'entraînement : choisi avec le bouton Oui / Non ; sinon par défaut lun→sam = séance, dimanche = repos.
+function isTrain(d){var t=(jAll()[d]||{}).train;return t==null?new Date(d+'T12:00:00').getDay()!==0:!!t;}
+function goalFor(d){var w=new Date(d+'T12:00:00').getDay();
+  if(!isTrain(d)) return {k:1600,p:135,c:140,f:57,lab:(w===0?'Dimanche · ':'')+'Repos · glucides réduits'};
+  return w===6?{k:1850,p:135,c:200,f:52,lab:'Samedi · cheat meal autorisé ce soir (+600 kcal hors objectif)'}:{k:1850,p:135,c:200,f:52,lab:'Jour d\'entraînement'};}
+function setTrain(v){var d=jDay(jDate);d.train=v;jSave(jDate,d);renderJournal();showToast(v?'Jour d\'entraînement : 1 850 kcal 💪':'Jour de repos : 1 600 kcal 🌿');}
+// Séance faite (exercice bouclé ou charges enregistrées) → aujourd'hui = jour d'entraînement, sauf choix manuel
+function markTrainedToday(){var td=iso(new Date()), d=jDay(td); if(d.train==null){ d.train=true; jSave(td,d); }}
 function r0(x){return Math.round(x);} function r1(x){return Math.round(x*10)/10;}
 function sumItems(it){return it.reduce(function(a,x){a.k+=x.k;a.p+=x.p;a.c+=x.c;a.f+=x.f;return a;},{k:0,p:0,c:0,f:0});}
 function goJournal(){ if(!jDate) jDate=iso(new Date()); renderJournal(); show('p-journal'); }
@@ -1861,6 +1869,9 @@ function renderJournal(){
   var g=goalFor(jDate), day=jDay(jDate), t=sumItems(day.items);
   var dd=new Date(jDate+'T12:00:00');
   document.getElementById('j-sub').textContent=(jDate===today?'Aujourd\'hui':dd.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}))+' · '+g.lab;
+  var tr=isTrain(jDate), auto=day.train==null;
+  document.getElementById('j-train').innerHTML='<div><b>🏋️ '+(jDate===today?'Entraînée aujourd\'hui ?':'Séance ce jour-là ?')+'</b><div class="j-meal-k">'+(tr?'Oui → 1 850 kcal · 200 g glucides':'Non → 1 600 kcal · 140 g glucides (−250 kcal, pris sur les glucides)')+(auto?' · par défaut':'')+'</div></div>'
+    +'<div style="display:flex;gap:8px;margin-top:8px"><button class="j-tab'+(tr?' on':'')+'" style="flex:1" onclick="setTrain(true)">💪 Oui</button><button class="j-tab'+(!tr?' on':'')+'" style="flex:1" onclick="setTrain(false)">🌿 Non, repos</button></div>';
   var left=g.k-t.k, pct=Math.min(t.k/g.k,1);
   var ring=document.getElementById('j-ring'); ring.style.strokeDashoffset=(326.7*(1-pct)); ring.classList.toggle('over',left<0);
   document.getElementById('j-left').textContent=r0(Math.abs(left));
@@ -1895,11 +1906,11 @@ function renderJournal(){
   document.getElementById('j-water').innerHTML=gh;
   document.getElementById('j-water-t').textContent=(w*0.25).toFixed(2).replace('.',',')+' L / 2,5 L';
   // semaine
-  var wk='<div class="j-wk">', mon=new Date(dd); mon.setDate(dd.getDate()-((dd.getDay()+6)%7)), tot=0, nd=0;
+  var wk='<div class="j-wk">', mon=new Date(dd); mon.setDate(dd.getDate()-((dd.getDay()+6)%7)), tot=0, nd=0, gt=0;
   for(var q=0;q<7;q++){var x=new Date(mon);x.setDate(mon.getDate()+q);var kk=iso(x), dy=all[kk], s2=dy?sumItems(dy.items||[]).k:0, gg=goalFor(kk).k;
-    if(s2>0){tot+=s2;nd++;}
+    if(s2>0){tot+=s2;nd++;gt+=gg;}
     wk+='<div><span style="font-size:.62rem">'+(s2?r0(s2):'')+'</span><i class="'+(s2===0?'none':(s2>gg+150?'over':''))+'" style="height:'+(s2?Math.max(6,Math.min(s2/2400,1)*80):3)+'px"></i>'+J[x.getDay()]+'</div>';}
-  wk+='</div><p class="x-small" style="margin-top:8px">'+(nd?'Moyenne : <b>'+r0(tot/nd)+' kcal/jour</b> sur '+nd+' jour(s) saisis · cible ~1 815 (hors cheat meal).':'Aucun jour saisi cette semaine.')+'</p>';
+  wk+='</div><p class="x-small" style="margin-top:8px">'+(nd?'Moyenne : <b>'+r0(tot/nd)+' kcal/jour</b> sur '+nd+' jour(s) saisis · cible ~'+r0(gt/nd).toLocaleString('fr-FR')+' selon tes jours séance / repos (hors cheat meal).':'Aucun jour saisi cette semaine.')+'</p>';
   document.getElementById('j-week').innerHTML=wk;
 }
 function setWater(n){var d=jDay(jDate);d.water=(d.water===n?n-1:n);jSave(jDate,d);renderJournal();}
