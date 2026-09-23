@@ -418,7 +418,13 @@
       box-shadow: 0 4px 20px rgba(0,0,0,.3);
     }
     .toast.show { transform: translateX(-50%) translateY(0); }
-  </style>
+  
+    .plan-sel{display:flex;gap:8px;padding:0 16px;margin:14px 0 8px}
+    .plan-btn{flex:1;padding:12px 0;border-radius:12px;border:2px solid #e5ddd3;background:#fff;font-weight:700;font-size:.95rem;color:#555;cursor:pointer}
+    .plan-btn.on{background:#E8634A;border-color:#E8634A;color:#fff}
+    .ramp{background:#F5EFE6;border-left:3px solid #E8634A;border-radius:8px;padding:9px 11px;margin-bottom:10px;color:#1B3A2D}
+    .plan-desc{padding:0 18px 6px;font-size:.82rem;color:#666;line-height:1.4}
+</style>
 </head>
 <body>
 
@@ -440,73 +446,12 @@
     <div class="home-hero">
       <div class="home-hero-emoji">🏋️</div>
       <div class="home-hero-title">Programme Salle</div>
-      <div class="home-hero-sub">Ornella Fit Coaching · Semaine type</div>
+      <div class="home-hero-sub">Phase sèche · Fessiers &amp; dos · 8 semaines</div>
     </div>
-    <div class="days-list">
-      <div class="day-card" onclick="openDay('lundi')">
-        <div class="day-card-emoji">💪</div>
-        <div class="day-card-body">
-          <div class="day-card-name">Lundi</div>
-          <div class="day-card-desc">Fessiers haut · Hanches</div>
-          <div class="day-card-pill">5 exercices · ~40-45 min (estimation)</div>
-        </div>
-        <div class="day-card-arrow">›</div>
-      </div>
-      <div class="day-card" onclick="openDay('mardi')">
-        <div class="day-card-emoji">🏋️</div>
-        <div class="day-card-body">
-          <div class="day-card-name">Mardi</div>
-          <div class="day-card-desc">Dos · Bas du dos · Épaules</div>
-          <div class="day-card-pill">7 exercices · ~50-55 min</div>
-        </div>
-        <div class="day-card-arrow">›</div>
-      </div>
-      <div class="day-card" onclick="openDay('mercredi')">
-        <div class="day-card-emoji">🏃‍♀️</div>
-        <div class="day-card-body">
-          <div class="day-card-name">Mercredi</div>
-          <div class="day-card-desc">Cardio extérieur · Tabata</div>
-          <div class="day-card-pill">5 exercices · ~50-55 min</div>
-        </div>
-        <div class="day-card-arrow">›</div>
-      </div>
-      <div class="day-card" onclick="openDay('jeudi')">
-        <div class="day-card-emoji">🍑</div>
-        <div class="day-card-body">
-          <div class="day-card-name">Jeudi</div>
-          <div class="day-card-desc">Ischio · Fessiers bas · Cuisses</div>
-          <div class="day-card-pill">7 exercices · ~50-55 min</div>
-        </div>
-        <div class="day-card-arrow">›</div>
-      </div>
-      <div class="day-card" onclick="openDay('vendredi')">
-        <div class="day-card-emoji">✨</div>
-        <div class="day-card-body">
-          <div class="day-card-name">Vendredi</div>
-          <div class="day-card-desc">Bras (volume) · Taille</div>
-          <div class="day-card-pill">8 exercices · ~40-45 min</div>
-        </div>
-        <div class="day-card-arrow">›</div>
-      </div>
-      <div class="day-card" onclick="openDay('rpm')">
-        <div class="day-card-emoji">🚴‍♀️</div>
-        <div class="day-card-body">
-          <div class="day-card-name">RPM</div>
-          <div class="day-card-desc">Samedi 10h45 (base)</div>
-          <div class="day-card-pill">2 exercices · ~50 min</div>
-        </div>
-        <div class="day-card-arrow">›</div>
-      </div>
-      <div class="day-card" onclick="openDay('dimanche')">
-        <div class="day-card-emoji">🌿</div>
-        <div class="day-card-body">
-          <div class="day-card-name">Dimanche</div>
-          <div class="day-card-desc">Repos actif · Posture</div>
-          <div class="day-card-pill">4 exercices · ~30-35 min</div>
-        </div>
-        <div class="day-card-arrow">›</div>
-      </div>
-    </div>
+    <div class="plan-sel" id="plan-sel"></div>
+    <div class="plan-desc" id="plan-desc"></div>
+    <div class="days-list" id="days-list"></div>
+  </div>
     <div class="suivi-row">
       <button class="suivi-row-btn" onclick="goSuivi()">📊 Mon suivi — voir mes charges</button>
     </div>
@@ -552,79 +497,140 @@
 // ─────────────────────────────
 var P = {
   lundi: {
-    emoji:'💪', label:'Lundi', sub:'Fessiers haut · Hanches',
+    emoji:'💪', label:'Lundi', sub:'Fessiers LOURD · Haut fessier',
     ex:[
-      {id:'l1',n:'Poussée de hanches barre (Hip Thrust)',           s:'4×10-12',    tip:'Dos sur banc, squeeze 2s en haut, descends 3s lent. Charge lourde — c\'est ton exercice roi, on ne touche quasi pas à celui-là.',    rest:120, rm:'8rm'},
-      {id:'l2',n:'Abducteur machine',                               s:'3×20',       tip:'Squeeze 3s en position ouverte, retour 4s lent.',                                                                                  rest:75,  rm:'15rm', note:'💡 Option finisher : sur la dernière série, dès que tu ne peux plus faire de rep propre, baisse la charge de 30% et enchaîne 8-10 reps de plus sans reposer.'},
-      {id:'l3',n:'Squat bulgare haltères (Bulgarian Split Squat)',   s:'3×10/côté',  tip:'Incline le buste en avant pour cibler le fessier.',                                                                                rest:90,  rm:'8rm'},
-      {id:'l4',n:'Coup de pied arrière câble debout (Kickback)',     s:'2×15/côté',  tip:'Penche-toi en avant, pousse le talon vers le plafond, squeeze 2s en haut.',                                                       rest:60,  rm:'15rm'},
-      {id:'l5',n:'Presse pieds hauts écartés',                      s:'2×15',       tip:'Pieds tout en haut de la plateforme, amplitude complète, fesses qui décollent légèrement.',                                       rest:60,  rm:'15rm'},
+      {id:'l0',n:'Activation : abducteur machine',                   s:'2×20',       tip:'Charge légère, pause 2s en ouverture. Tu réveilles le moyen fessier AVANT le lourd.', rest:45},
+      {id:'l1',n:'Poussée de hanches barre (Hip Thrust)',             s:'4×6-8',      tip:'Ton exercice roi, maintenant en LOURD. Descends 3s, pause 1s en bas, pousse fort, squeeze 2s en haut, bassin à l\'horizontale, menton rentré (pas de cambrure lombaire).', rest:150, rm:'8rm', note:'💡 Semaines 5-7 : passe en 5×4-6 pour gagner en force.'},
+      {id:'l3',n:'Squat bulgare haltères (Bulgarian Split Squat)',    s:'3×8-10/côté',tip:'Pied avant LOIN du banc, buste penché à 30°, pousse dans le talon. Genou qui avance peu = fessier, pas quadriceps.', rest:90, rm:'8rm'},
+      {id:'l4',n:'Coup de pied arrière câble (Kickback)',             s:'3×12-15/côté',tip:'Buste penché, jambe légèrement tournée vers l\'extérieur, pousse le talon en haut et en arrière, squeeze 2s. Haut du fessier.', rest:60, rm:'15rm'},
+      {id:'l2',n:'Abducteur machine buste penché',                    s:'3×15-20',    tip:'Penche le buste en avant, mains sur la machine : ça cible le haut du moyen fessier (effet galbe latéral).', rest:60, rm:'15rm', note:'💡 Dernière série : drop set −30%, enchaîne jusqu\'à l\'échec sans poser.'},
     ]
   },
   mardi: {
-    emoji:'🏋️', label:'Mardi', sub:'Dos · Bas du dos · Épaules',
+    emoji:'🏋️', label:'Mardi', sub:'Dos LARGEUR · Épaules (effet V)',
     ex:[
-      {id:'m1',n:'Tirage vertical prise large (Lat Pulldown)',       s:'4×10-12',    tip:'Tire la barre vers le haut de la poitrine, coudes vers le bas, squeeze 2s.',                                                     rest:120, rm:'8rm'},
-      {id:'m2',n:'Rowing barre buste penché',                        s:'4×10',       tip:'Dos plat, coudes près du corps, tire vers le nombril. Dos épais.',                                                              rest:120, rm:'8rm'},
-      {id:'m2b',n:'Tirage horizontal prise serrée (câble)',          s:'3×12',       tip:'Tire vers nombril, squeeze omoplates 2s, retour 3s lent.',                                                                       rest:90,  rm:'12rm'},
-      {id:'m2c',n:'Rowing haltère unilatéral sur banc',              s:'3×12/côté',  tip:'Un genou et une main sur le banc, dos plat, tire l\'haltère vers la hanche. Complète le dos sans resolliciter les ischios (déjà travaillés jeudi).', rest:90, rm:'12rm'},
-      {id:'m3b',n:'Hyperextension lombaires barre (Good morning)',   s:'3×12',       tip:'Barre sur les épaules, pieds largeur hanches. Incline le buste en avant dos PLAT jusqu\'à sentir l\'étirement des ischios. Remonte en contractant les lombaires. Cambrure + posture bikini.', rest:90, rm:'posture'},
-      {id:'m4',n:'Oiseau haltères',                                  s:'3×15',       tip:'Penché 45°, ouvre sur les côtés, squeeze arrière 2s.',                                                                            rest:0,   super:true, rm:'15rm'},
-      {id:'m5',n:'Tirage visage corde (Face Pull)',                  s:'3×20',       tip:'Corde à hauteur visage, coudes hauts, écarte les mains.',                                                                         rest:90,  super:true, rm:'15rm'},
+      {id:'m0',n:'Tractions (assistées ou lestées)',                  s:'4×6-8',      tip:'Prise un peu plus large que les épaules, pense "coudes dans les poches arrière". Descente 3s complète.', rest:120, rm:'8rm'},
+      {id:'m1',n:'Tirage vertical prise large (Lat Pulldown)',        s:'3×10-12',    tip:'Buste légèrement incliné, tire vers le haut de la poitrine, squeeze 1s, remonte en 3s en laissant les omoplates s\'étirer.', rest:90, rm:'12rm'},
+      {id:'m6',n:'Tirage unilatéral poulie haute à genou',            s:'3×12/côté',  tip:'Un genou au sol, tire le coude vers la hanche. Étirement complet en haut : c\'est ce qui élargit le dos.', rest:60, rm:'12rm'},
+      {id:'m7',n:'Pull-over poulie haute (corde)',                   s:'3×15',       tip:'Bras quasi tendus, ramène la corde vers les cuisses, squeeze grand dorsal 1s.', rest:0, super:true, rm:'15rm'},
+      {id:'m8',n:'Élévations latérales haltères',                    s:'3×15',       tip:'Légère inclinaison vers l\'avant, monte jusqu\'à l\'horizontale, descends en 3s. Épaules plus larges = taille qui paraît plus fine.', rest:75, super:true, rm:'15rm'},
+      {id:'m5',n:'Tirage visage corde (Face Pull)',                   s:'3×15-20',    tip:'Coudes hauts, écarte la corde vers les oreilles, pause 2s. Posture : épaules en arrière.', rest:60, rm:'15rm'},
     ]
   },
   mercredi: {
-    emoji:'🏃‍♀️', label:'Mercredi', sub:'Cardio extérieur · Tabata',
+    emoji:'🚴‍♀️', label:'Mercredi', sub:'RPM · Taille · Gainage',
     ex:[
-      {id:'me1',n:'Course à pied extérieure — fractionné léger',     s:'22 minutes', tip:'5 min échauffement allure facile, puis 5×(1 min rapide / 2 min récup marche-trot), 3 min retour au calme.', rest:0, duration:1320},
-      {id:'me2',n:'Corde à sauter',                                  s:'3×3 min',    tip:'Allure régulière, relâche les épaules. Travaille aussi les avant-bras et épaules.',                                          rest:60,  duration:180},
-      {id:'me3',n:'Tabata finisher — Mountain climbers + élévations haltères légers', s:'8 rounds', tip:'20s effort max / 10s repos, alterne les 2 mouvements à chaque round. PAS de boxe. Charge très légère pour les élévations.', rest:0, duration:240, note:'💡 Tabata = 4 minutes seulement mais très intense. C\'est ton finisher perte de gras bras.'},
-      {id:'me4',n:'Gainage rotatif léger (Russian twist)',           s:'3×15/côté',  tip:'Buste légèrement penché en arrière, pieds décollés si possible, rotation contrôlée. Charge légère — objectif taille fine, pas volume.', rest:60},
-      {id:'me5',n:'Dips triceps sur banc (léger)',                  s:'3×12',       tip:'2e passage triceps de la semaine, à jambes fléchies pour rester léger. Coudes vers l\'arrière, pas sur les côtés.',                  rest:60},
+      {id:'rp1',n:'Cours RPM (vélo indoor)',                          s:'45 minutes', tip:'Intensité modérée à haute : tu peux dire quelques mots, pas une phrase entière. Si tu le rates, remplace par 30 min de rameur ou de marche inclinée.', rest:0, duration:2700},
+      {id:'v6',n:'Vacuum abdominal (Vacuum)',                         s:'3×30s',      tip:'Expire tout, rentre le nombril vers la colonne, tiens en respirant court. Le transverse = ta ceinture naturelle.', rest:45},
+      {id:'me7',n:'Dead bug',                                         s:'3×10/côté',  tip:'Bas du dos COLLÉ au sol tout du long. C\'est l\'anti-cambrure lombaire : taille gainée, posture redressée.', rest:45},
+      {id:'me8',n:'Pallof press (anti-rotation poulie)',              s:'3×12/côté',  tip:'De profil à la poulie, pousse les bras devant toi et résiste à la rotation. Taille serrée SANS épaissir les obliques.', rest:45},
     ]
   },
   jeudi: {
-    emoji:'🍑', label:'Jeudi', sub:'Ischio · Fessiers bas',
+    emoji:'🍑', label:'Jeudi', sub:'Ischios · Fessiers volume',
     ex:[
-      {id:'j1',n:'Soulevé de terre roumain barre (Romanian Deadlift)', s:'5×10',     tip:'Descends 4s, barre contre les jambes, pousse les hanches vers l\'avant en remontant.',                                           rest:120, rm:'8rm'},
-      {id:'j2',n:'Curl ischio couché machine (Leg Curl)',             s:'4×12',       tip:'Squeeze 2s en haut, descends 4s très lent.',                                                                                     rest:90,  rm:'15rm'},
-      {id:'j2b',n:'Presse à cuisses pieds bas et serrés',            s:'4×12',       tip:'Pieds bas et rapprochés sur la plateforme — cible les quadriceps pour redonner du galbe. Augmente la charge progressivement chaque semaine.', rest:120, rm:'8rm'},
-      {id:'j3',n:'Presse pieds hauts écartés',                       s:'3×15',       tip:'Pieds tout en haut, amplitude complète.',                                                                                         rest:90,  rm:'15rm'},
-      {id:'j4',n:'Squat sumo barre',                                 s:'3×10',       tip:'Pieds très écartés, orteils 45°, genoux vers l\'extérieur. Fessiers + intérieur cuisses.',                                       rest:0,   super:true, rm:'8rm'},
-      {id:'j5',n:'Coup de pied arrière câble (Donkey Kick)',          s:'3×15/côté',  tip:'Hanche fixe, genou fléchi 90°, squeeze 2s en haut.',                                                                             rest:90,  super:true, rm:'15rm'},
-      {id:'j6',n:'Curl ischio assis machine (Leg Curl)',              s:'2 séries',   tip:'Lourd ×10 → réduis → ×15 squeeze maximal.',                                                                                      rest:60,  drop:true, rm:'15rm'},
+      {id:'j1',n:'Soulevé de terre roumain barre (Romanian Deadlift)',s:'4×8-10',     tip:'Descends 3-4s, barre contre les jambes, hanches loin derrière, dos neutre. Remonte en poussant les hanches.', rest:150, rm:'8rm'},
+      {id:'j7',n:'Hip thrust machine ou pont fessier barre',          s:'3×12-15',    tip:'Charge modérée, squeeze 2s en haut à chaque rep. Ici on cherche la congestion, pas le max.', rest:90, rm:'12rm', note:'💡 Dernière série : drop set −20% puis +10 reps.'},
+      {id:'j8',n:'Extension de hanche 45° dos rond (fessiers)',       s:'3×12-15',    tip:'Dos ROND, pieds tournés vers l\'extérieur, monte avec les fessiers (pas les lombaires). Haltère contre la poitrine si trop facile.', rest:75, rm:'15rm'},
+      {id:'j2',n:'Curl ischio couché machine (Leg Curl)',             s:'3×12',       tip:'Squeeze 1s en haut, descends en 3s. Jonction ischio-fessier plus dessinée.', rest:75, rm:'12rm'},
+      {id:'j9',n:'Abducteur machine',                                 s:'3×20',       tip:'Pause 2s en ouverture, retour lent.', rest:0, super:true, rm:'15rm'},
+      {id:'j5',n:'Coup de pied arrière câble (Donkey Kick)',          s:'3×15/côté',  tip:'Genou fléchi à 90°, hanche fixe, squeeze 2s en haut.', rest:75, super:true, rm:'15rm'},
+      {id:'j3',n:'Presse pieds hauts et larges (finisher)',           s:'3×15',       tip:'Pieds tout en haut de la plateforme et écartés, pointes légèrement ouvertes, descente profonde, pousse dans les talons. Charge MODÉRÉE : c\'est un finisher fessiers, pas un exercice de force.', rest:75, rm:'15rm', note:'💡 1 seule fois par semaine, jamais en lourd : on garde le galbe sans regonfler les cuisses.'},
     ]
   },
   vendredi: {
-    emoji:'✨', label:'Vendredi', sub:'Bras (volume) · Taille',
+    emoji:'✨', label:'Vendredi', sub:'Dos ÉPAISSEUR · Posture · Bras tonus',
     ex:[
-      {id:'v2',n:'Curl haltères alternés',                          s:'4×12',       tip:'Léger à modéré, supination complète en haut, descends tout.',                                                                     rest:0,   super:true, rm:'12rm'},
-      {id:'v3',n:'Triceps corde poulie',                            s:'4×15',       tip:'Extension complète, écarte la corde en bas.',                                                                                      rest:60,  super:true, rm:'12rm'},
-      {id:'v4',n:'Curl marteau',                                    s:'3×12',       tip:'Prise neutre, galbe du bras vu de face.',                                                                                          rest:60,  rm:'12rm'},
-      {id:'v4b',n:'Extension triceps nuque haltère',                s:'3×12',       tip:'Un seul haltère à deux mains, coudes fixes près des oreilles, descends derrière la nuque. Deuxième angle pour le triceps.',        rest:60,  rm:'12rm'},
-      {id:'v4c',n:'Élévations latérales légères (épaules)',         s:'3×15',       tip:'Charge très légère, monte jusqu\'aux épaules, redescends lentement. Tonifie sans épaissir.',                                    rest:60,  rm:'15rm'},
-      {id:'v4d',n:'Tirage poulie haute prise serrée (léger)',       s:'3×15',       tip:'2e passage dos de la semaine — charge légère à modérée. Le dos pousse mieux avec 2 stimulations/semaine qu\'une seule grosse séance.', rest:75,  rm:'15rm'},
-      {id:'v5',n:'Gainage latéral',                                 s:'3×45s',      tip:'Bassin haut, corps en ligne droite.',                                                                                              rest:60},
-      {id:'v6',n:'Vacuum abdominal (Vacuum)',                       s:'3×30s',      tip:'Expire tout, rentre ventre au maximum, tiens.',                                                                                    rest:60,  note:'💡 Encore plus efficace à jeun le matin avant de manger — 5 min par jour pour une taille ultra fine.'},
+      {id:'m2',n:'Rowing barre buste penché',                         s:'4×8-10',     tip:'Dos plat, tire vers le nombril, serre les omoplates 1s. Le dos épais redresse la posture.', rest:120, rm:'8rm'},
+      {id:'m2c',n:'Rowing haltère unilatéral sur banc',               s:'3×10/côté',  tip:'Coude le long du corps, tire vers la hanche, étire bien en bas.', rest:75, rm:'12rm'},
+      {id:'m2b',n:'Tirage horizontal prise serrée (câble)',           s:'3×12',       tip:'Buste droit, poitrine sortie, squeeze omoplates 2s, retour en 3s.', rest:75, rm:'12rm'},
+      {id:'m4',n:'Oiseau haltères',                                   s:'3×15',       tip:'Penchée à 45°, ouvre sur les côtés, squeeze l\'arrière d\'épaule 2s.', rest:0, super:true, rm:'15rm'},
+      {id:'v4c',n:'Élévations latérales poulie unilatérale',          s:'3×12-15/côté',tip:'Tension continue grâce à la poulie. + 10 partielles en bas de l\'amplitude sur la dernière série.', rest:75, super:true, rm:'15rm'},
+      {id:'v4',n:'Curl marteau',                                      s:'2×12',       tip:'Tonus seulement : 2 séries suffisent, le dos travaille déjà les biceps.', rest:0, super:true, rm:'12rm'},
+      {id:'v3',n:'Triceps corde poulie',                              s:'2×15',       tip:'Extension complète, écarte la corde en bas.', rest:60, super:true, rm:'12rm'},
     ]
   },
-  rpm: {
-    emoji:'🚴‍♀️', label:'RPM', sub:'Samedi 10h45 (créneau de base)',
+  samedi: {
+    emoji:'🔥', label:'Samedi', sub:'Fessiers pump · Métabolique · Posture',
     ex:[
-      {id:'rp1',n:'Cours RPM (vélo indoor)',                        s:'45 minutes', tip:'Créneau de base : Samedi 10h45. Si tu sautes le Samedi, remplace par un cours dans la semaine — préfère Mardi ou Vendredi soir, évite Lundi et Jeudi soir (jambes/fessiers déjà sollicités ce jour-là). Intensité modérée-haute (tu dois pouvoir dire quelques mots, pas une phrase entière).', rest:0, duration:2700},
-      {id:'rp2',n:'Gainage ventral (Planche)',                      s:'3×40s',      tip:'À la fin du cours, tant que tu es encore chaude. Corps aligné, nombril rentré.',                                                     rest:45},
+      {id:'s1',n:'Hip thrust pieds écartés, genoux ouverts',          s:'3×15',       tip:'Pieds plus larges, pointes vers l\'extérieur : plus de haut fessier. Squeeze 2s en haut.', rest:75, rm:'15rm', note:'💡 Dernière série : rest-pause (10s de pause, puis max de reps, 2 fois).'},
+      {id:'s2',n:'Pont fessier unilatéral',                           s:'3×12/côté',  tip:'Pied au sol proche des fesses, bassin bien horizontal, pause 2s en haut.', rest:60},
+      {id:'s3',n:'Abducteur machine (pulse)',                         s:'3×20',       tip:'10 reps complètes + 10 pulses dans la position ouverte.', rest:45, rm:'15rm'},
+      {id:'s4',n:'Circuit métabolique : kettlebell swing / rameur / montées de genoux', s:'12 minutes', tip:'40s effort / 20s récup, tu enchaînes les 3 en boucle. Swing = poussée de hanches, pas les bras.', rest:0, duration:720},
+      {id:'w1',n:'Hyperextensions (lombaires + fessiers)',            s:'2×15',       tip:'Montée contrôlée jusqu\'à l\'alignement, JAMAIS au-delà (pas d\'hyperlordose). Pour la posture, pas pour cambrer.', rest:60},
     ]
   },
   dimanche: {
-    emoji:'🌿', label:'Dimanche', sub:'Repos actif · Posture',
+    emoji:'🌿', label:'Dimanche', sub:'Repos · Posture 10 min',
     ex:[
-      {id:'w1',n:'Hyperextensions avec haltère',                    s:'4×15',       tip:'Remonte en contractant lombaires ET fessiers en haut.',                                                                            rest:90,  rm:'posture'},
-      {id:'w2',n:'Hyperextension latérale',                         s:'3×15/côté',  tip:'Version latérale pour les obliques et la taille.',                                                                                rest:90,  rm:'posture'},
-      {id:'w3',n:'Bonjour barre légère (Good Morning)',              s:'3×15',       tip:'Dos plat, incline le buste, ressens les ischios.',                                                                                rest:90,  rm:'posture'},
-      {id:'w5',n:'Étirements fléchisseurs hanche',                  s:'10 min',     tip:'Fente basse maintenue 60s/côté. Cambrure naturelle.',                                                                             rest:0},
+      {id:'w5',n:'Étirement fléchisseurs de hanche (couch stretch)',  s:'2×45s/côté', tip:'Genou contre le mur, fessier serré, bassin rentré. Libère le bassin basculé en avant : posture redressée, ventre qui ressort moins.', rest:0},
+      {id:'w6',n:'Ouverture thoracique sur rouleau',                  s:'2 minutes',  tip:'Rouleau sous le haut du dos, bras croisés, laisse la poitrine s\'ouvrir. Contre le dos voûté.', rest:0, duration:120},
+      {id:'w7',n:'Rentré de menton contre le mur (Chin tuck)',        s:'2×10',       tip:'Dos et tête contre le mur, rentre le menton comme pour faire un double menton, 3s. Tête replacée au-dessus des épaules.', rest:0},
     ]
   }
 };
+
+
+P.dosComplet = {
+  emoji:'🏋️', label:'Dos complet', sub:'Largeur · Épaisseur · Épaules',
+  ex:[
+    {id:'m0',n:'Tractions (assistées ou lestées)', s:'4×6-8', tip:'Coudes vers les poches arrière, descente 3s complète.', rest:120, rm:'8rm'},
+    {id:'m2',n:'Rowing barre buste penché', s:'3×8-10', tip:'Dos plat, tire vers le nombril, omoplates serrées 1s.', rest:120, rm:'8rm'},
+    {id:'m6',n:'Tirage unilatéral poulie haute à genou', s:'3×12/côté', tip:'Coude vers la hanche, étirement complet en haut.', rest:60, rm:'12rm'},
+    {id:'m7',n:'Pull-over poulie haute (corde)', s:'3×15', tip:'Bras quasi tendus, squeeze grand dorsal 1s.', rest:0, super:true, rm:'15rm'},
+    {id:'m8',n:'Élévations latérales haltères', s:'3×15', tip:'Jusqu\'à l\'horizontale, descente 3s.', rest:75, super:true, rm:'15rm'},
+    {id:'m5',n:'Tirage visage corde (Face Pull)', s:'3×15', tip:'Coudes hauts, pause 2s. Posture.', rest:60, rm:'15rm'},
+  ]
+};
+P.c1 = {
+  emoji:'⚡', label:'Fessiers + Dos A', sub:'Lourd · 45-50 min',
+  ex:[
+    {id:'l1',n:'Poussée de hanches barre (Hip Thrust)', s:'4×6-8', tip:'Lourd. Descente 3s, squeeze 2s en haut, menton rentré.', rest:150, rm:'8rm'},
+    {id:'j1',n:'Soulevé de terre roumain barre', s:'3×8-10', tip:'Descente 3-4s, hanches loin derrière, dos neutre.', rest:120, rm:'8rm'},
+    {id:'m0',n:'Tractions (assistées ou lestées)', s:'3×6-8', tip:'Coudes vers les poches arrière.', rest:120, rm:'8rm'},
+    {id:'m2',n:'Rowing barre buste penché', s:'3×8-10', tip:'Dos plat, omoplates serrées 1s.', rest:90, rm:'8rm'},
+    {id:'l2',n:'Abducteur machine buste penché', s:'3×15-20', tip:'Haut du moyen fessier. Aucune pause avant l\'exercice B.', rest:0, super:true, rm:'15rm'},
+    {id:'m8',n:'Élévations latérales haltères', s:'3×15', tip:'Jusqu\'à l\'horizontale, descente 3s.', rest:75, super:true, rm:'15rm'},
+  ]
+};
+P.c2 = {
+  emoji:'🔥', label:'Fessiers + Dos B', sub:'Volume · 45-50 min',
+  ex:[
+    {id:'j7',n:'Hip thrust machine ou pont fessier barre', s:'4×12-15', tip:'Squeeze 2s en haut. Drop set −20% sur la dernière série.', rest:90, rm:'12rm'},
+    {id:'j8',n:'Extension de hanche 45° dos rond (fessiers)', s:'3×12-15', tip:'Dos rond, pieds tournés vers l\'extérieur, monte avec les fessiers.', rest:75, rm:'15rm'},
+    {id:'m1',n:'Tirage vertical prise large', s:'3×10-12', tip:'Remontée 3s, étirement complet.', rest:90, rm:'12rm'},
+    {id:'m2c',n:'Rowing haltère unilatéral sur banc', s:'3×10/côté', tip:'Coude vers la hanche.', rest:75, rm:'12rm'},
+    {id:'j9',n:'Abducteur machine', s:'3×20', tip:'Pause 2s en ouverture.', rest:0, super:true, rm:'15rm'},
+    {id:'m5',n:'Tirage visage corde (Face Pull)', s:'3×15', tip:'Coudes hauts, pause 2s.', rest:60, super:true, rm:'15rm'},
+  ]
+};
+var PLANS = {
+  A:{name:'Plan A · Semaine idéale', desc:'5 séances + RPM. Quand ton planning est normal.', days:[
+    ['lundi','Lundi','~50 min'],['mardi','Mardi','~50 min'],['mercredi','Mercredi','RPM 45 min + 10 min'],
+    ['jeudi','Jeudi','~50 min'],['vendredi','Vendredi','~50 min'],['samedi','Samedi','~45 min'],['dimanche','Dimanche','10 min']]},
+  B:{name:'Plan B · Semaine chargée', desc:'3 séances + RPM. Fessiers 2×, dos 1×.', days:[
+    ['lundi','Jour 1 (ex. lundi)','~50 min'],['dosComplet','Jour 2 (ex. mardi)','~50 min'],['mercredi','Jour 3 (ex. mercredi)','RPM 45 min + 10 min'],
+    ['jeudi','Jour 4 (ex. jeudi)','~50 min'],['dimanche','Dimanche','10 min']]},
+  C:{name:'Plan C · Semaine chaotique', desc:'2 séances + RPM. Ton minimum NON négociable.', days:[
+    ['c1','Séance 1 (ex. lundi)','45-50 min'],['mercredi','RPM (ex. mercredi)','45 min + 10 min'],['c2','Séance 2 (ex. jeudi)','45-50 min'],['dimanche','Dimanche','10 min']]}
+};
+var curPlan='A';
+try{ curPlan=localStorage.getItem('plan')||'A'; }catch(e){}
+if(!PLANS[curPlan]) curPlan='A';
+function setPlan(k){ curPlan=k; try{localStorage.setItem('plan',k);}catch(e){} renderHome(); }
+function renderHome(){
+  var pl=PLANS[curPlan];
+  var sel=document.getElementById('plan-sel');
+  sel.innerHTML=['A','B','C'].map(function(k){return '<button class="plan-btn'+(k===curPlan?' on':'')+'" onclick="setPlan(\''+k+'\')">Plan '+k+'</button>';}).join('');
+  document.getElementById('plan-desc').innerHTML='<div class="ramp">🎯 Objectif : <b>Plan A</b> chaque semaine.<br>Grosse fatigue ou semaine chargée → <b>Plan B</b>. Semaine chaotique → <b>Plan C</b>, ton minimum non négociable. Jamais 0 séance.</div><strong>'+pl.name+'</strong><br>'+pl.desc;
+  var list=document.getElementById('days-list');
+  list.innerHTML=pl.days.map(function(d){
+    var s=P[d[0]];
+    return '<div class="day-card" onclick="openDay(\''+d[0]+'\')"><div class="day-card-emoji">'+s.emoji+'</div><div class="day-card-body">'
+      +'<div class="day-card-name">'+d[1]+(/^(Lundi|Mardi|Mercredi|Jeudi|Vendredi|Samedi|Dimanche)$/.test(s.label)?'':' · '+s.label)+'</div>'
+      +'<div class="day-card-desc">'+s.sub+'</div><div class="day-card-pill">'+s.ex.length+' exercices · '+d[2]+'</div></div><div class="day-card-arrow">›</div></div>';
+  }).join('');
+}
 
 // ─────────────────────────────
 // AUTH
@@ -649,6 +655,7 @@ if(sessionStorage.getItem('pa')==='1'){
 // ─────────────────────────────
 // NAVIGATION
 // ─────────────────────────────
+renderHome();
 function show(id){ document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');}); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
 function goHome(){ show('p-home'); }
 function goSuivi(){ buildSuivi(); show('p-suivi'); }
@@ -659,7 +666,7 @@ function goSuivi(){ buildSuivi(); show('p-suivi'); }
 var curDay=null, sc={}, rt={}, rLeft={}, rPaused={};
 
 function nSets(ex){
-  if(ex.s==='25 minutes'||ex.s==='10 min') return 1;
+  if(ex.duration) return 1;
   var m=ex.s.match(/^(\d+)/); return m?parseInt(m[1]):3;
 }
 
@@ -741,7 +748,7 @@ function buildCard(ex, num, total, abLabel){
   }
   var restHTML='';
   if(ex.rest>0){
-    var rl=ex.rest===120?'2 min':ex.rest===60?'60 sec':'90 sec';
+    var rl=ex.rest>=60?(Math.floor(ex.rest/60)+' min'+(ex.rest%60?' '+(ex.rest%60):'')):ex.rest+' sec';
     restHTML='<button class="rest-btn" id="rbtn-'+ex.id+'" onclick="startRest(\''+ex.id+'\','+ex.rest+')">⏱ Repos '+rl+'</button>'
       +'<div class="rest-display" id="rd-'+ex.id+'">'
       +'<div class="rest-lbl">Temps de repos</div>'
@@ -830,7 +837,7 @@ function calc1rm(exId){
   if(!tc||!tr||tr<1){ box.classList.remove('on'); return; }
   var oneRM=Math.round(tc*(1+tr/30));
   var ex=null;
-  ['lundi','mardi','mercredi','jeudi','vendredi','rpm','dimanche'].forEach(function(d){
+  Object.keys(P).forEach(function(d){
     P[d].ex.forEach(function(e){ if(e.id===exId) ex=e; });
   });
   var cfg=RM_CFG[ex&&ex.rm]||RM_CFG['15rm'];
@@ -999,7 +1006,7 @@ function fmt(s){ var m=Math.floor(s/60),sec=s%60; return (m>0?m+':':'')+(sec<10?
 function buildSuivi(){
   var body=document.getElementById('suivi-body');
   body.innerHTML='';
-  ['lundi','mardi','mercredi','jeudi','vendredi','rpm','dimanche'].forEach(function(day){
+  PLANS[curPlan].days.map(function(x){return x[0];}).forEach(function(day){
     var d=P[day];
     var date=localStorage.getItem('ls_'+day)||'';
     var card=document.createElement('div');
@@ -1025,7 +1032,7 @@ function buildSuivi(){
   btn.textContent='↺ Réinitialiser les dates de séances (nouvelle semaine)';
   btn.onclick=function(){
     if(confirm('Réinitialiser les dates ?')){
-      ['lundi','mardi','mercredi','jeudi','vendredi','rpm','dimanche'].forEach(function(d){ localStorage.removeItem('ls_'+d); });
+      Object.keys(P).forEach(function(d){ localStorage.removeItem('ls_'+d); });
       buildSuivi(); showToast('Dates réinitialisées ✓');
     }
   };
