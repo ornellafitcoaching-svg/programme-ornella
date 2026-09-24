@@ -453,6 +453,10 @@
     .plan-desc{padding:0 18px 6px;font-size:.82rem;color:#666;line-height:1.4}
 
     .suivi-row{display:flex;flex-direction:column;gap:10px}
+    .qk-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 16px 0}
+    .qk-grid button{background:#fff;border:none;border-radius:14px;padding:10px 4px;box-shadow:0 2px 8px rgba(0,0,0,.06);font-size:.7rem;font-weight:600;color:var(--noir);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
+    .qk-grid button span{font-size:1.35rem}
+    .qk-grid button:active{transform:scale(.96)}
     .suivi-row-btn.alt{background:#fff;color:var(--noir);border:2px solid var(--gris-light)}
     .x-body{padding:16px 16px 40px}
     .x-card{background:#fff;border-radius:16px;padding:14px 15px;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:14px;font-size:.9rem;line-height:1.5}
@@ -601,6 +605,15 @@
       <div class="home-hero-emoji">🏋️</div>
       <div class="home-hero-title">Programme Salle</div>
       <div class="home-hero-sub">Phase sèche · Fessiers &amp; dos · 8 semaines</div>
+    </div>
+    <div class="qk-grid">
+      <button onclick="goJournal()"><span>📒</span>Journal</button>
+      <button onclick="goSuivi()"><span>📊</span>Charges</button>
+      <button onclick="goMens()"><span>📏</span>Mensu</button>
+      <button onclick="goNutri()"><span>🍽️</span>Plan repas</button>
+      <button onclick="goCourses()"><span>🛒</span>Courses</button>
+      <button onclick="goAgenda()"><span>📅</span>Agenda</button>
+      <button onclick="goMiss()"><span>😣</span>Séance ratée</button>
     </div>
     <div class="x-card" id="home-today" style="margin:14px 16px 0"></div>
     <div class="plan-sel" id="plan-sel"></div>
@@ -751,6 +764,7 @@
       <div class="x-card j-water"><div><b>💧 Eau</b> <span id="j-water-t" class="x-small"></span></div><div id="j-water" class="j-glasses"></div></div>
       <div class="x-card"><div class="x-entry-h">📊 Ma semaine</div><div id="j-week"></div></div>
       <button class="x-go" style="width:100%;padding:12px;background:#fff;color:var(--noir);border:2px solid var(--gris-light)" onclick="goNutri()">🍽️ Voir mes plans repas &amp; règles</button>
+      <div class="x-card" id="bk-card"></div>
     </div>
   </div>
 
@@ -2046,7 +2060,64 @@ function setTrain(v){var d=jDay(jDate);d.train=v;jSave(jDate,d);renderJournal();
 function markTrainedToday(){var td=iso(new Date()), d=jDay(td); if(d.train==null){ d.train=true; jSave(td,d); }}
 function r0(x){return Math.round(x);} function r1(x){return Math.round(x*10)/10;}
 function sumItems(it){return it.reduce(function(a,x){a.k+=x.k;a.p+=x.p;a.c+=x.c;a.f+=x.f;return a;},{k:0,p:0,c:0,f:0});}
-function goJournal(){ if(!jDate) jDate=iso(new Date()); renderJournal(); show('p-journal'); }
+
+// ─────────────────────────────
+// SÉCURITÉ DES DONNÉES : stockage persistant, contexte, sauvegarde / restauration
+// ─────────────────────────────
+function appCtx(){
+  var ua=navigator.userAgent||'';
+  if(/Instagram|FBAN|FBAV|FB_IAB|Snapchat|TikTok|musical_ly|Line\/|WhatsApp|Messenger/i.test(ua)) return 'inapp';
+  if(window.navigator.standalone || (window.matchMedia && matchMedia('(display-mode: standalone)').matches)) return 'home';
+  return 'browser';
+}
+var CTX_L={home:'l\'icône sur ton écran d\'accueil',browser:'Safari / ton navigateur',inapp:'le navigateur d\'une appli (Insta, WhatsApp…)'};
+try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}
+try{ if(!LS.getItem('ctx0')) LS.setItem('ctx0',appCtx()); }catch(e){}
+function ctxBanner(){
+  var c=appCtx(), first=LS.getItem('ctx0'), msg='';
+  if(!LS_OK) return;
+  if(c==='inapp') msg='⚠️ Tu es dans le navigateur d\'une appli (Insta, WhatsApp…) : <b>tes repas et charges ne seront PAS gardés</b>. Ouvre l\'appli depuis l\'icône de ton écran d\'accueil.';
+  else if(first && first!==c && first!=='inapp') msg='⚠️ Tu as commencé depuis <b>'+CTX_L[first]+'</b>, et là tu es dans <b>'+CTX_L[c]+'</b>. Sur iPhone ce sont 2 mémoires séparées : ouvre toujours l\'appli au même endroit (idéal : icône écran d\'accueil).';
+  if(!msg) return;
+  var b=document.createElement('div');
+  b.style.cssText='position:relative;z-index:50;background:#FFF4E5;border-bottom:2px solid #f59e0b;color:#7c2d12;font:500 13px/1.45 system-ui;padding:10px 14px';
+  b.innerHTML=msg+' <u style="cursor:pointer" onclick="this.parentNode.remove()">OK</u>';
+  var app=document.getElementById('app'); if(app) app.insertBefore(b,app.firstChild);
+}
+document.addEventListener('DOMContentLoaded',ctxBanner);
+function bkExport(){
+  var o={};
+  try{ for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i); o[k]=localStorage.getItem(k); } }catch(e){}
+  var txt=JSON.stringify({app:'programme-ornella',date:new Date().toISOString(),data:o});
+  var name='sauvegarde-ornella-'+iso(new Date())+'.json';
+  try{
+    var f=new File([txt],name,{type:'application/json'});
+    if(navigator.canShare && navigator.canShare({files:[f]})){ navigator.share({files:[f],title:name}).catch(function(){}); }
+    else { var a=document.createElement('a'); a.href=URL.createObjectURL(f); a.download=name; document.body.appendChild(a); a.click(); a.remove(); }
+    LS.setItem('bk_last',new Date().toLocaleDateString('fr-FR')); renderBk();
+  }catch(e){ showToast('Sauvegarde impossible ici'); }
+}
+function bkImport(inp){
+  var f=inp.files&&inp.files[0]; if(!f) return;
+  var r=new FileReader();
+  r.onload=function(){
+    try{ var j=JSON.parse(r.result); if(!j||!j.data) throw 0;
+      if(!confirm('Restaurer la sauvegarde du '+new Date(j.date).toLocaleDateString('fr-FR')+' ? Ça remplace les données actuelles.')) return;
+      Object.keys(j.data).forEach(function(k){ LS.setItem(k,j.data[k]); });
+      showToast('Données restaurées ✓'); setTimeout(function(){ location.reload(); },800);
+    }catch(e){ showToast('Fichier de sauvegarde invalide'); }
+  };
+  r.readAsText(f);
+}
+function renderBk(){
+  var el=document.getElementById('bk-card'); if(!el) return;
+  var c=appCtx(), n=Object.keys(jAll()).length, last=LS.getItem('bk_last');
+  el.innerHTML='<div class="x-entry-h">🔒 Mes données</div>'
+    +'<p class="x-small">Enregistré automatiquement sur ce téléphone, dans <b>'+CTX_L[c]+'</b>. '+(c==='inapp'?'<b style="color:#dc2626">Ici rien n\'est gardé !</b> ':'')+'Ouvre toujours l\'appli au même endroit.<br>'+n+' jour(s) dans ton journal'+(last?' · dernière sauvegarde : '+last:'')+'</p>'
+    +'<div style="display:flex;gap:8px;margin-top:8px"><button class="x-go" style="flex:1" onclick="bkExport()">💾 Sauvegarder</button>'
+    +'<label class="x-go" style="flex:1;text-align:center;cursor:pointer">📂 Restaurer<input type="file" accept=".json,application/json" style="display:none" onchange="bkImport(this)"></label></div>';
+}
+function goJournal(){ if(!jDate) jDate=iso(new Date()); renderJournal(); renderBk(); show('p-journal'); }
 function renderJournal(){
   var today=iso(new Date()), all=jAll();
   // barre des jours (7 derniers + demain)
@@ -2120,7 +2191,7 @@ function customBy(n){if(jTmp&&jTmp.n===n) return jTmp;var l=jCustom();for(var i=
 function saveCustom(x){var l=jCustom().filter(function(c){return c.n!==x.n;});l.unshift(x);sd('jcustom',l.slice(0,150));}
 function delCustom(i){var l=jCustom();l.splice(i,1);sd('jcustom',l);renderAdd();showToast('Retiré de Mes aliments');}
 function getFood(src){
-  if(src.indexOf('R:')===0){var r=RECIPES.filter(function(x){return x.n===src.slice(2);})[0];return r?{n:r.n,k:r.k,p:r.p,c:r.c,f:r.f,pp:true,info:'Recette à la portion'}:null;}
+  if(src.indexOf('R:')===0){var r=RECIPES.filter(function(x){return x.n===src.slice(2);})[0];return r?{n:r.n,k:r.k,p:r.p,c:r.c,f:r.f,pp:true,info:'1 portion = '+r.d}:null;}
   if(src.indexOf('C:')===0){var c=customBy(src.slice(2));return c?{n:c.n,k:c.k,p:c.p,c:c.c,f:c.f,u:c.u||['portion',100],pp:!!c.pp,info:c.pp?'Mes aliments · valeurs pour 1 portion':'Mes aliments · pour 100 g'}:null;}
   var f=foodBy(src);return f?{n:f[0],k:f[1],p:f[2],c:f[3],f:f[4],u:f[6],pp:false}:null;}
 function mkItem(src,g){var f=getFood(src);if(!f) return null;var q=f.pp?g:g/100;
@@ -2162,7 +2233,7 @@ function jSearch(){
   var q=norm((document.getElementById('j-q')||{value:''}).value.trim()), out='', lastCat='';
   var list=[];
   jCustom().forEach(function(c){if(!q||norm(c.n).indexOf(q)>=0) list.push(['C:'+c.n,c.n,r0(c.k)+' kcal / '+(c.pp?'portion':'100 g'),'⭐ Mes aliments']);});
-  RECIPES.forEach(function(r){if(!q||norm(r.n).indexOf(q)>=0) list.push(['R:'+r.n,r.n,r.k+' kcal / portion','Recettes Ornella']);});
+  RECIPES.forEach(function(r){if(!q||norm(r.n).indexOf(q)>=0||norm(r.d).indexOf(q)>=0) list.push(['R:'+r.n,r.n+'<br><small style="font-weight:400;color:var(--gris)">'+r.d+'</small>',r.k+' kcal / portion','Recettes Ornella']);});
   var W=q.split(/\s+/).filter(Boolean), hit=function(t){t=norm(t);return W.every(function(w){return t.indexOf(w)>=0;});};
   FOODS.forEach(function(f){if(!q||hit(f[0]+' '+f[5])) list.push([f[0],f[0],f[1]+' kcal / 100 g',f[5]]);});
   list.slice(0,q?40:1000).forEach(function(x){ if(!q&&x[3]!==lastCat){out+='<div style="padding:8px 12px 4px;font-size:.7rem;font-weight:700;color:var(--gris);text-transform:uppercase;background:var(--beige)">'+x[3]+'</div>';lastCat=x[3];}
