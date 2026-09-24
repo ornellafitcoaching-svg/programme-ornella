@@ -379,6 +379,9 @@
     .eq-panel summary{font-weight:700;cursor:pointer}
     .eq-panel label{display:block;margin-top:10px;font-size:.75rem;color:var(--gris)}
     .eq-panel .charge-inp{margin-top:4px;width:100%}
+    .yt-row{display:flex;gap:6px;margin-top:8px}
+    .yt-btn{flex:1;padding:9px;border-radius:10px;border:none;background:#FF0000;color:#fff;font-weight:700;font-size:.8rem;cursor:pointer}
+    .yt-edit{padding:9px 10px;border-radius:10px;border:1px solid rgba(0,0,0,.12);background:#fff;color:var(--gris);font-size:.72rem;cursor:pointer}
     /* Chrono flottant */
     .tm-float{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:900;display:none;align-items:center;gap:8px;background:var(--noir);color:#fff;border-radius:16px;padding:10px 12px 13px;box-shadow:0 8px 24px rgba(0,0,0,.3);overflow:hidden}
     .tm-float.on{display:flex}
@@ -1144,6 +1147,7 @@ function buildCard(ex, num, total, abLabel){
         +'<div class="ex-sets">'+ex.s+'</div>'
         +'<div class="ex-tip">"'+ex.tip+'"</div>'
         +(ex.note ? '<div class="ex-note">'+ex.note+'</div>' : '')
+        +'<div class="yt-row"><button class="yt-btn" onclick="openVid(\''+ex.id+'\')">▶ Voir la vidéo</button><button class="yt-edit" onclick="editVid(\''+ex.id+'\')">'+(LS.getItem('yt_'+ex.id)?'✏️ Ma vidéo':'🔗 Mettre ma vidéo')+'</button></div>'
       +'</div>'
     +'</div>'
     +'<div class="ex-body">'
@@ -1426,6 +1430,26 @@ function tmGoto(){
   var k=TM.rest?'rest':'dur', t=TM[k]; if(!t) return;
   if(t.day && P[t.day] && (curDay!==t.day || !document.getElementById('p-session').classList.contains('active'))){ openDay(t.day); }
   var c=document.getElementById('ec-'+t.id); if(c) c.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+// ─────────────────────────────
+// VIDÉOS YOUTUBE
+// ─────────────────────────────
+function vidQuery(id){
+  var n=exNameById(id), en=(n.match(/\(([^)]+)\)/)||[])[1];
+  var fr=n.replace(/\([^)]*\)/g,'').replace(/\s+/g,' ').trim();
+  return fr+(en && /[a-z]/i.test(en) && !/jonction|arrière|fessiers|3e séance|tirage|assist|lombaires|dos|vélo|anti-rotation|finisher|poulie|couch|corde|chin/i.test(en)?' '+en:'')+' technique exercice';
+}
+function openVid(id){
+  var u=LS.getItem('yt_'+id);
+  window.open(u||('https://www.youtube.com/results?search_query='+encodeURIComponent(vidQuery(id))),'_blank');
+}
+function editVid(id){
+  var cur=LS.getItem('yt_'+id)||'';
+  var u=prompt('Colle le lien YouTube de la vidéo à garder pour cet exo (vide = recherche auto) :',cur);
+  if(u===null) return;
+  u=u.trim(); if(u) LS.setItem('yt_'+id,u); else LS.removeItem('yt_'+id);
+  if(curDay) openDay(curDay); showToast(u?'Vidéo enregistrée ▶':'Recherche auto rétablie');
 }
 // anciennes fonctions appelées par les boutons
 function startRest(id,secs){ tmStart('rest',id,secs); }
