@@ -382,6 +382,8 @@
 .xp-btn{margin-top:10px;width:100%;padding:10px;border-radius:12px;border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;font-weight:700;font-size:.85rem;cursor:pointer}
     .xp-btn.on{background:#f59e0b;border-color:#f59e0b;color:#1A0D08}
     .alt-box{display:none;margin-top:8px;padding:9px 11px;border-radius:10px;background:#EEF6FF;border:1px solid #bfdbfe;color:#1e3a5f;font-size:.8rem;line-height:1.4}
+    .last-box{margin-top:8px;padding:9px 11px;border-radius:10px;background:#F0FDF4;border:1px solid #bbf7d0;color:#14532d;font-size:.8rem;line-height:1.5}
+    .last-use{margin-left:4px;padding:3px 9px;border-radius:8px;border:none;background:#16a34a;color:#fff;font-size:.72rem;font-weight:700;cursor:pointer}
     .yt-row{display:flex;gap:6px;margin-top:8px}
     .yt-btn{flex:1;padding:9px;border-radius:10px;border:none;background:#FF0000;color:#fff;font-weight:700;font-size:.8rem;cursor:pointer}
     .yt-edit{padding:9px 10px;border-radius:10px;border:1px solid rgba(0,0,0,.12);background:#fff;color:var(--gris);font-size:.72rem;cursor:pointer}
@@ -1070,6 +1072,35 @@ function phaseCard(){
 function setStart(){ var v=prompt('Date du lundi où tu as commencé (JJ/MM/AAAA) :',new Date(progStart()+'T12:00:00').toLocaleDateString('fr-FR')); if(!v) return;
   var m=v.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/); if(!m){ showToast('Format : JJ/MM/AAAA'); return; }
   LS.setItem('prog_start',iso(mondayOf(new Date(+m[3],+m[2]-1,+m[1],12)))); renderHome(); showToast('Date mise à jour ✓'); }
+// ─────────────────────────────
+// HISTORIQUE DES CHARGES + OBJECTIF DU JOUR
+// ─────────────────────────────
+function histGet(id){ var h=ld('h_'+id,[]); if(!h.length){ var c=pf(LS.getItem('c_'+id)); if(c>0){ var cd=(LS.getItem('cd_'+id)||'').split(' ')[0].split('/'); h=[{d:cd.length===3?cd[2]+'-'+cd[1]+'-'+cd[0]:'',kg:c}]; } } return h; }
+function histAdd(id){
+  var c=pf(LS.getItem('c_'+id)); if(!(c>0)) return;
+  var h=ld('h_'+id,[]), t=iso(new Date());
+  if(h.length && h[h.length-1].d===t) h[h.length-1].kg=c; else h.push({d:t,kg:c});
+  sd('h_'+id,h.slice(-40)); LS.setItem('cd_'+id,new Date().toLocaleDateString('fr-FR'));
+}
+function lastBefore(id){ var t=iso(new Date()), h=histGet(id).filter(function(x){return x.d!==t;}); return h.length?h[h.length-1]:null; }
+function fmtD(d){ if(!d) return ''; var x=new Date(d+'T12:00:00'); return x.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'numeric'}); }
+function targetFor(id,last){
+  var P0=phaseOf(progWeek()), ex=null; Object.keys(P).forEach(function(k){ P[k].ex.forEach(function(e){ if(e.id===id) ex=e; }); });
+  if(P0.ph==='deload') return {kg:roundLoad(last*0.9,id).kg, why:'décharge −10 %'};
+  if(P0.ph==='force' && P0.wb===5 && ex && ex.rm==='8rm') return {kg:roundLoad(last*1.075,id).kg, why:'passage en force, moins de reps'};
+  var inc=eqMode(id)==='bar'?2.5:eqCfg().step, r=roundLoad(last+inc,id);
+  if(r.kg<=last) r=roundLoad(last+inc*1.6,id);
+  return {kg:r.kg, why:'ou garde '+kgs(last)+' kg et fais +1 rep'};
+}
+function lastHTML(id){
+  var l=lastBefore(id); if(!l) return '<div class="last-box">🕘 Première fois : note ta charge, l\'appli s\'en souviendra.</div>';
+  var t=targetFor(id,l.kg);
+  return '<div class="last-box">🕘 Dernière fois : <b>'+kgs(l.kg)+' kg</b>'+(l.d?' · '+fmtD(l.d):'')
+    +'<br>🎯 Aujourd\'hui : <b>'+kgs(t.kg)+' kg</b> <span class="x-small">('+t.why+')</span>'
+    +' <button class="last-use" onclick="useTarget(\''+id+'\','+t.kg+')">Utiliser</button></div>';
+}
+function useTarget(id,kg){ var i=document.getElementById('c_'+id); if(!i) return; i.value=kgs(kg); sv('c_'+id,i.value); refreshCalc(id); showToast('Charge du jour : '+kgs(kg)+' kg'); }
+function histTxt(id){ var h=histGet(id).slice(-5); return h.length>1?'<div class="suivi-ex-date">📈 '+h.map(function(x){return kgs(x.kg);}).join(' → ')+' kg</div>':''; }
 var PLANS = {
   A:{name:'Plan A · Semaine idéale', desc:'5 séances + RPM. Quand ton planning est normal.', days:[
     ['lundi','Lundi','~50 min'],['mardi','Mardi','~50 min'],['mercredi','Mercredi','RPM 45 min + 10 min'],
@@ -1265,6 +1296,7 @@ function buildCard(ex, num, total, abLabel){
           +'<div class="charge-unit">kg séance</div></div>'
         +'<div class="ds-calc" id="dsc-'+ex.id+'">'+dsHTML(cv,ex.id)+'</div>'
       +'</div>'
+      +(ex.duration?'':lastHTML(ex.id))
       +(ex.rm ? '<div class="test-section">'
         +'<div class="test-section-lbl">🧪 Test 1RM</div>'
         +'<div class="test-inputs">'
@@ -1360,7 +1392,7 @@ function saveSessionCharges(){
   var now=new Date().toLocaleDateString('fr-FR')+' '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
   P[curDay].ex.forEach(function(ex){
     var c=LS.getItem('c_'+ex.id);
-    if(c) LS.setItem('cd_'+ex.id, now);
+    if(c){ histAdd(ex.id); LS.setItem('cd_'+ex.id, now); }
     var tc=LS.getItem('tc_'+ex.id);
     if(tc) LS.setItem('cd_'+ex.id, now);
   });
@@ -1410,7 +1442,7 @@ function tick(id,total){
   if(n>=total){
     btn.textContent='✅ Terminé !'; btn.classList.add('all-done');
     if(navigator.vibrate) navigator.vibrate([80,40,80]);
-    showToast('Exercice bouclé 🔥');
+    showToast('Exercice bouclé 🔥'); histAdd(id);
     LS.setItem('ls_'+curDay, new Date().toLocaleDateString('fr-FR')); markTrainedToday();
   } else {
     btn.textContent='✓ Série terminée — '+(n+1)+'/'+total;
@@ -1598,7 +1630,7 @@ function buildSuivi(){
       var cv=c?'<span class="suivi-val">'+c+' kg</span>':'<span class="suivi-val-empty">—</span>';
       var testv=(tc&&tr)?'<span class="suivi-test">test '+tc+'kg×'+tr+'</span>':'';
       var datev=cd?'<div class="suivi-ex-date">'+cd+'</div>':'';
-      rows+='<div class="suivi-row-item"><div class="suivi-ex-wrap"><span class="suivi-ex">'+ex.n+'</span>'+datev+'</div><span>'+cv+testv+'</span></div>';
+      rows+='<div class="suivi-row-item"><div class="suivi-ex-wrap"><span class="suivi-ex">'+ex.n+'</span>'+datev+histTxt(ex.id)+'</div><span>'+cv+testv+'</span></div>';
     });
     card.innerHTML='<div class="suivi-day-hd">'+d.emoji+' '+d.label+' — '+d.sub
       +(date?'<span class="suivi-date">'+date+'</span>':'')
