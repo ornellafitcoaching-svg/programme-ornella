@@ -369,6 +369,28 @@
     .duration-pause.paused { background: var(--rouge); border-color: var(--rouge); }
     .duration-pause:active { opacity:.85; }
 
+
+
+    .eq-tog{display:flex;gap:4px;margin-bottom:6px}
+    .eq-tog button{flex:1;font-size:.68rem;padding:6px 4px;border-radius:8px;border:1px solid rgba(0,0,0,.12);background:#fff;color:var(--gris);cursor:pointer}
+    .eq-tog button.on{background:var(--noir);color:#fff;border-color:var(--noir)}
+    .ds-pl{font-size:.7rem;color:var(--gris);margin:-2px 0 4px}
+    .eq-panel{background:#fff;border-radius:14px;padding:10px 14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.06);font-size:.85rem}
+    .eq-panel summary{font-weight:700;cursor:pointer}
+    .eq-panel label{display:block;margin-top:10px;font-size:.75rem;color:var(--gris)}
+    .eq-panel .charge-inp{margin-top:4px;width:100%}
+    /* Chrono flottant */
+    .tm-float{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:900;display:none;align-items:center;gap:8px;background:var(--noir);color:#fff;border-radius:16px;padding:10px 12px 13px;box-shadow:0 8px 24px rgba(0,0,0,.3);overflow:hidden}
+    .tm-float.on{display:flex}
+    body.tm-on .page{padding-bottom:90px}
+    .tmf-info{flex:1;min-width:0;cursor:pointer}
+    .tmf-lbl{font-size:.68rem;color:rgba(255,255,255,.55)}
+    .tmf-ex{font-size:.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .tmf-count{font-size:1.5rem;font-weight:800;font-variant-numeric:tabular-nums}
+    .tmf-b{min-width:42px;height:42px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:#fff;font-size:15px;font-weight:700;cursor:pointer}
+    .tmf-bar{position:absolute;left:0;bottom:0;height:3px;background:var(--rouge);transition:width .25s linear}
+    .rest-bar-fill,.duration-bar-fill{transition:width .25s linear}
+
     /* ── SUIVI ── */
     .suivi-body { padding: 14px 14px 80px; }
     .suivi-day-card { background: #fff; border-radius: 16px; margin-bottom: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
@@ -811,6 +833,7 @@
 
 </div>
 
+<div class="tm-float" id="tm-float"></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -834,24 +857,25 @@ document.addEventListener('DOMContentLoaded',function(){
 // ─────────────────────────────
 var P = {
   lundi: {
-    emoji:'💪', label:'Lundi', sub:'Fessiers LOURD · Haut fessier',
+    emoji:'💪', label:'Lundi', sub:'Fessiers LOURD · Haut fessier · Jonction cuisse-fessier',
     ex:[
       {id:'l0',n:'Activation : abducteur machine',                   s:'2×20',       tip:'Charge légère, pause 2s en ouverture. Tu réveilles le moyen fessier AVANT le lourd.', rest:45},
       {id:'l1',n:'Poussée de hanches barre (Hip Thrust)',             s:'4×6-8',      tip:'Ton exercice roi, maintenant en LOURD. Descends 3s, pause 1s en bas, pousse fort, squeeze 2s en haut, bassin à l\'horizontale, menton rentré (pas de cambrure lombaire).', rest:150, rm:'8rm', note:'💡 Semaines 5-7 : passe en 5×4-6 pour gagner en force.'},
       {id:'l3',n:'Squat bulgare haltères (Bulgarian Split Squat)',    s:'3×8-10/côté',tip:'Pied avant LOIN du banc, buste penché à 30°, pousse dans le talon. Genou qui avance peu = fessier, pas quadriceps.', rest:90, rm:'8rm'},
-      {id:'l4',n:'Coup de pied arrière câble (Kickback)',             s:'3×12-15/côté',tip:'Buste penché, jambe légèrement tournée vers l\'extérieur, pousse le talon en haut et en arrière, squeeze 2s. Haut du fessier.', rest:60, rm:'15rm'},
+      {id:'l5',n:'Soulevé de terre roumain unilatéral haltère (jonction cuisse-fessier)', s:'3×10/côté',tip:'Une main sur un support, haltère dans l\'autre main. Hanche qui part loin derrière, jambe d\'appui légèrement fléchie, descends jusqu\'à sentir l\'étirement SOUS le fessier, 1s de pause, remonte en serrant. C\'est LUI qui dessine le pli fessier-ischio.', rest:75, rm:'12rm'},
       {id:'l2',n:'Abducteur machine buste penché',                    s:'3×15-20',    tip:'Penche le buste en avant, mains sur la machine : ça cible le haut du moyen fessier (effet galbe latéral).', rest:60, rm:'15rm', note:'💡 Dernière série : drop set −30%, enchaîne jusqu\'à l\'échec sans poser.'},
     ]
   },
   mardi: {
-    emoji:'🏋️', label:'Mardi', sub:'Dos LARGEUR · Épaules (effet V)',
+    emoji:'🏋️', label:'Mardi', sub:'Dos LARGEUR · Épaules · Arrière des bras',
     ex:[
       {id:'m0',n:'Tractions (assistées ou lestées)',                  s:'4×6-8',      tip:'Prise un peu plus large que les épaules, pense "coudes dans les poches arrière". Descente 3s complète.', rest:120, rm:'8rm'},
       {id:'m1',n:'Tirage vertical prise large (Lat Pulldown)',        s:'3×10-12',    tip:'Buste légèrement incliné, tire vers le haut de la poitrine, squeeze 1s, remonte en 3s en laissant les omoplates s\'étirer.', rest:90, rm:'12rm'},
       {id:'m6',n:'Tirage unilatéral poulie haute à genou',            s:'3×12/côté',  tip:'Un genou au sol, tire le coude vers la hanche. Étirement complet en haut : c\'est ce qui élargit le dos.', rest:60, rm:'12rm'},
       {id:'m7',n:'Pull-over poulie haute (corde)',                   s:'3×15',       tip:'Bras quasi tendus, ramène la corde vers les cuisses, squeeze grand dorsal 1s.', rest:0, super:true, rm:'15rm'},
       {id:'m8',n:'Élévations latérales haltères',                    s:'3×15',       tip:'Légère inclinaison vers l\'avant, monte jusqu\'à l\'horizontale, descends en 3s. Épaules plus larges = taille qui paraît plus fine.', rest:75, super:true, rm:'15rm'},
-      {id:'m5',n:'Tirage visage corde (Face Pull)',                   s:'3×15-20',    tip:'Coudes hauts, écarte la corde vers les oreilles, pause 2s. Posture : épaules en arrière.', rest:60, rm:'15rm'},
+      {id:'m5',n:'Tirage visage corde (Face Pull)',                   s:'3×15-20',    tip:'Coudes hauts, écarte la corde vers les oreilles, pause 2s. Arrière d\'épaule = épaule ronde et posture redressée.', rest:0, super:true, rm:'15rm'},
+      {id:'m9',n:'Extension triceps au-dessus de la tête (corde poulie)', s:'3×12-15', tip:'Dos à la poulie, coudes près de la tête, descends LOIN derrière la nuque (étirement), tends complètement. C\'est le chef long : l\'arrière du bras qui pendouille.', rest:60, super:true, rm:'12rm'},
     ]
   },
   mercredi: {
@@ -859,48 +883,49 @@ var P = {
     ex:[
       {id:'rp1',n:'Cours RPM (vélo indoor)',                          s:'45 minutes', tip:'Intensité modérée à haute : tu peux dire quelques mots, pas une phrase entière. Si tu le rates, remplace par 30 min de rameur ou de marche inclinée.', rest:0, duration:2700},
       {id:'v6',n:'Vacuum abdominal (Vacuum)',                         s:'3×30s',      tip:'Expire tout, rentre le nombril vers la colonne, tiens en respirant court. Le transverse = ta ceinture naturelle.', rest:45},
-      {id:'me7',n:'Dead bug',                                         s:'3×10/côté',  tip:'Bas du dos COLLÉ au sol tout du long. C\'est l\'anti-cambrure lombaire : taille gainée, posture redressée.', rest:45},
+      {id:'me7',n:'Dead bug',                                         s:'3×10/côté',  tip:'Bas du dos plaqué au sol pendant l\'exercice. Gaine le transverse = taille qui se resserre, sans épaissir. (Ça n\'enlève pas ta cambrure debout.)', rest:45},
       {id:'me8',n:'Pallof press (anti-rotation poulie)',              s:'3×12/côté',  tip:'De profil à la poulie, pousse les bras devant toi et résiste à la rotation. Taille serrée SANS épaissir les obliques.', rest:45},
     ]
   },
   jeudi: {
     emoji:'🍑', label:'Jeudi', sub:'Ischios · Fessiers volume',
     ex:[
-      {id:'j1',n:'Soulevé de terre roumain barre (Romanian Deadlift)',s:'4×8-10',     tip:'Descends 3-4s, barre contre les jambes, hanches loin derrière, dos neutre. Remonte en poussant les hanches.', rest:150, rm:'8rm'},
+      {id:'j1',n:'Soulevé de terre roumain barre (Romanian Deadlift)',s:'4×8-10',     tip:'Descends 3-4s, barre contre les jambes, hanches loin derrière, dos neutre. Remonte en poussant les hanches. Arrière des cuisses + bas du fessier.', rest:150, rm:'8rm'},
       {id:'j7',n:'Hip thrust machine ou pont fessier barre',          s:'3×12-15',    tip:'Charge modérée, squeeze 2s en haut à chaque rep. Ici on cherche la congestion, pas le max.', rest:90, rm:'12rm', note:'💡 Dernière série : drop set −20% puis +10 reps.'},
       {id:'j8',n:'Extension de hanche 45° dos rond (fessiers)',       s:'3×12-15',    tip:'Dos ROND, pieds tournés vers l\'extérieur, monte avec les fessiers (pas les lombaires). Haltère contre la poitrine si trop facile.', rest:75, rm:'15rm'},
-      {id:'j2',n:'Curl ischio couché machine (Leg Curl)',             s:'3×12',       tip:'Squeeze 1s en haut, descends en 3s. Jonction ischio-fessier plus dessinée.', rest:75, rm:'12rm'},
+      {id:'j2s',n:'Leg curl ASSIS machine (arrière des cuisses)',     s:'3×10-12',    tip:'Buste penché en avant, hanches bien calées au fond : l\'ischio est étiré = plus de résultat qu\'en couché. Squeeze 1s, remonte en 3s.', rest:75, rm:'12rm', note:'💡 Dernière série : drop set −30 % jusqu\'à l\'échec.'},
       {id:'j9',n:'Abducteur machine',                                 s:'3×20',       tip:'Pause 2s en ouverture, retour lent.', rest:0, super:true, rm:'15rm'},
       {id:'j5',n:'Coup de pied arrière câble (Donkey Kick)',          s:'3×15/côté',  tip:'Genou fléchi à 90°, hanche fixe, squeeze 2s en haut.', rest:75, super:true, rm:'15rm'},
       {id:'j3',n:'Presse pieds hauts et larges (finisher)',           s:'3×15',       tip:'Pieds tout en haut de la plateforme et écartés, pointes légèrement ouvertes, descente profonde, pousse dans les talons. Charge MODÉRÉE : c\'est un finisher fessiers, pas un exercice de force.', rest:75, rm:'15rm', note:'💡 1 seule fois par semaine, jamais en lourd : on garde le galbe sans regonfler les cuisses.'},
     ]
   },
   vendredi: {
-    emoji:'✨', label:'Vendredi', sub:'Dos ÉPAISSEUR · Posture · Bras tonus',
+    emoji:'✨', label:'Vendredi', sub:'Dos ÉPAISSEUR · Épaules · Bras fermes',
     ex:[
       {id:'m2',n:'Rowing barre buste penché',                         s:'4×8-10',     tip:'Dos plat, tire vers le nombril, serre les omoplates 1s. Le dos épais redresse la posture.', rest:120, rm:'8rm'},
       {id:'m2c',n:'Rowing haltère unilatéral sur banc',               s:'3×10/côté',  tip:'Coude le long du corps, tire vers la hanche, étire bien en bas.', rest:75, rm:'12rm'},
-      {id:'m2b',n:'Tirage horizontal prise serrée (câble)',           s:'3×12',       tip:'Buste droit, poitrine sortie, squeeze omoplates 2s, retour en 3s.', rest:75, rm:'12rm'},
+      {id:'m3',n:'Développé épaules haltères assis',                  s:'3×10-12',    tip:'Banc à 80°, coudes légèrement devant, descends jusqu\'aux oreilles, pousse sans verrouiller. Épaules pleines et rondes = taille qui paraît plus fine.', rest:90, rm:'12rm'},
       {id:'m4',n:'Oiseau haltères',                                   s:'3×15',       tip:'Penchée à 45°, ouvre sur les côtés, squeeze l\'arrière d\'épaule 2s.', rest:0, super:true, rm:'15rm'},
       {id:'v4c',n:'Élévations latérales poulie unilatérale',          s:'3×12-15/côté',tip:'Tension continue grâce à la poulie. + 10 partielles en bas de l\'amplitude sur la dernière série.', rest:75, super:true, rm:'15rm'},
-      {id:'v4',n:'Curl marteau',                                      s:'2×12',       tip:'Tonus seulement : 2 séries suffisent, le dos travaille déjà les biceps.', rest:0, super:true, rm:'12rm'},
-      {id:'v3',n:'Triceps corde poulie',                              s:'2×15',       tip:'Extension complète, écarte la corde en bas.', rest:60, super:true, rm:'12rm'},
+      {id:'v4',n:'Curl marteau',                                      s:'2×12',       tip:'2 séries suffisent, le dos travaille déjà les biceps.', rest:0, super:true, rm:'12rm'},
+      {id:'v3',n:'Triceps corde poulie',                              s:'3×15',       tip:'Extension complète, écarte la corde en bas, 1s de contraction. 2e séance triceps de la semaine : arrière du bras ferme.', rest:60, super:true, rm:'12rm', note:'💡 Dernière série : drop set −30 %.'},
     ]
   },
   samedi: {
-    emoji:'🔥', label:'Samedi', sub:'Fessiers pump · Métabolique · Posture',
+    emoji:'🔥', label:'Samedi', sub:'Fessiers pump · Métabolique · Épaules · Cambrure',
     ex:[
       {id:'s1',n:'Hip thrust pieds écartés, genoux ouverts',          s:'3×15',       tip:'Pieds plus larges, pointes vers l\'extérieur : plus de haut fessier. Squeeze 2s en haut.', rest:75, rm:'15rm', note:'💡 Dernière série : rest-pause (10s de pause, puis max de reps, 2 fois).'},
-      {id:'s2',n:'Pont fessier unilatéral',                           s:'3×12/côté',  tip:'Pied au sol proche des fesses, bassin bien horizontal, pause 2s en haut.', rest:60},
+      {id:'s6',n:'Pull-through câble (tirage entre les jambes)',     s:'3×15',       tip:'Dos à la poulie basse, corde entre les jambes, hanches loin derrière (étirement ischios), puis pousse les hanches et squeeze 2s. Jonction cuisse-fessier sans charger le dos.', rest:60, rm:'15rm'},
       {id:'s3',n:'Abducteur machine (pulse)',                         s:'3×20',       tip:'10 reps complètes + 10 pulses dans la position ouverte.', rest:45, rm:'15rm'},
       {id:'s4',n:'Circuit métabolique : kettlebell swing / rameur / montées de genoux', s:'12 minutes', tip:'40s effort / 20s récup, tu enchaînes les 3 en boucle. Swing = poussée de hanches, pas les bras.', rest:0, duration:720},
-      {id:'w1',n:'Hyperextensions (lombaires + fessiers)',            s:'2×15',       tip:'Montée contrôlée jusqu\'à l\'alignement, JAMAIS au-delà (pas d\'hyperlordose). Pour la posture, pas pour cambrer.', rest:60},
+      {id:'s7',n:'Élévations latérales haltères (3e séance épaules)',   s:'3×15-20',    tip:'Léger, strict, monte jusqu\'à l\'horizontale, descends en 3s. Épaules rondes = effet sablier : taille qui paraît encore plus fine.', rest:0, super:true, rm:'15rm'},
+      {id:'w1',n:'Hyperextensions lombaires (dos plat)',             s:'3×15',       tip:'Dos PLAT (pas rond comme jeudi), monte jusqu\'à l\'alignement + un léger au-delà contrôlé, pause 2s. Muscles lombaires toniques = cambrure plus marquée et bas du dos plus ferme.', rest:60, super:true},
     ]
   },
   dimanche: {
     emoji:'🌿', label:'Dimanche', sub:'Repos · Posture 10 min',
     ex:[
-      {id:'w5',n:'Étirement fléchisseurs de hanche (couch stretch)',  s:'2×45s/côté', tip:'Genou contre le mur, fessier serré, bassin rentré. Libère le bassin basculé en avant : posture redressée, ventre qui ressort moins.', rest:0},
+      {id:'w5',n:'Étirement pectoraux dans l\'encadrement de porte',  s:'2×45s/côté', tip:'Avant-bras contre le montant, coude à hauteur d\'épaule, avance doucement la poitrine. Épaules qui partent en arrière = poitrine ouverte, épaules plus jolies.', rest:0},
       {id:'w6',n:'Ouverture thoracique sur rouleau',                  s:'2 minutes',  tip:'Rouleau sous le haut du dos, bras croisés, laisse la poitrine s\'ouvrir. Contre le dos voûté.', rest:0, duration:120},
       {id:'w7',n:'Rentré de menton contre le mur (Chin tuck)',        s:'2×10',       tip:'Dos et tête contre le mur, rentre le menton comme pour faire un double menton, 3s. Tête replacée au-dessus des épaules.', rest:0},
     ]
@@ -934,7 +959,7 @@ P.c2 = {
   emoji:'🔥', label:'Fessiers + Dos B', sub:'Volume · 45-50 min',
   ex:[
     {id:'j7',n:'Hip thrust machine ou pont fessier barre', s:'4×12-15', tip:'Squeeze 2s en haut. Drop set −20% sur la dernière série.', rest:90, rm:'12rm'},
-    {id:'j8',n:'Extension de hanche 45° dos rond (fessiers)', s:'3×12-15', tip:'Dos rond, pieds tournés vers l\'extérieur, monte avec les fessiers.', rest:75, rm:'15rm'},
+    {id:'j2s',n:'Leg curl ASSIS machine', s:'3×10-12', tip:'Buste penché en avant, squeeze 1s, remonte en 3s.', rest:75, rm:'12rm'},
     {id:'m1',n:'Tirage vertical prise large', s:'3×10-12', tip:'Remontée 3s, étirement complet.', rest:90, rm:'12rm'},
     {id:'m2c',n:'Rowing haltère unilatéral sur banc', s:'3×10/côté', tip:'Coude vers la hanche.', rest:75, rm:'12rm'},
     {id:'j9',n:'Abducteur machine', s:'3×20', tip:'Pause 2s en ouverture.', rest:0, super:true, rm:'15rm'},
@@ -1013,7 +1038,7 @@ function goSuivi(){ buildSuivi(); show('p-suivi'); }
 // ─────────────────────────────
 // SESSION
 // ─────────────────────────────
-var curDay=null, sc={}, rt={}, rLeft={}, rPaused={};
+var curDay=null, sc={};
 
 function nSets(ex){
   if(ex.duration) return 1;
@@ -1026,7 +1051,7 @@ function openDay(day){
   document.getElementById('sess-title').textContent=d.emoji+' '+d.label;
   document.getElementById('sess-sub').textContent=d.sub;
   var body=document.getElementById('sess-body');
-  body.innerHTML='';
+  body.innerHTML=eqPanel();
   var exList=d.ex, i=0, num=1;
   while(i<exList.length){
     var ex=exList[i];
@@ -1070,6 +1095,7 @@ function openDay(day){
   body.appendChild(saveBtn);
   updateProg();
   show('p-session');
+  keepAwake(); tmRender();
 }
 
 function buildCard(ex, num, total, abLabel){
@@ -1124,9 +1150,9 @@ function buildCard(ex, num, total, abLabel){
       +'<div class="charges-grid">'
         +'<div class="charge-wrap"><label>Ma charge</label>'
           +'<input type="text" class="charge-inp" id="'+ck+'" value="'+cv+'" placeholder="—" inputmode="decimal"'
-          +' onchange="sv(\''+ck+'\',this.value)" oninput="sv(\''+ck+'\',this.value);document.getElementById(\'dsc-'+ex.id+'\').innerHTML=dsHTML(this.value)">'
+          +' onchange="sv(\''+ck+'\',this.value)" oninput="sv(\''+ck+'\',this.value);refreshCalc(\''+ex.id+'\')">'
           +'<div class="charge-unit">kg séance</div></div>'
-        +'<div class="ds-calc" id="dsc-'+ex.id+'">'+dsHTML(cv)+'</div>'
+        +'<div class="ds-calc" id="dsc-'+ex.id+'">'+dsHTML(cv,ex.id)+'</div>'
       +'</div>'
       +(ex.rm ? '<div class="test-section">'
         +'<div class="test-section-lbl">🧪 Test 1RM</div>'
@@ -1157,14 +1183,65 @@ function buildCard(ex, num, total, abLabel){
 
 function r05(x){ return Math.round(x*2)/2; }
 function kgf(x){ return String(r05(x)).replace('.',','); }
-function dsHTML(v){
-  var x=pf(v);
-  if(!x||x<=0) return '<div class="ds-empty">🔶 Entre ta charge : je te calcule tes drop sets</div>';
-  return '<div class="ds-t">🔶 Drop sets</div>'
-    +'<div class="ds-l"><span>−20 %</span><b>'+kgf(x*0.8)+' kg</b></div>'
-    +'<div class="ds-l"><span>−30 %</span><b>'+kgf(x*0.7)+' kg</b></div>'
-    +'<div class="ds-l"><span>2e drop (−30 % ×2)</span><b>'+kgf(x*0.49)+' kg</b></div>';
+// ─────────────────────────────
+// ARRONDI DES CHARGES (disques / haltères réellement dispo)
+// ─────────────────────────────
+function eqCfg(){
+  var pl=(LS.getItem('eq_plates')||'25 20 5 2,5 1,5').trim().split(/\s+/).map(pf).filter(function(x){return x>0;}).sort(function(a,b){return b-a;});
+  return {bar:pf(LS.getItem('eq_bar')||'20')||0, plates:pl, step:pf(LS.getItem('eq_step')||'2,5')||2.5};
 }
+var _psCache={};
+function plateSums(plates){
+  var key=plates.join('|'); if(_psCache[key]) return _psCache[key];
+  var m={0:[]};
+  plates.forEach(function(p){
+    var p100=Math.round(p*100);
+    Object.keys(m).map(Number).forEach(function(s){
+      for(var c=1;c<=4;c++){ var ns=s+p100*c; if(ns>30000) break;
+        var combo=m[s].concat(Array(c).fill(p));
+        if(!(ns in m) || m[ns].length>combo.length) m[ns]=combo; }
+    });
+  });
+  return _psCache[key]=m;
+}
+function eqMode(id){
+  var v=LS.getItem('eq_'+id); if(v) return v;
+  var n=exNameById(id); return /barre/i.test(n) && !/machine ou/i.test(n) ? 'bar' : 'step';
+}
+function setEqMode(id,m){ LS.setItem('eq_'+id,m); refreshCalc(id); }
+function roundLoad(target,id){
+  var c=eqCfg();
+  if(eqMode(id)==='bar'){
+    var per=(target-c.bar)/2;
+    if(per<=0) return {kg:c.bar,txt:'barre seule'};
+    var m=plateSums(c.plates), goal=per*100, best=0, bd=1e9;
+    Object.keys(m).map(Number).forEach(function(s){ var d=Math.abs(s-goal); if(d<bd-0.01 || (Math.abs(d-bd)<0.01 && s<best)){ bd=d; best=s; } });
+    var list=m[best].map(function(x){return String(x).replace('.',',');});
+    return {kg:c.bar+2*best/100, txt:list.length?'barre '+kgs(c.bar)+' + <b>'+list.join(' + ')+'</b> /côté':'barre seule'};
+  }
+  return {kg:Math.max(c.step,Math.round(target/c.step)*c.step), txt:''};
+}
+function kgs(x){ return String(Math.round(x*100)/100).replace('.',','); }
+function dsHTML(v,id){
+  var x=pf(v), md=eqMode(id);
+  var tog='<div class="eq-tog"><button class="'+(md==='bar'?'on':'')+'" onclick="setEqMode(\''+id+'\',\'bar\')">Barre + disques</button><button class="'+(md!=='bar'?'on':'')+'" onclick="setEqMode(\''+id+'\',\'step\')">Haltères / machine</button></div>';
+  if(!x||x<=0) return tog+'<div class="ds-empty">🔶 Entre ta charge : je te calcule tes drop sets arrondis à tes vrais poids</div>';
+  function line(lbl,t){ var r=roundLoad(t,id); return '<div class="ds-l"><span>'+lbl+'</span><b>'+kgs(r.kg)+' kg</b></div>'+(r.txt?'<div class="ds-pl">'+r.txt+'</div>':''); }
+  var cur=roundLoad(x,id);
+  return tog+(md==='bar'?'<div class="ds-pl" style="margin-bottom:6px">🏋️ '+kgs(x)+' kg à charger : '+(Math.abs(cur.kg-x)>0.01?'<b>'+kgs(cur.kg)+' kg</b> possible → ':'')+cur.txt+'</div>':'')
+    +'<div class="ds-t">🔶 Drop sets (arrondis à tes poids)</div>'
+    +line('−20 %',x*0.8)+line('−30 %',x*0.7)+line('2e drop (−30 % ×2)',x*0.49);
+}
+function refreshCalc(id){ var el=document.getElementById('dsc-'+id), i=document.getElementById('c_'+id); if(el) el.innerHTML=dsHTML(i?i.value:'',id); if(document.getElementById('rm-'+id)) calc1rm(id); }
+function eqPanel(){
+  var c=eqCfg();
+  return '<details class="eq-panel"><summary>⚙️ Mes poids dispo (barre, disques, haltères)</summary>'
+    +'<label>Poids de la barre (kg)<input class="charge-inp" inputmode="decimal" value="'+kgs(c.bar)+'" onchange="LS.setItem(\'eq_bar\',this.value);refreshAll()"></label>'
+    +'<label>Disques dispo (kg, séparés par un espace)<input class="charge-inp" value="'+c.plates.map(kgs).join(' ')+'" onchange="LS.setItem(\'eq_plates\',this.value);refreshAll()"></label>'
+    +'<label>Écart haltères / machine (kg)<input class="charge-inp" inputmode="decimal" value="'+kgs(c.step)+'" onchange="LS.setItem(\'eq_step\',this.value);refreshAll()"></label>'
+    +'<div class="x-small">Chaque carte a un bouton « Barre + disques » ou « Haltères / machine » pour choisir le mode d\'arrondi.</div></details>';
+}
+function refreshAll(){ if(curDay) P[curDay].ex.forEach(function(e){ refreshCalc(e.id); }); showToast('Poids mis à jour ✓'); }
 function sv(k,v){ LS.setItem(k,v); }
 
 function saveSessionCharges(){
@@ -1202,10 +1279,11 @@ function calc1rm(exId){
     P[d].ex.forEach(function(e){ if(e.id===exId) ex=e; });
   });
   var cfg=RM_CFG[ex&&ex.rm]||RM_CFG['15rm'];
-  var recommended=Math.round(oneRM*cfg.pct);
+  var rr=roundLoad(oneRM*cfg.pct,exId);
   box.innerHTML='<div class="rm-1rm">1RM estimé : <strong>'+oneRM+' kg</strong></div>'
     +'<div class="rm-targets">'
-    +'<div class="rm-line reco">→ Charge recommandée — '+cfg.label+' : <span>'+recommended+' kg</span></div>'
+    +'<div class="rm-line reco">→ Charge recommandée — '+cfg.label+' : <span>'+kgs(rr.kg)+' kg</span></div>'
+    +(rr.txt?'<div class="ds-pl">'+rr.txt+'</div>':'')
     +'</div>';
   box.classList.add('on');
 }
@@ -1252,16 +1330,6 @@ function updateProg(){
 // ─────────────────────────────
 // REST TIMER
 // ─────────────────────────────
-function startRest(id,secs){
-  beep(1,0.001); // débloque le son au clic (iOS)
-  if(rt[id]){ clearInterval(rt[id]); delete rt[id]; }
-  rLeft[id]=secs; rPaused[id]=false;
-  var disp=document.getElementById('rd-'+id);
-  var pb=document.getElementById('pb-'+id);
-  disp.classList.add('on');
-  if(pb){ pb.textContent='⏸ Pause'; pb.classList.remove('paused'); }
-  runRest(id,secs);
-}
 // ─────────────────────────────
 // SON (bips chrono)
 // ─────────────────────────────
@@ -1281,84 +1349,102 @@ function beep(freq,dur){
 }
 function beepDouble(){ beep(880,0.18); setTimeout(function(){ beep(1046,0.28); },220); }
 
-function runRest(id,total){
-  var count=document.getElementById('rc-'+id);
-  var bar=document.getElementById('rb-'+id);
-  if(count) count.textContent=fmt(rLeft[id]);
-  if(bar){
-    var pct=Math.round(rLeft[id]/total*100);
-    bar.style.transition='none'; bar.style.width=pct+'%';
-    setTimeout(function(){ bar.style.transition='width '+rLeft[id]+'s linear'; bar.style.width='0%'; },50);
-  }
-  rt[id]=setInterval(function(){
-    if(rPaused[id]) return;
-    rLeft[id]--;
-    if(count) count.textContent=fmt(rLeft[id]);
-    if(rLeft[id]>0 && rLeft[id]<=3){ beep(660,0.12); }
-    if(rLeft[id]<=0){
-      clearInterval(rt[id]); delete rt[id];
-      var disp=document.getElementById('rd-'+id);
-      if(disp) disp.classList.remove('on');
-      if(navigator.vibrate) navigator.vibrate([200,80,200,80,200]);
+// ─────────────────────────────
+// CHRONOS — basés sur l'heure réelle (continuent même si tu quittes la page)
+// ─────────────────────────────
+var TM={rest:null,dur:null}, tmIv=null, tmLastBeep={rest:null,dur:null};
+try{ TM.rest=JSON.parse(LS.getItem('tm_rest')||'null'); TM.dur=JSON.parse(LS.getItem('tm_dur')||'null'); }catch(e){}
+function tmSave(k){ if(TM[k]) LS.setItem('tm_'+k,JSON.stringify(TM[k])); else LS.removeItem('tm_'+k); }
+function tmLeft(k){ var t=TM[k]; if(!t) return 0; return t.paused? t.left : Math.max(0,Math.ceil((t.end-Date.now())/1000)); }
+function exNameById(id){ var n=''; Object.keys(P).forEach(function(d){ P[d].ex.forEach(function(e){ if(e.id===id) n=e.n; }); }); return n; }
+function tmStart(k,id,secs){
+  beep(1,0.001); keepAwake();
+  TM[k]={id:id,total:secs,end:Date.now()+secs*1000,paused:false,left:secs,day:curDay};
+  tmLastBeep[k]=null; tmSave(k); tmLoop(); tmRender();
+}
+function tmPause(k){
+  var t=TM[k]; if(!t) return;
+  if(t.paused){ t.paused=false; t.end=Date.now()+t.left*1000; }
+  else { t.left=tmLeft(k); t.paused=true; }
+  tmSave(k); tmRender();
+}
+function tmAdd(k,s){ var t=TM[k]; if(!t) return; if(t.paused) t.left+=s; else t.end+=s*1000; t.total+=s; tmSave(k); tmRender(); }
+function tmStop(k){ TM[k]=null; tmSave(k); tmRender(); }
+function tmLoop(){ if(!tmIv) tmIv=setInterval(tmTick,250); }
+function tmTick(){
+  if(!TM.rest && !TM.dur){ clearInterval(tmIv); tmIv=null; tmRender(); return; }
+  ['rest','dur'].forEach(function(k){
+    var t=TM[k]; if(!t || t.paused) return;
+    var l=tmLeft(k);
+    if(l>0 && l<=3 && tmLastBeep[k]!==l){ tmLastBeep[k]=l; beep(660,0.12); }
+    if(l<=0){
+      var late=Math.round((Date.now()-t.end)/1000);
+      TM[k]=null; tmSave(k);
+      if(navigator.vibrate) navigator.vibrate([250,90,250,90,250]);
       beepDouble();
-      showToast('Repos terminé — à toi ! 💪');
+      if(k==='rest') showToast(late>4?'⏰ Repos fini depuis '+fmt(late)+' — go ! 💪':'Repos terminé — à toi ! 💪');
+      else showToast('Chrono terminé — bravo ! 🔥');
     }
-  },1000);
+  });
+  tmRender();
 }
-var dt={}, dtLeft={}, dtPaused={}, dtTotal={};
-function startDuration(id,secs){
-  beep(1,0.001); // débloque le son au clic (iOS)
-  if(dt[id]){ clearInterval(dt[id]); delete dt[id]; }
-  dtLeft[id]=secs; dtTotal[id]=secs; dtPaused[id]=false;
-  var pb=document.getElementById('dp-'+id);
-  if(pb){ pb.textContent='⏸ Pause'; pb.classList.remove('paused'); }
-  var bar=document.getElementById('db-'+id);
-  if(bar){ bar.style.transition='none'; bar.style.width='0%';
-    setTimeout(function(){ bar.style.transition='width '+secs+'s linear'; bar.style.width='100%'; },50); }
-  updateDurationCount(id);
-  dt[id]=setInterval(function(){
-    if(dtPaused[id]) return;
-    dtLeft[id]--;
-    updateDurationCount(id);
-    if(dtLeft[id]>0 && dtLeft[id]<=3){ beep(660,0.12); }
-    if(dtLeft[id]<=0){
-      clearInterval(dt[id]); delete dt[id];
-      if(navigator.vibrate) navigator.vibrate([300,100,300,100,300]);
-      beepDouble();
-      showToast('Chrono terminé — bravo ! 🔥');
-    }
-  },1000);
+function tmRender(){
+  // cartes repos
+  document.querySelectorAll('.rest-display').forEach(function(el){
+    var id=el.id.slice(3), on=TM.rest && TM.rest.id===id;
+    el.classList.toggle('on',!!on);
+    if(!on) return;
+    var l=tmLeft('rest');
+    var c=document.getElementById('rc-'+id); if(c) c.textContent=fmt(l);
+    var b=document.getElementById('rb-'+id); if(b) b.style.width=Math.round(l/TM.rest.total*100)+'%';
+    var pb=document.getElementById('pb-'+id); if(pb){ pb.textContent=TM.rest.paused?'▶ Reprendre':'⏸ Pause'; pb.classList.toggle('paused',TM.rest.paused); }
+  });
+  // cartes chrono durée
+  document.querySelectorAll('.duration-count').forEach(function(el){
+    var id=el.id.slice(3), on=TM.dur && TM.dur.id===id;
+    var b=document.getElementById('db-'+id), pb=document.getElementById('dp-'+id);
+    if(!on){ return; }
+    var l=tmLeft('dur'); el.textContent=fmt(l);
+    if(b) b.style.width=Math.round((1-l/TM.dur.total)*100)+'%';
+    if(pb){ pb.textContent=TM.dur.paused?'▶ Reprendre':'⏸ Pause'; pb.classList.toggle('paused',TM.dur.paused); }
+  });
+  // barre flottante (visible partout dans l'appli)
+  var f=document.getElementById('tm-float'); if(!f) return;
+  var k=TM.rest?'rest':(TM.dur?'dur':null);
+  if(!k){ f.classList.remove('on'); document.body.classList.remove('tm-on'); return; }
+  var t=TM[k], l=tmLeft(k);
+  f.classList.add('on'); document.body.classList.add('tm-on');
+  f.innerHTML='<div class="tmf-info" onclick="tmGoto()"><div class="tmf-lbl">'+(k==='rest'?'⏱ Repos':'⏱ Chrono')+(t.paused?' · en pause':'')+'</div>'
+    +'<div class="tmf-ex">'+exNameById(t.id)+'</div></div>'
+    +'<div class="tmf-count">'+fmt(l)+'</div>'
+    +(k==='rest'?'<button class="tmf-b" onclick="tmAdd(\'rest\',15)">+15</button>':'')
+    +'<button class="tmf-b" onclick="tmPause(\''+k+'\')">'+(t.paused?'▶':'⏸')+'</button>'
+    +'<button class="tmf-b" onclick="tmStop(\''+k+'\')">✕</button>'
+    +'<div class="tmf-bar" style="width:'+Math.round((k==='rest'?l/t.total:1-l/t.total)*100)+'%"></div>';
 }
-function updateDurationCount(id){
-  var el=document.getElementById('dc-'+id);
-  if(el) el.textContent=fmt(dtLeft[id]);
+function tmGoto(){
+  var k=TM.rest?'rest':'dur', t=TM[k]; if(!t) return;
+  if(t.day && P[t.day] && (curDay!==t.day || !document.getElementById('p-session').classList.contains('active'))){ openDay(t.day); }
+  var c=document.getElementById('ec-'+t.id); if(c) c.scrollIntoView({behavior:'smooth',block:'center'});
 }
-function toggleDurationPause(id){
-  var pb=document.getElementById('dp-'+id);
-  var bar=document.getElementById('db-'+id);
-  if(dtPaused[id]){
-    dtPaused[id]=false;
-    if(pb){ pb.textContent='⏸ Pause'; pb.classList.remove('paused'); }
-    if(bar){ bar.style.transition='width '+dtLeft[id]+'s linear'; bar.style.width='100%'; }
-  } else {
-    dtPaused[id]=true;
-    if(pb){ pb.textContent='▶ Reprendre'; pb.classList.add('paused'); }
-    if(bar){ var cur=bar.getBoundingClientRect().width/bar.parentElement.getBoundingClientRect().width*100; bar.style.transition='none'; bar.style.width=cur+'%'; }
+// anciennes fonctions appelées par les boutons
+function startRest(id,secs){ tmStart('rest',id,secs); }
+function togglePause(id){ tmPause('rest'); }
+function startDuration(id,secs){ tmStart('dur',id,secs); }
+function toggleDurationPause(id){ tmPause('dur'); }
+// écran allumé pendant la séance (iPhone iOS 16.4+)
+var _wl=null;
+function keepAwake(){ try{ if('wakeLock' in navigator && !_wl){ navigator.wakeLock.request('screen').then(function(w){ _wl=w; w.addEventListener('release',function(){ _wl=null; }); }).catch(function(){}); } }catch(e){} }
+function onBack(){
+  if(document.visibilityState==='visible'){
+    tmTick();
+    if(TM.rest||TM.dur||document.getElementById('p-session').classList.contains('active')) keepAwake();
   }
 }
-function togglePause(id){
-  var pb=document.getElementById('pb-'+id);
-  var bar=document.getElementById('rb-'+id);
-  if(rPaused[id]){
-    rPaused[id]=false;
-    if(pb){ pb.textContent='⏸ Pause'; pb.classList.remove('paused'); }
-    if(bar){ bar.style.transition='width '+rLeft[id]+'s linear'; bar.style.width='0%'; }
-  } else {
-    rPaused[id]=true;
-    if(pb){ pb.textContent='▶ Reprendre'; pb.classList.add('paused'); }
-    if(bar){ var cur=bar.getBoundingClientRect().width/bar.parentElement.getBoundingClientRect().width*100; bar.style.transition='none'; bar.style.width=cur+'%'; }
-  }
-}
+document.addEventListener('visibilitychange',onBack);
+window.addEventListener('focus',onBack);
+window.addEventListener('pageshow',onBack);
+if(TM.rest||TM.dur) tmLoop();
 function fmt(s){ var m=Math.floor(s/60),sec=s%60; return (m>0?m+':':'')+(sec<10?'0':'')+sec; }
 
 // ─────────────────────────────
