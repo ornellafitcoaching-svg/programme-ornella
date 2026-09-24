@@ -379,6 +379,9 @@
     .eq-panel summary{font-weight:700;cursor:pointer}
     .eq-panel label{display:block;margin-top:10px;font-size:.75rem;color:var(--gris)}
     .eq-panel .charge-inp{margin-top:4px;width:100%}
+.xp-btn{margin-top:10px;width:100%;padding:10px;border-radius:12px;border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;font-weight:700;font-size:.85rem;cursor:pointer}
+    .xp-btn.on{background:#f59e0b;border-color:#f59e0b;color:#1A0D08}
+    .alt-box{display:none;margin-top:8px;padding:9px 11px;border-radius:10px;background:#EEF6FF;border:1px solid #bfdbfe;color:#1e3a5f;font-size:.8rem;line-height:1.4}
     .yt-row{display:flex;gap:6px;margin-top:8px}
     .yt-btn{flex:1;padding:9px;border-radius:10px;border:none;background:#FF0000;color:#fff;font-weight:700;font-size:.8rem;cursor:pointer}
     .yt-edit{padding:9px 10px;border-radius:10px;border:1px solid rgba(0,0,0,.12);background:#fff;color:var(--gris);font-size:.72rem;cursor:pointer}
@@ -615,6 +618,7 @@
       <button onclick="goAgenda()"><span>📅</span>Agenda</button>
       <button onclick="goMiss()"><span>😣</span>Séance ratée</button>
     </div>
+    <div id="home-phase"></div>
     <div class="x-card" id="home-today" style="margin:14px 16px 0"></div>
     <div class="plan-sel" id="plan-sel"></div>
     <div class="plan-desc" id="plan-desc"></div>
@@ -830,6 +834,7 @@
       </div>
       <div class="prog-bar-wrap"><div class="prog-bar-fill" id="prog-fill" style="width:0%"></div></div>
       <div class="prog-label" id="prog-label">0 / 0 exercices terminés</div>
+      <button class="xp-btn" id="xp-btn" onclick="toggleExpress()">⚡ J'ai que 45 min</button>
     </div>
     <div class="sess-body" id="sess-body"></div>
   </div>
@@ -877,7 +882,7 @@ var P = {
     emoji:'💪', label:'Lundi', sub:'Fessiers LOURD · Haut fessier · Jonction cuisse-fessier',
     ex:[
       {id:'l0',n:'Activation : abducteur machine',                   s:'2×20',       tip:'Charge légère, pause 2s en ouverture. Tu réveilles le moyen fessier AVANT le lourd.', rest:45},
-      {id:'l1',n:'Poussée de hanches barre (Hip Thrust)',             s:'4×6-8',      tip:'Ton exercice roi, maintenant en LOURD. Descends 3s, pause 1s en bas, pousse fort, squeeze 2s en haut, bassin à l\'horizontale, menton rentré (pas de cambrure lombaire).', rest:150, rm:'8rm', note:'💡 Semaines 5-7 : passe en 5×4-6 pour gagner en force.'},
+      {id:'l1',n:'Poussée de hanches barre (Hip Thrust)',             s:'4×6-8',      tip:'Ton exercice roi, maintenant en LOURD. Descends 3s, pause 1s en bas, pousse fort, squeeze 2s en haut, bassin à l\'horizontale, menton rentré (pas de cambrure lombaire).', rest:150, rm:'8rm'},
       {id:'l3',n:'Squat bulgare haltères (Bulgarian Split Squat)',    s:'3×8-10/côté',tip:'Pied avant LOIN du banc, buste penché à 30°, pousse dans le talon. Genou qui avance peu = fessier, pas quadriceps.', rest:90, rm:'8rm'},
       {id:'l5',n:'Soulevé de terre roumain unilatéral haltère (jonction cuisse-fessier)', s:'3×10/côté',tip:'Une main sur un support, haltère dans l\'autre main. Hanche qui part loin derrière, jambe d\'appui légèrement fléchie, descends jusqu\'à sentir l\'étirement SOUS le fessier, 1s de pause, remonte en serrant. C\'est LUI qui dessine le pli fessier-ischio.', rest:75, rm:'12rm'},
       {id:'l2',n:'Abducteur machine buste penché',                    s:'3×15-20',    tip:'Penche le buste en avant, mains sur la machine : ça cible le haut du moyen fessier (effet galbe latéral).', rest:60, rm:'15rm', note:'💡 Dernière série : drop set −30%, enchaîne jusqu\'à l\'échec sans poser.'},
@@ -988,6 +993,83 @@ P.c2 = {
     {id:'m5',n:'Tirage visage corde (Face Pull)', s:'3×15', tip:'Coudes hauts, pause 2s.', rest:60, super:true, rm:'15rm'},
   ]
 };
+// ─────────────────────────────
+// PROGRAMME ÉVOLUTIF (blocs de 8 semaines) + MODE 45 MIN + MACHINE PRISE
+// ─────────────────────────────
+function progStart(){ var v=LS.getItem('prog_start'); if(!v){ v=iso(mondayOf(new Date())); LS.setItem('prog_start',v); } return v; }
+function progWeek(){ var s=new Date(progStart()+'T12:00:00'), n=new Date(); n.setHours(12,0,0,0); return Math.max(1,Math.floor((n-s)/(7*864e5))+1); }
+function phaseOf(w){ var wb=((w-1)%8)+1; return {bloc:Math.floor((w-1)/8)+1, wb:wb, ph:wb<=4?'base':(wb<=7?'force':'deload')}; }
+var PH_L={base:'Base · volume & technique',force:'Force · plus lourd, moins de reps',deload:'Décharge · récupération'};
+function phaseTx(ex,P0){
+  var e=Object.assign({},ex); if(ex.duration) return e;
+  var m=ex.s.match(/^(\d+)×(\d+)(?:-(\d+))?(.*)$/); if(!m) return e;
+  var n=+m[1], lo=+m[2], hi=m[3]?+m[3]:null, rest=m[4];
+  if(P0.ph==='deload'){ n=Math.max(2,n-1); e.pnote='🌿 Décharge : 1 série de moins, charges −10 %, garde 3 reps en réserve.'; }
+  else if(P0.ph==='force' && ex.rm==='8rm'){ lo=Math.max(4,lo-2); hi=hi?Math.max(lo+2,hi-2):null; e.pnote='💪 Phase force : moins de reps, <b>+5 à 10 % de charge</b> par rapport à ta semaine 4.'; }
+  else if(ex.rm){ e.pnote=P0.wb===1?'🎯 Semaine 1 : trouve ta charge (2 reps en réserve), note-la.':'📈 Semaine '+P0.wb+' : bats la semaine dernière, <b>+1 rep ou +2,5 kg</b>.'; }
+  e.s=n+'×'+lo+(hi?'-'+hi:'')+rest; return e;
+}
+var EXPRESS={
+  lundi:['l1','l5','l2','vl'], mardi:['m0','m7','m8','m5','m9','vm'], mercredi:['rp1','v6'],
+  jeudi:['j1','j7','j2s','vj'], vendredi:['m2','m3','v4','v3','vv'], samedi:['s1','s6','s7','w1','vs'],
+  dimanche:['w5','w6','w7'], dosComplet:['m0','m2','m7','m8'], c1:['l1','j1','m0','l2','m8'], c2:['j7','j2s','m1','j9','m5']
+};
+function xpOn(){ return LS.getItem('express')==='1'; }
+function toggleExpress(){ LS.setItem('express',xpOn()?'0':'1'); openDay(curDay,true); showToast(xpOn()?'⚡ Mode 45 min activé':'Séance complète'); }
+function dayList(day){
+  var P0=phaseOf(progWeek()), full=P[day].ex.map(function(e){ return phaseTx(e,P0); });
+  if(!xpOn() || !EXPRESS[day]) return full;
+  return EXPRESS[day].map(function(id,i){ var e=full.filter(function(x){return x.id===id;})[0]; if(!e) return null;
+    if(i>0 && !e.duration){ var m=e.s.match(/^(\d+)(.*)$/); if(m && +m[1]>=3) e.s=(+m[1]-1)+m[2]; }
+    return e; }).filter(Boolean);
+}
+var ALT={
+  l0:'Abduction avec mini-band au-dessus des genoux, assise ou debout',
+  l1:'Hip thrust au Smith ou à la machine, ou gros haltère sur le bassin (dos sur banc)',
+  l3:'Fente arrière haltères, pied avant sur un step (déficit)',
+  l5:'Soulevé de terre roumain haltères 2 jambes, ou RDL unilatéral à la poulie basse',
+  l2:'Abduction à la poulie basse (sangle cheville), buste penché, ou mini-band',
+  m0:'Tirage vertical prise large, ou tractions avec élastique',
+  m1:'Tractions assistées, ou tirage vertical unilatéral',
+  m6:'Rowing haltère unilatéral, coude vers la hanche',
+  m7:'Pull-over haltère, allongée en travers d\'un banc',
+  m8:'Élévations latérales à la poulie ou à l\'élastique',
+  m5:'Oiseau haltères, ou face pull à l\'élastique',
+  m9:'Extension triceps haltère au-dessus de la tête, à 2 mains',
+  me8:'Pallof press à l\'élastique accroché à un poteau',
+  j1:'Soulevé de terre roumain haltères',
+  j7:'Pont fessier barre au sol, ou hip thrust haltère',
+  j8:'Pont fessier pieds surélevés, ou reverse hyper allongée sur un banc',
+  j2s:'Leg curl couché, ou curl glissé au sol (serviette / slider)',
+  j9:'Abduction assise avec mini-band',
+  j5:'Donkey kick au sol avec élastique ou lest de cheville',
+  j3:'Goblet squat pieds larges, ou fente arrière',
+  m2:'Rowing haltères buste penché, ou rowing au Smith',
+  m2c:'Rowing unilatéral à la poulie basse',
+  m3:'Développé épaules machine, ou Arnold press',
+  m4:'Face pull corde, ou oiseau à la poulie',
+  v4c:'Élévations latérales haltères',
+  v4:'Curl corde à la poulie',
+  v3:'Extension triceps barre droite à la poulie, ou kickback haltère',
+  s1:'Hip thrust haltère sur banc, pieds écartés',
+  s6:'Kettlebell swing, ou soulevé de terre roumain haltères',
+  s3:'Abduction avec mini-band',
+  s4:'12 min vélo ou rameur : 40 s à fond / 20 s cool',
+  s7:'Élévations latérales à l\'élastique',
+  w1:'Superman au sol, pause 2 s en haut'
+};
+function altHTML(id){ if(!ALT[id]) return ''; return '<button class="yt-edit" style="flex:1" onclick="var a=document.getElementById(\'alt-'+id+'\');a.style.display=a.style.display===\'block\'?\'none\':\'block\'">🔄 Machine prise ?</button>'; }
+function altBox(id){ return ALT[id]?'<div class="alt-box" id="alt-'+id+'">🔄 <b>Remplace par :</b> '+ALT[id]+'. Mêmes séries, mêmes reps.</div>':''; }
+function phaseCard(){
+  var w=progWeek(), P0=phaseOf(w), d=new Date(progStart()+'T12:00:00').toLocaleDateString('fr-FR');
+  var msg=P0.ph==='deload'?'<br>🔁 <b>Fin du bloc '+P0.bloc+'</b> : dimanche, mensurations + photos, puis envoie tes charges et mensurations à Claude pour le bloc '+(P0.bloc+1)+'.'
+    :(P0.wb===4?'<br>⚡ La semaine prochaine : phase force, les exos principaux passent en plus lourd.':'');
+  return '<div class="x-card" style="margin:14px 16px 0"><b>🗓️ Bloc '+P0.bloc+' · Semaine '+P0.wb+'/8</b><div class="x-small" style="margin-top:3px">Phase : <b>'+PH_L[P0.ph]+'</b>'+msg+'</div>'
+    +'<div class="x-small" style="margin-top:6px">Début du programme : '+d+' · <u style="cursor:pointer" onclick="setStart()">modifier</u></div></div>';
+}
+function setStart(){ var v=prompt('Date du lundi où tu as commencé (JJ/MM/AAAA) :',new Date(progStart()+'T12:00:00').toLocaleDateString('fr-FR')); if(!v) return;
+  var m=v.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/); if(!m){ showToast('Format : JJ/MM/AAAA'); return; }
+  LS.setItem('prog_start',iso(mondayOf(new Date(+m[3],+m[2]-1,+m[1],12)))); renderHome(); showToast('Date mise à jour ✓'); }
 var PLANS = {
   A:{name:'Plan A · Semaine idéale', desc:'5 séances + RPM. Quand ton planning est normal.', days:[
     ['lundi','Lundi','~50 min'],['mardi','Mardi','~50 min'],['mercredi','Mercredi','RPM 45 min + 10 min'],
@@ -1016,6 +1098,7 @@ function renderToday(){
 }
 function renderHome(){
   renderToday();
+  var pc=document.getElementById('home-phase'); if(pc) pc.innerHTML=phaseCard();
   var pl=PLANS[curPlan];
   var sel=document.getElementById('plan-sel');
   sel.innerHTML=['A','B','C'].map(function(k){return '<button class="plan-btn'+(k===curPlan?' on':'')+'" onclick="setPlan(\''+k+'\')">Plan '+k+'</button>';}).join('');
@@ -1067,14 +1150,17 @@ function nSets(ex){
   var m=ex.s.match(/^(\d+)/); return m?parseInt(m[1]):3;
 }
 
-function openDay(day){
-  curDay=day; sc={};
+var curList=[];
+function openDay(day,keep){
+  curDay=day; if(!keep) sc={};
   var d=P[day];
   document.getElementById('sess-title').textContent=d.emoji+' '+d.label;
   document.getElementById('sess-sub').textContent=d.sub;
   var body=document.getElementById('sess-body');
   body.innerHTML=eqPanel();
-  var exList=d.ex, i=0, num=1;
+  var exList=dayList(day), i=0, num=1; curList=exList;
+  var xpb=document.getElementById('xp-btn'); if(xpb){ xpb.textContent=xpOn()?'⚡ Mode 45 min : ON':'⚡ J\'ai que 45 min'; xpb.classList.toggle('on',xpOn()); }
+  if(xpOn() && EXPRESS[day]){ var skip=d.ex.filter(function(e){return EXPRESS[day].indexOf(e.id)<0;}).map(function(e){return e.n.replace(/ \(.*\)/,'');}); body.insertAdjacentHTML('beforeend','<div class="alt-box" style="display:block;margin-bottom:12px">⚡ <b>Mode 45 min</b> : exo principal complet, les autres à −1 série.'+(skip.length?'<br>Zappés aujourd\'hui : '+skip.join(', ')+'.':'')+'</div>'); }
   while(i<exList.length){
     var ex=exList[i];
     if(ex.super && ex.rest===0 && exList[i+1] && exList[i+1].super){
@@ -1165,8 +1251,10 @@ function buildCard(ex, num, total, abLabel){
         +'<div class="ex-name">'+ex.n+badges+'</div>'
         +'<div class="ex-sets">'+ex.s+'</div>'
         +'<div class="ex-tip">"'+ex.tip+'"</div>'
+        +(ex.pnote ? '<div class="ex-note">'+ex.pnote+'</div>' : '')
         +(ex.note ? '<div class="ex-note">'+ex.note+'</div>' : '')
         +'<div class="yt-row"><button class="yt-btn" onclick="openVid(\''+ex.id+'\')">▶ Voir la vidéo</button><button class="yt-edit" onclick="editVid(\''+ex.id+'\')">'+(LS.getItem('yt_'+ex.id)?'✏️ Ma vidéo':'🔗 Mettre ma vidéo')+'</button></div>'
+        +(ALT[ex.id]?'<div class="yt-row">'+altHTML(ex.id)+'</div>'+altBox(ex.id):'')
       +'</div>'
     +'</div>'
     +'<div class="ex-body">'
@@ -1343,7 +1431,7 @@ function resetSerie(id,total){
 
 function updateProg(){
   if(!curDay) return;
-  var exs=P[curDay].ex, done=0;
+  var exs=curList.length?curList:P[curDay].ex, done=0;
   exs.forEach(function(e){ if(sc[e.id]>=nSets(e)) done++; });
   var pct=Math.round(done/exs.length*100);
   document.getElementById('prog-fill').style.width=pct+'%';
