@@ -2128,8 +2128,9 @@ var FOODS=[
  // Recettes Ornella (pour 1 portion = 100 "g" → on les compte à la portion)
 ];
 // Recettes perso à la portion
+function rDesc(n){ var r=(typeof RECIPES!=='undefined'?RECIPES:[]).filter(function(x){return x.n===n;})[0]; return r?'<small style="display:block;color:#16a34a;font-weight:600">🥣 '+r.d+'</small>':''; }
 var RECIPES=[
- {n:'Mug cake Ornella',k:416,p:37,c:34,f:13,d:'40 g avoine, 30 g whey, 1 œuf, 5 g beurre d\'amande, fruits rouges'},
+ {n:'Mug cake Ornella',k:416,p:37,c:34,f:13,d:'40 g flocons d\'avoine, 30 g whey, 1 œuf, 5 g beurre d\'amande (1 c. à café rase), 80 g fruits rouges'},
  {n:'Porridge protéiné',k:397,p:31,c:45,f:10,d:'40 g avoine, 150 ml lait, 25 g whey, 1/2 banane, 5 g beurre d\'amande'},
 ];
 var MEALS=[['matin','☀️ Petit-déjeuner',0.22],['midi','🍽️ Déjeuner',0.34],['collation','⚡ Collation',0.16],['soir','🌙 Dîner',0.24],['extra','🍫 Extras / grignotage',0.04]]; // = journée type (410 / 620 / 290 / 450 / 75 kcal sur 1 850)
@@ -2284,7 +2285,7 @@ function renderJournal(){
     var its=day.items.map(function(x,i){x._i=i;return x;}).filter(function(x){return x.m===m[0];}), st=sumItems(its);
     var ch=isCheat(jDate), target=r0((g.k-(ch?cheatAdd().k:0))*m[2]+(ch&&m[0]==='soir'?cheatAdd().k:0)); // cheat meal = +600 sur le dîner
     mh+='<div class="x-card"><div class="j-meal-h"><div><b>'+m[1]+'</b><div class="j-meal-k">'+r0(st.k)+(m[0]!=='extra'?' / ~'+target:'')+' kcal · P '+r0(st.p)+' g</div></div><button class="j-add" onclick="openAdd(\''+m[0]+'\')">+</button></div>';
-    if(its.length) its.forEach(function(x){mh+='<div class="j-item"><div>'+x.n+'<small>'+(x.g?x.g+' g · ':'')+'P '+r1(x.p)+' · G '+r1(x.c)+' · L '+r1(x.f)+'</small></div><div style="display:flex;align-items:center;gap:6px"><span class="k">'+r0(x.k)+' kcal</span><button class="j-x" onclick="delItem('+x._i+')">✕</button></div></div>';});
+    if(its.length) its.forEach(function(x){mh+='<div class="j-item"><div>'+x.n+rDesc(x.n)+'<small>'+(x.g?x.g+' g · ':'')+'P '+r1(x.p)+' · G '+r1(x.c)+' · L '+r1(x.f)+'</small></div><div style="display:flex;align-items:center;gap:6px"><span class="k">'+r0(x.k)+' kcal</span><button class="j-x" onclick="delItem('+x._i+')">✕</button></div></div>';});
     else mh+='<div class="j-empty">Rien pour l\'instant</div>';
     mh+='</div>';
   });
@@ -2346,7 +2347,7 @@ function renderAdd(){
   } else if(jTab==='recent'){
     var rec=ld('jrecent',[]);
     rec=rec.filter(function(r){return getFood(r.src);}).map(function(r){return {src:r.src,g:r.g||1};}); // g=0 = aliment à la portion → 1 portion
-    b.innerHTML=rec.length?'<div class="j-res">'+rec.map(function(r){var it=mkItem(r.src,r.g);return '<button onclick="quickAdd(\''+r.src.replace(/'/g,"\\'")+'\','+r.g+')"><span>'+it.n+'<br><small>'+(it.g?it.g+' g':'1 portion')+'</small></span><small>'+r0(it.k)+' kcal ＋</small></button>';}).join('')+'</div>':'<p class="x-small">Tes aliments ajoutés apparaîtront ici pour les remettre en 1 clic.</p>';
+    b.innerHTML=rec.length?'<div class="j-res">'+rec.map(function(r){var it=mkItem(r.src,r.g);return '<button onclick="quickAdd(\''+r.src.replace(/'/g,"\\'")+'\','+r.g+')"><span>'+it.n+rDesc(it.n)+'<br><small>'+(it.g?it.g+' g':'1 portion')+'</small></span><small>'+r0(it.k)+' kcal ＋</small></button>';}).join('')+'</div>':'<p class="x-small">Tes aliments ajoutés apparaîtront ici pour les remettre en 1 clic.</p>';
   } else {
     var cl=jCustom();
     b.innerHTML='<div class="x-card"><p class="x-small">Pour un plat ou un produit absent de la liste. Valeurs pour <b>ce que tu as mangé</b> (1 barre, 1 pot…). <b>Emballage jeté ?</b> Cherche la marque avec 🌍 dans « Rechercher », ou prends une moyenne (ex : « Barre protéinée (moyenne) ») : une estimation vaut mieux qu\'un oubli.</p><label class="x-lab">Nom</label><input id="jm-n" class="x-in" placeholder="Ex : salade César resto"><div class="x-form"><div><label class="x-lab">Calories (kcal)</label><input id="jm-k" type="text" inputmode="decimal" class="x-in"></div><div><label class="x-lab">Protéines (g)</label><input id="jm-p" type="text" inputmode="decimal" class="x-in"></div><div><label class="x-lab">Glucides (g)</label><input id="jm-c" type="text" inputmode="decimal" class="x-in"></div><div><label class="x-lab">Lipides (g)</label><input id="jm-f" type="text" inputmode="decimal" class="x-in"></div></div><label class="x-small" style="display:flex;gap:8px;align-items:center;margin:10px 0"><input id="jm-s" type="checkbox" checked> ⭐ Mémoriser dans Mes aliments (retrouvable dans la recherche)</label><button class="save-session-btn" onclick="addManual()">✓ Ajouter</button></div>'
