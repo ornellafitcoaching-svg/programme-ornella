@@ -2165,7 +2165,37 @@ function ld(k,def){try{var v=JSON.parse(LS.getItem(k)||'null');return v==null?de
 function sd(k,v){try{LS.setItem(k,JSON.stringify(v));}catch(e){}}
 function jAll(){return ld('journal',{});}
 function jDay(d){return jAll()[d]||{items:[],water:0};}
-function jSave(d,day){var a=jAll();a[d]=day;sd('journal',a);}
+function jSave(d,day){var a=jAll();day.ts=Date.now();a[d]=day;sd('journal',a);jsQueue(d);}
+// ─── Synchro du journal avec le serveur (espace coach) : repas gardés en ligne,
+//     remplissables par Claude. Le plus récent gagne, jour par jour.
+//     Le code de synchro n'est PAS dans le code : il est saisi une fois et gardé sur le téléphone.
+var JS_URL='https://xvetwfqzkkcfchxxifuu.supabase.co/functions/v1/journal-ornella';
+var jsPending={}, jsTimer=null, jsBusy=false;
+function jsTok(){try{return LS.getItem('js_tok')||'';}catch(e){return '';}}
+function jsPost(b){var t=jsTok();if(!t) return Promise.reject(0);
+  return fetch(JS_URL,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({tok:t},b))}).then(function(r){if(r.status===401){jsBanner(true);throw 0;}if(!r.ok) throw 0;return r.json();});}
+function jsSavePending(){try{LS.setItem('js_pending',JSON.stringify(jsPending));}catch(e){}}
+function jsQueue(d){jsPending[d]=1;jsSavePending();clearTimeout(jsTimer);jsTimer=setTimeout(jsFlush,800);}
+function jsFlush(){var ks=Object.keys(jsPending);if(!ks.length||!jsTok()) return Promise.resolve();var a=jAll();
+  var days=ks.filter(function(k){return a[k];}).map(function(k){return {d:k,day:a[k],ts:a[k].ts||0};});
+  return jsPost({op:'push',days:days}).then(function(){ks.forEach(function(k){delete jsPending[k];});jsSavePending();}).catch(function(){});}
+function jsPull(){if(jsBusy||!jsTok()) return;jsBusy=true;
+  jsPost({op:'pull'}).then(function(r){var srv=(r&&r.days)||{}, a=jAll(), changed=false;
+    Object.keys(srv).forEach(function(k){var sv=srv[k], lv=a[k];if(!lv||(sv.ts||0)>(lv.ts||0)){a[k]=sv;changed=true;delete jsPending[k];}});
+    Object.keys(a).forEach(function(k){var sv=srv[k];if(!sv||(a[k].ts||0)>(sv.ts||0)) jsPending[k]=1;});
+    if(changed){sd('journal',a);try{if(jDate&&typeof renderJournal==='function') renderJournal();}catch(e){}try{if(typeof renderToday==='function') renderToday();}catch(e){}}
+    return jsFlush();
+  }).catch(function(){}).then(function(){jsBusy=false;});}
+function jsBanner(bad){var old=document.getElementById('js-bn');if(old) old.remove();if(jsTok()&&!bad) return;
+  var b=document.createElement('div');b.id='js-bn';
+  b.style.cssText='position:relative;z-index:50;background:#ECFDF5;border-bottom:2px solid #10b981;color:#065f46;font:500 13px/1.45 system-ui;padding:10px 14px;cursor:pointer';
+  b.innerHTML=(bad?'⚠️ Code de synchro refusé. ':'')+'🔗 <b>Activer la synchro de ton journal</b> (repas gardés en ligne) : touche ici et colle ton code.';
+  b.onclick=function(){var v=(prompt('Colle ton code de synchro :')||'').trim();if(!v) return;try{LS.setItem('js_tok',v);}catch(e){}b.remove();showToast('Synchro activée ✓');var a=jAll();Object.keys(a).forEach(function(k){jsPending[k]=1;});jsPull();};
+  var app=document.getElementById('app');if(app) app.insertBefore(b,app.firstChild);}
+try{jsPending=JSON.parse(LS.getItem('js_pending')||'{}')||{};}catch(e){jsPending={};}
+document.addEventListener('DOMContentLoaded',function(){jsBanner(false);setTimeout(jsPull,300);});
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible') jsPull();});
+window.addEventListener('online',jsPull);
 // Jour d'entraînement : choisi avec le bouton Oui / Non ; sinon par défaut lun→sam = séance, dimanche = repos.
 function isTrain(d){var t=(jAll()[d]||{}).train;return t==null?new Date(d+'T12:00:00').getDay()!==0:!!t;}
 // Cheat meal : 1 par semaine, +600 kcal (≈ +90 g glucides, +27 g lipides). Samedi par défaut, déplaçable.
