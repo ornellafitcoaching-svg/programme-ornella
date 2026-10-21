@@ -2206,8 +2206,31 @@ function jsQueue(d){jsPending[d]=1;jsSavePending();clearTimeout(jsTimer);jsTimer
 function jsFlush(){var ks=Object.keys(jsPending);if(!ks.length||!jsTok()) return Promise.resolve();var a=jAll();
   var days=ks.filter(function(k){return a[k];}).map(function(k){return {d:k,day:a[k],ts:a[k].ts||0};});
   return jsPost({op:'push',days:days}).then(function(){ks.forEach(function(k){delete jsPending[k];});jsSavePending();}).catch(function(){});}
+// ─── Synchro des charges, mensurations, réglages… (tout sauf le journal, qui a sa propre synchro).
+//     Stocké sur le serveur dans une ligne spéciale (date 2000-01-01), le plus récent gagne.
+var KV_DAY='2000-01-01', KV_SKIP=/^(journal|js_tok|js_pending|ctx0|bk_last|kv_.*)$/, kvApplying=false, kvTimer=null;
+var kvSI=Storage.prototype.setItem, kvRI=Storage.prototype.removeItem;
+function kvRaw(k,v){try{kvSI.call(window.localStorage,k,String(v));}catch(e){}}
+function kvTs(k){try{return Number(window.localStorage.getItem(k))||0;}catch(e){return 0;}}
+function kvChanged(k){if(kvApplying||KV_SKIP.test(k)) return;kvRaw('kv_ts',Date.now());clearTimeout(kvTimer);kvTimer=setTimeout(kvPush,1500);}
+try{Storage.prototype.setItem=function(k,v){kvSI.call(this,k,v);if(this===window.localStorage) kvChanged(k);};
+    Storage.prototype.removeItem=function(k){kvRI.call(this,k);if(this===window.localStorage) kvChanged(k);};}catch(e){}
+function kvSnap(){var o={};try{var s=window.localStorage;for(var i=0;i<s.length;i++){var k=s.key(i);if(!KV_SKIP.test(k)) o[k]=s.getItem(k);}}catch(e){}return o;}
+function kvPush(){if(!jsTok()) return Promise.resolve();var ts=kvTs('kv_ts');if(!ts) return Promise.resolve();
+  return jsPost({op:'push',days:[{d:KV_DAY,day:{kv:kvSnap()},ts:ts}]}).then(function(){kvRaw('kv_pushed',ts);}).catch(function(){});}
+function kvSync(sv){ // sv = ligne du serveur (ou undefined)
+  var lt=kvTs('kv_ts');
+  if(sv&&sv.kv&&(sv.ts||0)>lt){var ch=false;kvApplying=true;
+    try{Object.keys(sv.kv).forEach(function(k){if(KV_SKIP.test(k)) return;if(window.localStorage.getItem(k)!==sv.kv[k]){kvSI.call(window.localStorage,k,sv.kv[k]);ch=true;}});}catch(e){}
+    kvApplying=false;kvRaw('kv_ts',sv.ts);kvRaw('kv_pushed',sv.ts);
+    if(ch) setTimeout(function(){location.reload();},400);
+    return Promise.resolve();}
+  if(!sv||!sv.kv){if(!lt) kvRaw('kv_ts',Date.now());return kvPush();}
+  if(lt>(sv.ts||0)) return kvPush();
+  return Promise.resolve();}
 function jsPull(){if(jsBusy||!jsTok()) return;jsBusy=true;
   jsPost({op:'pull'}).then(function(r){var srv=(r&&r.days)||{}, a=jAll(), changed=false;
+    var kvSrv=srv[KV_DAY];delete srv[KV_DAY];kvSync(kvSrv);
     Object.keys(srv).forEach(function(k){var sv=srv[k], lv=a[k];if(!lv||(sv.ts||0)>(lv.ts||0)){a[k]=sv;changed=true;delete jsPending[k];}});
     Object.keys(a).forEach(function(k){var sv=srv[k];if(!sv||(a[k].ts||0)>(sv.ts||0)) jsPending[k]=1;});
     if(changed){sd('journal',a);try{if(jDate&&typeof renderJournal==='function') renderJournal();}catch(e){}try{if(typeof renderToday==='function') renderToday();}catch(e){}}
