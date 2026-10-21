@@ -7,6 +7,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Ornella Fit">
   <meta name="theme-color" content="#1A0D08">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-180.png">
   <title>Programme Ornella — Salle</title>
   <style>
     :root {
@@ -770,6 +772,7 @@
       <div class="x-card j-water"><div><b>💧 Eau</b> <span id="j-water-t" class="x-small"></span></div><div id="j-water" class="j-glasses"></div></div>
       <div class="x-card"><div class="x-entry-h">📊 Ma semaine</div><div id="j-week"></div></div>
       <button class="x-go" style="width:100%;padding:12px;background:#fff;color:var(--noir);border:2px solid var(--gris-light)" onclick="goNutri()">🍽️ Voir mes plans repas &amp; règles</button>
+      <div class="x-card" id="push-card"></div>
       <div class="x-card" id="bk-card"></div>
     </div>
   </div>
@@ -2208,7 +2211,7 @@ function jsFlush(){var ks=Object.keys(jsPending);if(!ks.length||!jsTok()) return
   return jsPost({op:'push',days:days}).then(function(){ks.forEach(function(k){delete jsPending[k];});jsSavePending();}).catch(function(){});}
 // ─── Synchro des charges, mensurations, réglages… (tout sauf le journal, qui a sa propre synchro).
 //     Stocké sur le serveur dans une ligne spéciale (date 2000-01-01), le plus récent gagne.
-var KV_DAY='2000-01-01', KV_SKIP=/^(journal|js_tok|js_pending|ctx0|bk_last|kv_.*)$/, kvApplying=false, kvTimer=null;
+var KV_DAY='2000-01-01', KV_SKIP=/^(journal|js_tok|js_pending|ctx0|bk_last|kv_.*|push_.*)$/, kvApplying=false, kvTimer=null;
 var kvSI=Storage.prototype.setItem, kvRI=Storage.prototype.removeItem;
 function kvRaw(k,v){try{kvSI.call(window.localStorage,k,String(v));}catch(e){}}
 function kvTs(k){try{return Number(window.localStorage.getItem(k))||0;}catch(e){return 0;}}
@@ -2327,7 +2330,38 @@ function renderBk(){
     +'<div style="display:flex;gap:8px;margin-top:8px"><button class="x-go" style="flex:1" onclick="bkExport()">💾 Sauvegarder</button>'
     +'<label class="x-go" style="flex:1;text-align:center;cursor:pointer">📂 Restaurer<input type="file" accept=".json,application/json" style="display:none" onchange="bkImport(this)"></label></div>';
 }
-function goJournal(){ if(!jDate) jDate=iso(new Date()); renderJournal(); renderBk(); show('p-journal'); }
+function goJournal(){ if(!jDate) jDate=iso(new Date()); renderJournal(); renderBk(); renderPush(); show('p-journal'); }
+// ─── Notifications iPhone : rappel si un repas manque (envoyé par le serveur, heure de Paris)
+var PUSH_PUB='BAtX0FFdom39t4MQ2RjN4B57_oB4DH7aj8dN-nywpVHJ8ZrwmIAavXn84b765Ykl1Wzz8UTrnmRfwhjSrtqCeqg';
+function pushOK(){return ('serviceWorker' in navigator)&&('PushManager' in window)&&('Notification' in window);}
+function pushOn(){try{return pushOK()&&Notification.permission==='granted'&&LS.getItem('push_on')==='1';}catch(e){return false;}}
+function b64u(s){var p='='.repeat((4-s.length%4)%4),b=(s+p).replace(/-/g,'+').replace(/_/g,'/'),r=atob(b),o=new Uint8Array(r.length);for(var i=0;i<r.length;i++)o[i]=r.charCodeAt(i);return o;}
+function renderPush(){var el=document.getElementById('push-card');if(!el) return;var h='<div class="x-entry-h">🔔 Rappels sur ton iPhone</div>';
+  if(!pushOK()||(appCtx()!=='home'&&!pushOn())){
+    h+='<p class="x-small">Pour recevoir une vraie notification quand un repas manque (10h, 14h, 21h), ouvre l\'appli <b>depuis l\'icône de ton écran d\'accueil</b>, puis reviens ici.<br>Si tu n\'as pas d\'icône : Safari → bouton Partager → <b>Sur l\'écran d\'accueil</b>.</p>';
+  } else if(pushOn()){
+    h+='<p class="x-small">✅ <b>Activés.</b> Tu reçois un rappel seulement s\'il manque le petit-déjeuner (10h), le déjeuner (14h) ou le dîner (21h).</p>';
+  } else if(Notification.permission==='denied'){
+    h+='<p class="x-small">⚠️ Les notifications sont bloquées. Réglages iPhone → Notifications → Ornella Fit → Autoriser.</p>';
+  } else {
+    h+='<p class="x-small">Reçois une notification si tu oublies de noter un repas. Rien d\'autre, pas de pub.</p><button class="save-session-btn" onclick="pushEnable()">🔔 Activer les notifications</button>';
+  }
+  el.innerHTML=h;}
+function pushEnable(){if(!pushOK()){showToast('Pas possible ici');return;}
+  if(!jsTok()){showToast('Active d\'abord la synchro du journal');return;}
+  Notification.requestPermission().then(function(p){if(p!=='granted'){renderPush();return;}
+    return navigator.serviceWorker.register('sw.js').then(function(){return navigator.serviceWorker.ready;}).then(function(reg){
+      return reg.pushManager.getSubscription().then(function(s){return s||reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(PUSH_PUB)});})
+        .then(function(sub){return jsPost({op:'sub',sub:sub.toJSON()});})
+        .then(function(){LS.setItem('push_on','1');renderPush();showToast('Notifications activées ✓');
+          try{reg.showNotification('🔔 Notifications activées',{body:'Tu seras prévenue si un repas manque dans ton journal.',icon:'icon-192.png'});}catch(e){}});
+    });}).catch(function(){showToast('Activation impossible, réessaie');});}
+// Ré-enregistre discrètement l'abonnement à chaque ouverture (au cas où l'iPhone le renouvelle) + ouvre le journal depuis une notification
+document.addEventListener('DOMContentLoaded',function(){
+  try{if(pushOn()&&jsTok()) navigator.serviceWorker.register('sw.js').then(function(){return navigator.serviceWorker.ready;}).then(function(reg){return reg.pushManager.getSubscription();}).then(function(sub){if(sub) jsPost({op:'sub',sub:sub.toJSON()}).catch(function(){});}).catch(function(){});}catch(e){}
+  try{if(location.hash==='#journal'){history.replaceState(null,'',location.pathname+location.search);goJournal();}}catch(e){}
+  try{if('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message',function(e){if(e.data&&e.data.goJournal) goJournal();});}catch(e){}
+});
 function renderJournal(){
   var today=iso(new Date()), all=jAll();
   // barre des jours (7 derniers + demain)
