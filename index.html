@@ -1103,7 +1103,7 @@ function lastHTML(id){
     +' <button class="last-use" onclick="useTarget(\''+id+'\','+t.kg+')">Utiliser</button></div>';
 }
 function useTarget(id,kg){ var i=document.getElementById('c_'+id); if(!i) return; i.value=kgs(kg); sv('c_'+id,i.value); refreshCalc(id); showToast('Charge du jour : '+kgs(kg)+' kg'); }
-function histTxt(id){ var h=histGet(id).slice(-5); return h.length>1?'<div class="suivi-ex-date">📈 '+h.map(function(x){return kgs(x.kg);}).join(' → ')+' kg</div>':''; }
+function histTxt(id){ var h=histGet(id).slice(-8); return h.length>1?'<div class="suivi-ex-date">📈 '+h.slice(-5).map(function(x){return kgs(x.kg);}).join(' → ')+' kg'+spark(h.map(function(x){return x.kg;}))+'</div>':''; }
 var PLANS = {
   A:{name:'Plan A · Semaine idéale', desc:'5 séances + RPM. Quand ton planning est normal.', days:[
     ['lundi','Lundi','~50 min'],['mardi','Mardi','~50 min'],['mercredi','Mercredi','RPM 45 min + 10 min'],
@@ -1687,6 +1687,29 @@ function storeMens(d){ try{LS.setItem('mens',JSON.stringify(d));}catch(e){} }
 function fdate(iso){ var p=iso.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
 function dif(a,b){ if(a==null||b==null||a===''||b==='') return ''; var v=Math.round((a-b)*10)/10; if(v===0) return '<span>=</span>'; return '<span class="'+(v>0?'x-up':'x-down')+'">'+(v>0?'+':'')+String(v).replace('.',',')+'</span>'; }
 function num(v){ return (v===undefined||v===null||v==='')?'—':String(v).replace('.',','); }
+// ─── Courbes (SVG simple, sans bibliothèque)
+function lineChart(pts,unit){ // pts = [{d:'2026-07-04', v:63}, …]
+  var W=330,H=170,pl=38,pr=12,pt=14,pb=26;
+  if(!pts.length) return '<p class="x-small">Pas encore de mesure.</p>';
+  var vs=pts.map(function(p){return p.v;}), mn=Math.min.apply(null,vs), mx=Math.max.apply(null,vs);
+  if(mx-mn<1){mn-=1;mx+=1;} var pad=(mx-mn)*0.15; mn-=pad; mx+=pad;
+  var t0=new Date(pts[0].d+'T12:00:00').getTime(), t1=new Date(pts[pts.length-1].d+'T12:00:00').getTime(), span=Math.max(t1-t0,1);
+  function X(p,i){return pl+(pts.length===1?(W-pl-pr)/2:((new Date(p.d+'T12:00:00').getTime()-t0)/span)*(W-pl-pr));}
+  function Y(v){return pt+(1-(v-mn)/(mx-mn))*(H-pt-pb);}
+  var line=pts.map(function(p,i){return (i?'L':'M')+X(p,i).toFixed(1)+' '+Y(p.v).toFixed(1);}).join(' ');
+  var g='';[0,0.5,1].forEach(function(f){var v=mn+(mx-mn)*f,y=Y(v);g+='<line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y+'" y2="'+y+'" stroke="#EDE8E4"/><text x="'+(pl-6)+'" y="'+(y+3)+'" font-size="10" fill="#8B7B76" text-anchor="end">'+String(Math.round(v*10)/10).replace('.',',')+'</text>';});
+  var dots=pts.map(function(p,i){return '<circle cx="'+X(p,i).toFixed(1)+'" cy="'+Y(p.v).toFixed(1)+'" r="'+(i===pts.length-1?5:3.5)+'" fill="#C96358"/>';}).join('');
+  var last=pts[pts.length-1], lx=X(last,pts.length-1), anc=lx>W-50?'end':'middle';
+  var lab='<text x="'+lx.toFixed(1)+'" y="'+(Y(last.v)-10).toFixed(1)+'" font-size="11" font-weight="700" fill="#1A0D08" text-anchor="'+anc+'">'+String(last.v).replace('.',',')+' '+(unit||'')+'</text>';
+  var d0=pts[0].d.split('-'), d1=last.d.split('-');
+  var ax='<text x="'+pl+'" y="'+(H-6)+'" font-size="10" fill="#8B7B76">'+d0[2]+'/'+d0[1]+'</text>'+(pts.length>1?'<text x="'+(W-pr)+'" y="'+(H-6)+'" font-size="10" fill="#8B7B76" text-anchor="end">'+d1[2]+'/'+d1[1]+'</text>':'');
+  return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block">'+g+(pts.length>1?'<path d="'+line+'" fill="none" stroke="#C96358" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>':'')+dots+lab+ax+'</svg>';}
+function spark(vals){ if(vals.length<2) return ''; var W=64,H=22,mn=Math.min.apply(null,vals),mx=Math.max.apply(null,vals); if(mx===mn){mx+=1;mn-=1;}
+  var pts=vals.map(function(v,i){return (i*(W-6)/(vals.length-1)+3).toFixed(1)+','+((1-(v-mn)/(mx-mn))*(H-6)+3).toFixed(1);});
+  var lp=pts[pts.length-1].split(',');
+  return '<svg viewBox="0 0 '+W+' '+H+'" style="width:64px;height:22px;vertical-align:middle;margin-left:6px"><polyline points="'+pts.join(' ')+'" fill="none" stroke="#C96358" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="'+lp[0]+'" cy="'+lp[1]+'" r="2.8" fill="#C96358"/></svg>';}
+var mChart='poids';
+function setMChart(k){mChart=k;buildMens();}
 function buildMens(){
   var d=loadMens();
   // form
@@ -1706,7 +1729,13 @@ function buildMens(){
   if(st.length&&sf.length){ var r1=(st[0].taille/sf[0].fessiers), r2=(st[st.length-1].taille/sf[sf.length-1].fessiers);
     t+='<tr><td>Ratio taille/fessiers</td><td>'+r1.toFixed(2).replace('.',',')+'</td><td><b>'+r2.toFixed(2).replace('.',',')+'</b></td><td></td><td>'+(function(){var v=Math.round(r2*100)-Math.round(r1*100);return v===0?'=':'<span class="'+(v>0?'x-up':'x-down')+'">'+(v>0?'+':'−')+'0,'+String(Math.abs(v)).padStart(2,'0')+'</span>';})()+'</td></tr>'; }
   t+='</table><p class="x-small" style="margin-top:8px">🟢 = baisse · 🟠 = hausse. Objectif : taille ↓, fessiers stables ou ↑, ratio ↓.</p></div>';
-  document.getElementById('mens-evo').innerHTML=t;
+  var chips='', avail=MF.filter(function(m){return series(m[0]).length;});
+  if(avail.length&&!avail.some(function(m){return m[0]===mChart;})) mChart=avail[0][0];
+  avail.forEach(function(m){chips+='<button class="j-tab'+(m[0]===mChart?' on':'')+'" style="padding:6px 11px;font-size:.78rem" onclick="setMChart(\''+m[0]+'\')">'+m[1]+'</button>';});
+  var mf=MF.filter(function(m){return m[0]===mChart;})[0]||MF[0];
+  var chart='<div class="x-card"><div class="x-entry-h">📈 Ma courbe</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">'+chips+'</div>'
+    +lineChart(series(mChart).map(function(e){return {d:e.date,v:Number(e[mChart])};}),mf[2])+'</div>';
+  document.getElementById('mens-evo').innerHTML=chart+t;
   // history (newest first)
   var hh='';
   d.slice().reverse().forEach(function(e){
