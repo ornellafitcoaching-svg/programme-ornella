@@ -1115,6 +1115,17 @@ var curPlan='A';
 try{ curPlan=LS.getItem('plan')||'A'; }catch(e){}
 if(!PLANS[curPlan]) curPlan='A';
 function setPlan(k){ curPlan=k; try{LS.setItem('plan',k);}catch(e){} renderHome(); }
+// Rappel visible dans l'appli : quel repas manque à cette heure-ci, sinon ce qu'il reste à manger
+function nudgeFor(td){
+  var day=jDay(td), its=day.items||[], hr=new Date().getHours(), t=sumItems(its), g=goalFor(td), left=r0(g.k-t.k), pl=Math.max(0,r0(g.p-t.p));
+  var has=function(m){return its.some(function(x){return x.m===m;});};
+  var slots=[['matin','ton petit-déjeuner',10],['midi','ton déjeuner',14],['soir','ton dîner',21]];
+  for(var i=0;i<slots.length;i++){ if(hr>=slots[i][2] && !has(slots[i][0]))
+    return {late:true,txt:'⏰ <b>Il manque '+slots[i][1]+' dans ton journal.</b><br>Ajoute-le maintenant pour rester sur ton objectif ('+g.k+' kcal).'}; }
+  if(!its.length) return {late:false,txt:'🍽️ <b>Journal du jour vide.</b> Objectif : '+g.k+' kcal · '+g.p+' g de protéines.'};
+  if(left<-150) return {late:true,txt:'⚠️ <b>Tu dépasses de '+r0(-left)+' kcal.</b> Dîner léger, protéines + légumes.'};
+  return {late:false,txt:'✅ <b>'+Math.max(0,left)+' kcal restantes</b> · '+pl+' g de protéines à placer.'};
+}
 function renderToday(){
   var el=document.getElementById('home-today'); if(!el) return;
   var td=iso(new Date()), tr=isTrain(td), g=goalFor(td), auto=jDay(td).train==null;
@@ -1122,6 +1133,9 @@ function renderToday(){
     +'<div class="x-small" style="margin-top:2px">Objectif du jour : <b style="color:var(--rouge-dark)">'+g.k+' kcal</b> · P '+g.p+' · G '+g.c+' · L '+g.f+(auto?' (par défaut)':'')+'<br>Séance = 1 850 · repos = 1 600'+(isCheat(td)?' · <b>+600 cheat meal aujourd\'hui</b>':'')+'</div>'
     +'<div style="display:flex;gap:8px;margin-top:10px"><button class="j-tab'+(tr?' on':'')+'" style="flex:1;padding:11px" onclick="setTrainDay(\''+td+'\',true)">💪 Oui</button>'
     +'<button class="j-tab'+(!tr?' on':'')+'" style="flex:1;padding:11px" onclick="setTrainDay(\''+td+'\',false)">🌿 Non, repos</button></div>';
+  var nd=nudgeFor(td);
+  el.innerHTML+='<div style="margin-top:12px;padding:11px 12px;border-radius:12px;background:'+(nd.late?'#FFF4E5':'#ECFDF5')+';border:1.5px solid '+(nd.late?'#f59e0b':'#10b981')+';font-size:.86rem;line-height:1.45">'+nd.txt
+    +'<button class="x-go" style="margin-top:8px;width:100%" onclick="goJournal()">🍽️ Ouvrir mon journal</button></div>';
   var miss=missedThisWeek(); // consignes (MISS_DEMAIN) chargées plus bas : réaffiché en fin de script
   if(miss.length && typeof MISS_DEMAIN!=='undefined'){var last=miss[miss.length-1], c=catchUp(last);
     el.innerHTML+='<div style="margin-top:12px;padding:10px 12px;border-radius:12px;background:#FFF4E5;border:1.5px solid #f59e0b;font-size:.85rem">⚠️ <b>À rattraper</b> ('+miss.length+' séance'+(miss.length>1?'s ratées':' ratée')+' cette semaine)<br>'+c.d
@@ -2209,6 +2223,10 @@ try{jsPending=JSON.parse(LS.getItem('js_pending')||'{}')||{};}catch(e){jsPending
 document.addEventListener('DOMContentLoaded',function(){jsBanner(false);setTimeout(jsPull,300);});
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible') jsPull();});
 window.addEventListener('online',jsPull);
+// Au retour dans l'appli : rafraîchir le rappel du jour (et le journal s'il est ouvert)
+document.addEventListener('visibilitychange',function(){if(document.visibilityState!=='visible') return;
+  try{renderToday();}catch(e){}
+  try{var p=document.getElementById('p-journal');if(p&&p.classList.contains('active')) renderJournal();}catch(e){}});
 // Jour d'entraînement : choisi avec le bouton Oui / Non ; sinon par défaut lun→sam = séance, dimanche = repos.
 function isTrain(d){var t=(jAll()[d]||{}).train;return t==null?new Date(d+'T12:00:00').getDay()!==0:!!t;}
 // Cheat meal : 1 par semaine, +600 kcal (≈ +90 g glucides, +27 g lipides). Samedi par défaut, déplaçable.
@@ -2327,7 +2345,7 @@ function renderJournal(){
   MEALS.forEach(function(m){
     var its=day.items.map(function(x,i){x._i=i;return x;}).filter(function(x){return x.m===m[0];}), st=sumItems(its);
     var ch=isCheat(jDate), target=r0((g.k-(ch?cheatAdd().k:0))*m[2]+(ch&&m[0]==='soir'?cheatAdd().k:0)); // cheat meal = +600 sur le dîner
-    mh+='<div class="x-card"><div class="j-meal-h"><div><b>'+m[1]+'</b><div class="j-meal-k">'+r0(st.k)+(m[0]!=='extra'?' / ~'+target:'')+' kcal · P '+r0(st.p)+' g</div></div><button class="j-add" onclick="openAdd(\''+m[0]+'\')">+</button></div>';
+    mh+='<div class="x-card"><div class="j-meal-h"><div><b>'+m[1]+'</b><div class="j-meal-k">'+r0(st.k)+(m[0]!=='extra'?' / ~'+target:'')+' kcal · P '+r0(st.p)+' g</div></div><div style="display:flex;align-items:center;gap:8px">'+((!its.length&&ydayMeal(m[0]).length)?'<button class="j-tab" style="padding:7px 10px;font-size:.74rem" onclick="copyYesterday(\''+m[0]+'\')">↺ comme hier</button>':'')+'<button class="j-add" onclick="openAdd(\''+m[0]+'\')">+</button></div></div>';
     if(its.length) its.forEach(function(x){mh+='<div class="j-item"><div>'+x.n+rDesc(x.n)+'<small>'+(x.g?x.g+' g · ':'')+'P '+r1(x.p)+' · G '+r1(x.c)+' · L '+r1(x.f)+'</small></div><div style="display:flex;align-items:center;gap:6px"><span class="k">'+r0(x.k)+' kcal</span><button class="j-x" onclick="delItem('+x._i+')">✕</button></div></div>';});
     else mh+='<div class="j-empty">Rien pour l\'instant</div>';
     mh+='</div>';
@@ -2344,12 +2362,28 @@ function renderJournal(){
     if(s2>0){tot+=s2;nd++;gt+=gg;}
     wk+='<div><span style="font-size:.62rem">'+(s2?r0(s2):'')+'</span><i class="'+(s2===0?'none':(s2>gg+150?'over':''))+'" style="height:'+(s2?Math.max(6,Math.min(s2/2400,1)*80):3)+'px"></i>'+J[x.getDay()]+'</div>';}
   wk+='</div><p class="x-small" style="margin-top:8px">'+(nd?'Moyenne : <b>'+r0(tot/nd)+' kcal/jour</b> sur '+nd+' jour(s) saisis · cible ~'+r0(gt/nd).toLocaleString('fr-FR')+' selon tes jours séance / repos et ton cheat meal.':'Aucun jour saisi cette semaine.')+'</p>';
+  // Bilan : série de jours saisis d'affilée, protéines moyennes, jours dans la cible (objectif −250 / +100 kcal)
+  var streak=0, sd0=new Date(); if(!(all[iso(sd0)]&&(all[iso(sd0)].items||[]).length)) sd0.setDate(sd0.getDate()-1);
+  while(streak<365){var sk=all[iso(sd0)]; if(!(sk&&(sk.items||[]).length)) break; streak++; sd0.setDate(sd0.getDate()-1);}
+  var ok=0, pt=0, pn=0;
+  for(var q2=0;q2<7;q2++){var x2=new Date(mon);x2.setDate(mon.getDate()+q2);var k2=iso(x2), d2=all[k2]; if(!d2||!(d2.items||[]).length) continue;
+    var s3=sumItems(d2.items), g3=goalFor(k2); pt+=s3.p; pn++; if(s3.k>=g3.k-250&&s3.k<=g3.k+100) ok++;}
+  if(nd){wk+='<div class="j-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;text-align:center">'
+    +'<div style="background:var(--beige);border-radius:12px;padding:10px 4px"><b style="font-size:1.15rem">🔥 '+streak+'</b><div class="x-small">jour'+(streak>1?'s':'')+' d\'affilée</div></div>'
+    +'<div style="background:var(--beige);border-radius:12px;padding:10px 4px"><b style="font-size:1.15rem">🎯 '+ok+'/'+nd+'</b><div class="x-small">dans la cible</div></div>'
+    +'<div style="background:var(--beige);border-radius:12px;padding:10px 4px"><b style="font-size:1.15rem">💪 '+r0(pt/pn)+' g</b><div class="x-small">protéines / jour</div></div></div>';}
   document.getElementById('j-week').innerHTML=wk;
 }
 function setWater(n){var d=jDay(jDate);d.water=(d.water===n?n-1:n);jSave(jDate,d);renderJournal();}
 function delItem(i){var d=jDay(jDate);d.items.splice(i,1);jSave(jDate,d);renderJournal();showToast('Supprimé');}
 function addItems(meal,arr,date){var dt=date||jDate||iso(new Date());var d=jDay(dt);arr.forEach(function(x){x.m=meal;d.items.push(x);});jSave(dt,d);
-  var fav=ld('jrecent',[]);arr.forEach(function(x){if(x.src){fav=fav.filter(function(f){return f.src!==x.src;});fav.unshift({src:x.src,g:x.g});}});sd('jrecent',fav.slice(0,15));}
+  var fav=ld('jrecent',[]);arr.forEach(function(x){if(x.src){fav=fav.filter(function(f){return f.src!==x.src;});fav.unshift({src:x.src,g:x.g,m:meal});}});sd('jrecent',fav.slice(0,40));}
+// Refaire un repas d'hier en 1 touche (même créneau : petit-déj, déjeuner…)
+function ydayOf(d){var x=new Date(d+'T12:00:00');x.setDate(x.getDate()-1);return iso(x);}
+function ydayMeal(meal){var y=jDay(ydayOf(jDate));return (y.items||[]).filter(function(x){return x.m===meal;});}
+function copyYesterday(meal){var its=ydayMeal(meal);if(!its.length){showToast('Rien hier pour ce repas');return;}
+  var d=jDay(jDate);its.forEach(function(x){var c={};Object.keys(x).forEach(function(k){if(k!=='_i') c[k]=x[k];});d.items.push(c);});
+  jSave(jDate,d);renderJournal();showToast('Repas d\'hier ajouté ✓');}
 function foodBy(n){for(var i=0;i<FOODS.length;i++) if(FOODS[i][0]===n) return FOODS[i]; return null;}
 // Mes aliments : produits trouvés en ligne ou saisis à la main, mémorisés sur le téléphone.
 // {n,k,p,c,f,u:[libellé,g],pp} — pp=true : valeurs pour 1 portion ; sinon pour 100 g.
@@ -2365,7 +2399,7 @@ function getFood(src){
   var f=foodBy(src);return f?{n:f[0],k:f[1],p:f[2],c:f[3],f:f[4],u:f[6],pp:false}:null;}
 function mkItem(src,g){var f=getFood(src);if(!f) return null;var q=f.pp?g:g/100;
   return {n:f.n,g:f.pp?0:g,k:f.k*q,p:f.p*q,c:f.c*q,f:f.f*q,src:src};}
-function openAdd(meal){jMeal=meal;jSel=null;jTab='rech';document.getElementById('j-add-t').textContent='Ajouter · '+MEALS.filter(function(m){return m[0]===meal;})[0][1];renderAdd();document.getElementById('j-sheet').classList.add('on');}
+function openAdd(meal){jMeal=meal;jSel=null;jTab=ld('jrecent',[]).length?'recent':'rech';document.getElementById('j-add-t').textContent='Ajouter · '+MEALS.filter(function(m){return m[0]===meal;})[0][1];renderAdd();document.getElementById('j-sheet').classList.add('on');}
 function closeAdd(){document.getElementById('j-sheet').classList.remove('on');}
 function renderAdd(){
   var T=[['rech','🔎 Rechercher'],['plans','⭐ Plans repas'],['recent','🕘 Récents'],['perso','✏️ Manuel']];
@@ -2389,7 +2423,8 @@ function renderAdd(){
       return '<div class="j-plan"><div class="j-plan-h"><b>'+p[0]+'</b><span class="x-small" style="white-space:nowrap"><b style="color:var(--rouge-dark)">'+r0(s.k)+' kcal</b> · P '+r0(s.p)+' g</span></div><p>'+p[1].map(function(x){return x[0].indexOf('R:')===0?RECIPES.filter(function(r){return r.n===x[0].slice(2);})[0].d:(x[1]+' g '+x[0].replace(/ \(.*\)/,'').toLowerCase());}).join(' + ')+'</p><p><i>'+p[2]+'</i></p><button class="x-go" onclick="addPlan(\''+key+'\','+i+')">➕ Ajouter ce repas</button></div>';}).join('');
   } else if(jTab==='recent'){
     var rec=ld('jrecent',[]);
-    rec=rec.filter(function(r){return getFood(r.src);}).map(function(r){return {src:r.src,g:r.g||1};}); // g=0 = aliment à la portion → 1 portion
+    rec=rec.filter(function(r){return getFood(r.src);}).map(function(r){return {src:r.src,g:r.g||1,m:r.m};}); // g=0 = aliment à la portion → 1 portion
+    rec=rec.filter(function(r){return r.m===jMeal;}).concat(rec.filter(function(r){return r.m!==jMeal;})); // ceux de ce repas d'abord
     b.innerHTML=rec.length?'<div class="j-res">'+rec.map(function(r){var it=mkItem(r.src,r.g);return '<button onclick="quickAdd(\''+r.src.replace(/'/g,"\\'")+'\','+r.g+')"><span>'+it.n+rDesc(it.n)+'<br><small>'+(it.g?it.g+' g':'1 portion')+'</small></span><small>'+r0(it.k)+' kcal ＋</small></button>';}).join('')+'</div>':'<p class="x-small">Tes aliments ajoutés apparaîtront ici pour les remettre en 1 clic.</p>';
   } else {
     var cl=jCustom();
