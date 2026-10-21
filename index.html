@@ -2171,6 +2171,19 @@ function jSave(d,day){var a=jAll();day.ts=Date.now();a[d]=day;sd('journal',a);js
 //     Le code de synchro n'est PAS dans le code : il est saisi une fois et gardé sur le téléphone.
 var JS_URL='https://xvetwfqzkkcfchxxifuu.supabase.co/functions/v1/journal-ornella';
 var jsPending={}, jsTimer=null, jsBusy=false;
+// Le code est gardé à 3 endroits (mémoire de l'appli, cookie, IndexedDB) : s'il disparaît d'un côté, il est restauré depuis l'autre.
+// Il peut aussi arriver par un lien magique (…/#k=CODE) : l'appli le range puis efface le lien de la barre d'adresse.
+function jsKeep(v){try{LS.setItem('js_tok',v);}catch(e){}
+  try{document.cookie='js_tok='+encodeURIComponent(v)+'; max-age=31536000; path=/; SameSite=Lax';}catch(e){}
+  try{var o=indexedDB.open('ofc_js',1);o.onupgradeneeded=function(){o.result.createObjectStore('k');};o.onsuccess=function(){try{o.result.transaction('k','readwrite').objectStore('k').put(v,'tok');}catch(e){}};}catch(e){}}
+(function(){
+  try{var m=(location.hash||'').match(/[#&]k=([^&]+)/);if(m){jsKeep(decodeURIComponent(m[1]));history.replaceState(null,'',location.pathname+location.search);}}catch(e){}
+  try{if(!LS.getItem('js_tok')){
+    var c=document.cookie.match(/(?:^|;\s*)js_tok=([^;]+)/);if(c) LS.setItem('js_tok',decodeURIComponent(c[1]));
+    else{var o=indexedDB.open('ofc_js',1);o.onupgradeneeded=function(){o.result.createObjectStore('k');};
+      o.onsuccess=function(){try{var g=o.result.transaction('k').objectStore('k').get('tok');g.onsuccess=function(){if(g.result){try{LS.setItem('js_tok',g.result);}catch(e){}var b=document.getElementById('js-bn');if(b) b.remove();jsPull();}};}catch(e){}};}
+  }else{jsKeep(LS.getItem('js_tok'));}}catch(e){}
+})();
 function jsTok(){try{return LS.getItem('js_tok')||'';}catch(e){return '';}}
 function jsPost(b){var t=jsTok();if(!t) return Promise.reject(0);
   return fetch(JS_URL,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({tok:t},b))}).then(function(r){if(r.status===401){jsBanner(true);throw 0;}if(!r.ok) throw 0;return r.json();});}
@@ -2190,7 +2203,7 @@ function jsBanner(bad){var old=document.getElementById('js-bn');if(old) old.remo
   var b=document.createElement('div');b.id='js-bn';
   b.style.cssText='position:relative;z-index:50;background:#ECFDF5;border-bottom:2px solid #10b981;color:#065f46;font:500 13px/1.45 system-ui;padding:10px 14px;cursor:pointer';
   b.innerHTML=(bad?'⚠️ Code de synchro refusé. ':'')+'🔗 <b>Activer la synchro de ton journal</b> (repas gardés en ligne) : touche ici et colle ton code.';
-  b.onclick=function(){var v=(prompt('Colle ton code de synchro :')||'').trim();if(!v) return;try{LS.setItem('js_tok',v);}catch(e){}b.remove();showToast('Synchro activée ✓');var a=jAll();Object.keys(a).forEach(function(k){jsPending[k]=1;});jsPull();};
+  b.onclick=function(){var v=(prompt('Colle ton code de synchro :')||'').trim();if(!v) return;jsKeep(v);b.remove();showToast('Synchro activée ✓');var a=jAll();Object.keys(a).forEach(function(k){jsPending[k]=1;});jsPull();};
   var app=document.getElementById('app');if(app) app.insertBefore(b,app.firstChild);}
 try{jsPending=JSON.parse(LS.getItem('js_pending')||'{}')||{};}catch(e){jsPending={};}
 document.addEventListener('DOMContentLoaded',function(){jsBanner(false);setTimeout(jsPull,300);});
