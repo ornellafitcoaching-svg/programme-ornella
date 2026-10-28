@@ -725,6 +725,7 @@
         <div><div class="sess-header-title">Projet bébé · 24 mois</div><div class="sess-header-sub" id="bb-pos">Prépa grossesse : sangle, courbes, peau</div></div></div>
       <div class="bb-chips">
         <button data-go="bb-obj">🎯 Objectifs</button>
+        <button data-go="bb-8">💎 Silhouette</button>
         <button data-go="bb-pri">📐 Principes</button>
         <button data-go="bb-pha">🗓️ 4 phases</button>
         <button data-go="bb-sea">🏋️ Séances</button>
@@ -747,6 +748,19 @@
           <li><b>Corps prêt aux essais</b> : mange à ta dépense pendant les 6 derniers mois, cycle régulier, bilan sanguin fait.</li>
         </ul>
         <button class="bb-link" onclick="goMens()">📏 Mes mensurations</button>
+      </div>
+
+      <div class="bb-sec" id="bb-8" style="--c:#B5651D">
+        <h3>💎 Silhouette en 8 &amp; cambrure</h3>
+        <p><b>Ce qui fait la cambrure et le 8, et que tu gardes à fond :</b></p>
+        <ul>
+          <li><b>Fessiers hauts et pleins</b> : hip thrust lourd (lundi), pump (samedi), moyen fessier (abducteurs).</li>
+          <li><b>Bas du dos tonique</b> : hyperextensions du samedi. Des érecteurs forts accentuent ta cambrure naturelle.</li>
+          <li><b>Taille fine</b> : vacuum + gainage anti-rotation, jamais d'obliques lestés.</li>
+          <li><b>Épaules rondes et dos large</b> : ils font paraître la taille plus fine.</li>
+          <li><b>Hanches souples</b> (90/90 le dimanche) : tes fessiers travaillent mieux.</li>
+        </ul>
+        <div class="bb-no">⚠️ <b>Limite honnête :</b> on muscle ta cambrure naturelle, on ne la force pas. Cambrer à l'excès sous charge ou debout donne mal au dos, et ça affaiblit le transverse. Pendant une grossesse, le ventre tire déjà le bassin vers l'avant.</div>
       </div>
 
       <div class="bb-sec" id="bb-pri" style="--c:#4A8FC7">
@@ -777,6 +791,7 @@
 
       <div class="bb-sec" id="bb-sea" style="--c:#5BA678">
         <h3>🏋️ Séances types</h3>
+        <div class="x-card bb-note" style="margin-bottom:10px">✅ <b>Déjà intégré à ton programme de l'accueil</b> : dead bug (lundi), Pallof (mercredi et jeudi), bird dog (samedi), respiration + mobilité des hanches (dimanche). Tu n'as rien à ajouter.<br>Les séances ci-dessous sont une <b>option 3 séances/semaine</b> (semaines chargées, phases 3 et 4).</div>
         <p class="x-small">Touche ▶️ pour voir le mouvement. Repos 60-90 s (2 min sur le lourd).</p>
         <div id="bb-seances"></div>
       </div>
@@ -995,6 +1010,7 @@ var P = {
       {id:'l3',n:'Squat bulgare haltères (Bulgarian Split Squat)',    s:'3×8-10/côté',tip:'Pied avant LOIN du banc, buste penché à 30°, pousse dans le talon. Genou qui avance peu = fessier, pas quadriceps.', rest:90, rm:'8rm'},
       {id:'l5',n:'Soulevé de terre roumain unilatéral haltère (jonction cuisse-fessier)', s:'3×10/côté',tip:'Une main sur un support, haltère dans l\'autre main. Hanche qui part loin derrière, jambe d\'appui légèrement fléchie, descends jusqu\'à sentir l\'étirement SOUS le fessier, 1s de pause, remonte en serrant. C\'est LUI qui dessine le pli fessier-ischio.', rest:75, rm:'12rm'},
       {id:'l2',n:'Abducteur machine buste penché',                    s:'3×15-20',    tip:'Penche le buste en avant, mains sur la machine : ça cible le haut du moyen fessier (effet galbe latéral).', rest:60, rm:'15rm', note:'💡 Dernière série : drop set −30%, enchaîne jusqu\'à l\'échec sans poser.'},
+      {id:'me7',n:'Dead bug',                                         s:'2×8/côté',  tip:'Bas du dos plaqué au sol pendant l\'exercice, tu expires quand le bras et la jambe s\'éloignent. Gaine le transverse = taille qui se resserre, sans épaissir. (Ça n\'enlève pas ta cambrure debout.)', rest:30},
       {id:'vl',n:'Vacuum abdominal (finisher taille fine)', s:'2×30s', tip:'90 secondes, pas plus : expire tout, rentre le nombril vers la colonne et tiens en respirant court. Pas le temps en salle ? Fais-le le matin à jeun en te brossant les dents.', rest:20},
     ]
   },
@@ -1030,6 +1046,7 @@ var P = {
       {id:'j9',n:'Abducteur machine',                                 s:'3×20',       tip:'Pause 2s en ouverture, retour lent.', rest:0, super:true, rm:'15rm'},
       {id:'j5',n:'Coup de pied arrière câble (Donkey Kick)',          s:'3×15/côté',  tip:'Genou fléchi à 90°, hanche fixe, squeeze 2s en haut.', rest:75, super:true, rm:'15rm'},
       {id:'j3',n:'Presse pieds hauts et larges (finisher)',           s:'3×15',       tip:'Pieds tout en haut de la plateforme et écartés, pointes légèrement ouvertes, descente profonde, pousse dans les talons. Charge MODÉRÉE : c\'est un finisher fessiers, pas un exercice de force.', rest:75, rm:'15rm', note:'💡 1 seule fois par semaine, jamais en lourd : on garde le galbe sans regonfler les cuisses.'},
+      {id:'me8',n:'Pallof press (anti-rotation poulie)',              s:'2×10/côté',  tip:'De profil à la poulie, pousse les bras devant toi et résiste à la rotation. Taille serrée SANS épaissir les obliques.', rest:30},
       {id:'vj',n:'Vacuum abdominal (finisher taille fine)', s:'2×30s', tip:'90 secondes, pas plus : expire tout, rentre le nombril vers la colonne et tiens en respirant court. Pas le temps en salle ? Fais-le le matin à jeun en te brossant les dents.', rest:20},
     ]
   },
@@ -1055,15 +1072,18 @@ var P = {
       {id:'s4',n:'Circuit métabolique : kettlebell swing / rameur / montées de genoux', s:'12 minutes', tip:'40s effort / 20s récup, tu enchaînes les 3 en boucle. Swing = poussée de hanches, pas les bras.', rest:0, duration:720},
       {id:'s7',n:'Élévations latérales haltères (3e séance épaules)',   s:'3×15-20',    tip:'Léger, strict, monte jusqu\'à l\'horizontale, descends en 3s. Épaules rondes = effet sablier : taille qui paraît encore plus fine.', rest:0, super:true, rm:'15rm'},
       {id:'w1',n:'Hyperextensions lombaires (dos plat)',             s:'3×15',       tip:'Dos PLAT (pas rond comme jeudi), monte jusqu\'à l\'alignement + un léger au-delà contrôlé, pause 2s. Muscles lombaires toniques = cambrure plus marquée et bas du dos plus ferme.', rest:60, super:true},
+      {id:'me9',n:'Bird dog',                                         s:'2×8/côté',  tip:'À quatre pattes, dos plat, tends le bras et la jambe opposés en expirant, 3s tenu, bassin immobile. Tu gardes ta cambrure naturelle, sans l\'accentuer.', rest:30},
       {id:'vs',n:'Vacuum abdominal (finisher taille fine)', s:'2×30s', tip:'90 secondes, pas plus : expire tout, rentre le nombril vers la colonne et tiens en respirant court. Pas le temps en salle ? Fais-le le matin à jeun en te brossant les dents.', rest:20},
     ]
   },
   dimanche: {
-    emoji:'🌿', label:'Dimanche', sub:'Repos · Posture 10 min',
+    emoji:'🌿', label:'Dimanche', sub:'Repos · Posture & mobilité 15 min',
     ex:[
       {id:'w5',n:'Étirement pectoraux dans l\'encadrement de porte',  s:'2×45s/côté', tip:'Avant-bras contre le montant, coude à hauteur d\'épaule, avance doucement la poitrine. Épaules qui partent en arrière = poitrine ouverte, épaules plus jolies.', rest:0},
       {id:'w6',n:'Ouverture thoracique sur rouleau',                  s:'2 minutes',  tip:'Rouleau sous le haut du dos, bras croisés, laisse la poitrine s\'ouvrir. Contre le dos voûté.', rest:0, duration:120},
       {id:'w7',n:'Rentré de menton contre le mur (Chin tuck)',        s:'2×10',       tip:'Dos et tête contre le mur, rentre le menton comme pour faire un double menton, 3s. Tête replacée au-dessus des épaules.', rest:0},
+      {id:'me10',n:'Respiration 90/90 (transverse)',                   s:'2 minutes',  tip:'Allongée, mollets sur un banc ou une chaise, bas du dos au sol. Inspire par le nez en gonflant les côtes sur les côtés, expire longuement en rentrant doucement le ventre. C\'est la base de ta sangle profonde.', rest:0, duration:120},
+      {id:'me11',n:'Mobilité des hanches 90/90',                       s:'2×5/côté',   tip:'Assise, genoux à 90° de chaque côté, buste long. Fais pivoter les genoux d\'un côté à l\'autre sans te pencher. Hanches souples = fessiers qui travaillent mieux et bas du dos plus tranquille.', rest:0},
     ]
   }
 };
@@ -1146,6 +1166,7 @@ var ALT={
   m5:'Oiseau haltères, ou face pull à l\'élastique',
   m9:'Extension triceps haltère au-dessus de la tête, à 2 mains',
   me8:'Pallof press à l\'élastique accroché à un poteau',
+  me9:'Chien-oiseau au sol, un bras puis une jambe seulement',
   j1:'Soulevé de terre roumain haltères',
   j7:'Pont fessier barre au sol, ou hip thrust haltère',
   j8:'Pont fessier pieds surélevés, ou reverse hyper allongée sur un banc',
@@ -1211,12 +1232,12 @@ function histTxt(id){ var h=histGet(id).slice(-8); return h.length>1?'<div class
 var PLANS = {
   A:{name:'Plan A · Semaine idéale', desc:'5 séances + RPM. Quand ton planning est normal.', days:[
     ['lundi','Lundi','~50 min'],['mardi','Mardi','~50 min'],['mercredi','Mercredi','RPM 45 min + 10 min'],
-    ['jeudi','Jeudi','~50 min'],['vendredi','Vendredi','~50 min'],['samedi','Samedi','~45 min'],['dimanche','Dimanche','10 min']]},
+    ['jeudi','Jeudi','~50 min'],['vendredi','Vendredi','~50 min'],['samedi','Samedi','~45 min'],['dimanche','Dimanche','15 min']]},
   B:{name:'Plan B · Semaine chargée', desc:'3 séances + RPM. Fessiers 2×, dos 1×.', days:[
     ['lundi','Jour 1 (ex. lundi)','~50 min'],['dosComplet','Jour 2 (ex. mardi)','~50 min'],['mercredi','Jour 3 (ex. mercredi)','RPM 45 min + 10 min'],
-    ['jeudi','Jour 4 (ex. jeudi)','~50 min'],['dimanche','Dimanche','10 min']]},
+    ['jeudi','Jour 4 (ex. jeudi)','~50 min'],['dimanche','Dimanche','15 min']]},
   C:{name:'Plan C · Semaine chaotique', desc:'2 séances + RPM. Ton minimum NON négociable.', days:[
-    ['c1','Séance 1 (ex. lundi)','45-50 min'],['mercredi','RPM (ex. mercredi)','45 min + 10 min'],['c2','Séance 2 (ex. jeudi)','45-50 min'],['dimanche','Dimanche','10 min']]}
+    ['c1','Séance 1 (ex. lundi)','45-50 min'],['mercredi','RPM (ex. mercredi)','45 min + 10 min'],['c2','Séance 2 (ex. jeudi)','45-50 min'],['dimanche','Dimanche','15 min']]}
 };
 var curPlan='A';
 try{ curPlan=LS.getItem('plan')||'A'; }catch(e){}
