@@ -34,42 +34,8 @@
       overscroll-behavior: none;
     }
 
-    /* ── PASSWORD ── */
-    #pwd-screen {
-      position: fixed; inset: 0;
-      background: var(--noir);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      z-index: 9999; padding: 40px 28px;
-    }
-    #pwd-screen.hidden { display: none; }
-    .pwd-logo { font-size: 3rem; margin-bottom: 12px; }
-    .pwd-title { color: #fff; font-size: 1.4rem; font-weight: 800; margin-bottom: 4px; }
-    .pwd-sub { color: rgba(255,255,255,.45); font-size: .85rem; margin-bottom: 36px; }
-    #pwd-input {
-      width: 100%; padding: 15px 18px;
-      background: rgba(255,255,255,.07);
-      border: 1.5px solid rgba(255,255,255,.15);
-      border-radius: 14px;
-      color: #fff; font-size: 1.05rem;
-      font-family: -apple-system, sans-serif;
-      margin-bottom: 12px; text-align: center;
-      letter-spacing: .12em;
-    }
-    #pwd-input:focus { outline: none; border-color: var(--rouge); background: rgba(255,255,255,.1); }
-    .pwd-btn {
-      width: 100%; padding: 15px;
-      background: var(--rouge); color: #fff;
-      border: none; border-radius: 14px;
-      font-size: 1rem; font-weight: 700;
-      cursor: pointer; letter-spacing: .01em;
-    }
-    .pwd-btn:active { background: var(--rouge-dark); }
-    #pwd-error { color: #ff6b6b; font-size: .83rem; text-align: center; margin-top: 10px; min-height: 18px; }
-
     /* ── APP ── */
-    #app { display: none; }
-    #app.on { display: block; }
+    #app { display: block; }
     .page { display: none; min-height: 100vh; padding-bottom: env(safe-area-inset-bottom); }
     .page.active { display: block; }
 
@@ -589,19 +555,39 @@
     .ds-t{font-weight:800;font-size:.72rem;text-transform:uppercase;margin-bottom:4px}
     .ds-l{display:flex;justify-content:space-between;gap:6px;line-height:1.6}
     .ds-l b{white-space:nowrap}
+
+    /* ── PROJET BÉBÉ ── */
+    .bb-chips{display:flex;gap:6px;overflow-x:auto;padding:10px 0 4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+    .bb-chips::-webkit-scrollbar{display:none}
+    .bb-chips button{flex:0 0 auto;border:none;border-radius:20px;padding:7px 12px;font-size:.74rem;font-weight:700;background:rgba(255,255,255,.12);color:#fff;cursor:pointer;font-family:inherit;white-space:nowrap}
+    .bb-chips button:active{background:var(--rouge)}
+    .bb-note{background:#FFF7E6;border:2px solid #F3D9A0;font-size:.84rem}
+    .bb-sec{scroll-margin-top:122px;background:#fff;border-radius:16px;border-left:7px solid var(--c,#C96358);padding:14px 15px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.06);font-size:.88rem;line-height:1.5}
+    .bb-sec h3{font-size:1.02rem;margin-bottom:8px;color:var(--c,#C96358)}
+    .bb-sec h4{font-size:.86rem;margin:12px 0 4px}
+    .bb-sec p{margin-bottom:6px}
+    .bb-sec ul{margin:0 0 6px 18px}
+    .bb-sec li{margin-bottom:4px}
+    .bb-no{background:#FDECEA;border-radius:10px;padding:8px 10px;margin:8px 0 2px;font-size:.82rem}
+    .bb-ph{border-radius:12px;padding:10px 12px;margin-bottom:8px;background:var(--bg,#FAF8F5);border:1.5px solid var(--bd,#EDE8E4)}
+    .bb-ph b{display:block;font-size:.92rem}
+    .bb-ph em{font-style:normal;font-size:.72rem;font-weight:700;color:var(--gris)}
+    .bb-d{border-radius:12px;border:1.5px solid var(--gris-light);margin-bottom:8px;overflow:hidden}
+    .bb-d summary{padding:11px 12px;font-weight:700;font-size:.9rem;cursor:pointer;background:#F3FAF5;list-style:none}
+    .bb-d summary::-webkit-details-marker{display:none}
+    .bb-d summary::after{content:'＋';float:right;color:var(--c)}
+    .bb-d[open] summary::after{content:'－'}
+    .bb-d summary small{display:block;font-weight:500;color:var(--gris);font-size:.74rem}
+    .bb-ex{display:flex;align-items:center;gap:8px;padding:9px 12px;border-top:1px solid var(--gris-light)}
+    .bb-ex div{flex:1;min-width:0}
+    .bb-ex b{display:block;font-size:.86rem}
+    .bb-ex span{font-size:.76rem;color:var(--rouge-dark);font-weight:600}
+    .bb-ex i{display:block;font-style:normal;font-size:.74rem;color:var(--gris)}
+    .bb-v{flex:0 0 auto;border:none;background:#EAF5EE;border-radius:10px;width:38px;height:38px;font-size:1rem;cursor:pointer}
+    .bb-link{display:block;width:100%;margin-top:8px;padding:11px;border:2px solid var(--gris-light);background:#fff;border-radius:12px;font-weight:700;font-size:.85rem;font-family:inherit;cursor:pointer;color:var(--noir)}
 </style>
 </head>
 <body>
-
-<!-- PASSWORD -->
-<div id="pwd-screen">
-  <div class="pwd-logo">🏋️</div>
-  <div class="pwd-title">Programme Ornella</div>
-  <div class="pwd-sub">Accès privé · Salle de sport</div>
-  <input type="password" id="pwd-input" class="" placeholder="Mot de passe" autocomplete="current-password">
-  <button class="pwd-btn" onclick="checkPwd()">Accéder →</button>
-  <div id="pwd-error"></div>
-</div>
 
 <!-- APP -->
 <div id="app">
@@ -621,6 +607,7 @@
       <button onclick="goCourses()"><span>🛒</span>Courses</button>
       <button onclick="goAgenda()"><span>📅</span>Agenda</button>
       <button onclick="goMiss()"><span>😣</span>Séance ratée</button>
+      <button onclick="goBebe()"><span>🤰</span>Projet bébé</button>
     </div>
     <div id="home-phase"></div>
     <div class="x-card" id="home-today" style="margin:14px 16px 0"></div>
@@ -635,6 +622,7 @@
       <button class="suivi-row-btn alt" onclick="goNutri()">🍽️ Mon plan alimentaire</button>
       <button class="suivi-row-btn alt" onclick="goCourses()">🛒 Ma liste de courses</button>
       <button class="suivi-row-btn alt" onclick="goMens()">📏 Mes mensurations &amp; notes</button>
+      <button class="suivi-row-btn alt" onclick="goBebe()">🤰 Projet bébé · prépa grossesse 24 mois</button>
     </div>
   </div>
 
@@ -727,6 +715,122 @@
       </div>
       <h3 class="x-h">Historique</h3>
       <div id="mens-hist"></div>
+    </div>
+  </div>
+
+  <!-- PROJET BEBE -->
+  <div class="page" id="p-bebe">
+    <div class="sess-header">
+      <div class="sess-header-top"><button class="back-btn" onclick="goHome()">‹</button>
+        <div><div class="sess-header-title">Projet bébé · 24 mois</div><div class="sess-header-sub" id="bb-pos">Prépa grossesse : sangle, courbes, peau</div></div></div>
+      <div class="bb-chips">
+        <button data-go="bb-obj">🎯 Objectifs</button>
+        <button data-go="bb-pri">📐 Principes</button>
+        <button data-go="bb-pha">🗓️ 4 phases</button>
+        <button data-go="bb-sea">🏋️ Séances</button>
+        <button data-go="bb-nut">🥗 Nutrition</button>
+        <button data-go="bb-pea">✨ Peau</button>
+        <button data-go="bb-enc">🤰 Enceinte</button>
+      </div>
+    </div>
+    <div class="x-body">
+
+      <div class="x-card bb-note">⚠️ <b>À savoir :</b> les vergetures dépendent surtout de la génétique et de l'élasticité de la peau. Ce plan <b>réduit le risque</b>, il ne le garantit pas. Ta 1ère grossesse sans aucune vergeture est un très bon signe. Avant les essais : consultation pré-conceptionnelle avec ton médecin ou une sage-femme.</div>
+
+      <div class="bb-sec" id="bb-obj" style="--c:#C96358">
+        <h3>🎯 Objectifs</h3>
+        <ul>
+          <li><b>Sangle profonde béton</b> (transverse + plancher pelvien + diaphragme) : vacuum 3×30 s propre, dead bug 3×10 sans cambrure.</li>
+          <li><b>Courbes gardées</b> : tour de taille stable, hanches et fessiers qui montent (mesure-toi 1×/mois).</li>
+          <li><b>Peau</b> : poids stable (±1 kg), zéro yo-yo, hydratation et collagène.</li>
+          <li><b>Visage</b> : pas de sèche qui creuse, SPF tous les jours, sommeil.</li>
+          <li><b>Corps prêt aux essais</b> : mange à ta dépense pendant les 6 derniers mois, cycle régulier, bilan sanguin fait.</li>
+        </ul>
+        <button class="bb-link" onclick="goMens()">📏 Mes mensurations</button>
+      </div>
+
+      <div class="bb-sec" id="bb-pri" style="--c:#4A8FC7">
+        <h3>📐 Principes d'entraînement</h3>
+        <ul>
+          <li><b>4 séances/semaine, 45 min max</b> : 3 muscu + 1 routine transverse/mobilité. Plus 8-10 000 pas/jour.</li>
+          <li><b>Priorité</b> : fessiers, ischios, dos, jambes. Charge progressive, 1-2 reps en réserve sur le lourd.</li>
+          <li><b>Souffle</b> : tu expires à l'effort. Jamais de blocage de souffle prolongé (pression sur le plancher pelvien).</li>
+          <li><b>Gainage anti-extension / anti-rotation</b> (dead bug, Pallof, planche) : renforce sans épaissir la taille.</li>
+          <li><b>Semaine allégée</b> toutes les 5 semaines : −30 % de séries.</li>
+          <li><b>Tempo</b> 3-1-1-1 = 3 s à la descente · 1 s de pause · 1 s à la montée · 1 s de contraction.</li>
+        </ul>
+        <div class="bb-no">🚫 <b>À éviter</b> : crunchs lestés, flexions latérales lestées, russian twists lourds (ils élargissent la taille), HIIT à répétition, déficit calorique prolongé.</div>
+      </div>
+
+      <div class="bb-sec" id="bb-pha" style="--c:#E0A33B">
+        <h3>🗓️ Programme sur 24 mois</h3>
+        <p class="x-small">Mois 1 = novembre 2026 · essais vers le mois 24.</p>
+        <div class="bb-ph" style="--bg:#FFF7E6;--bd:#F3D9A0"><em>MOIS 1 → 3</em><b>Phase 1 · Fondations</b>
+          Plus de déficit : tu manges à ta dépense. Respiration diaphragmatique + routine transverse 4×/semaine. 3 muscu, séries de 10-12, tempo lent. Mobilité hanches et haut du dos.</div>
+        <div class="bb-ph" style="--bg:#EEF6EE;--bd:#BFDDC4"><em>MOIS 4 → 9</em><b>Phase 2 · Construction</b>
+          Volume en hausse sur fessiers, ischios, dos (3-4 séries de 8-12). Transverse tous les jours 3 min. Si ton poids baisse : +100-150 kcal. Tour de taille à surveiller, il ne doit pas monter.</div>
+        <div class="bb-ph" style="--bg:#EAF3FB;--bd:#BCD6EE"><em>MOIS 10 → 18</em><b>Phase 3 · Force &amp; stabilité</b>
+          Force : 5-8 reps sur hip thrust, soulevé roumain, squat. Pallof, farmer carry, bird dog. Plancher pelvien intégré à chaque séance. Poids stable. Bilan sanguin au mois 12.</div>
+        <div class="bb-ph" style="--bg:#FDEEF1;--bd:#F2C3CE"><em>MOIS 19 → 24</em><b>Phase 4 · Pré-conception</b>
+          Volume modéré (3 séries), effort 7-8/10 maximum, mobilité et respiration prioritaires. Consultation pré-conceptionnelle, acide folique, rétinol arrêté, sommeil, alcool à zéro. Tu arrives aux essais en forme, pas épuisée.</div>
+      </div>
+
+      <div class="bb-sec" id="bb-sea" style="--c:#5BA678">
+        <h3>🏋️ Séances types</h3>
+        <p class="x-small">Touche ▶️ pour voir le mouvement. Repos 60-90 s (2 min sur le lourd).</p>
+        <div id="bb-seances"></div>
+      </div>
+
+      <div class="bb-sec" id="bb-nut" style="--c:#D9778E">
+        <h3>🥗 Nutrition (peau &amp; collagène)</h3>
+        <ul>
+          <li><b>Énergie</b> : à ta dépense (≈ 2 000-2 200 kcal selon les jours). Pas de déficit les 6 mois avant les essais. Une sèche de 8 semaines max reste possible avant, jamais enchaînée.</li>
+          <li><b>Protéines</b> : 1,6-2 g/kg, soit 105-130 g/jour, réparties sur 3-4 repas.</li>
+          <li><b>Collagène</b> : 10 g/jour de peptides + vitamine C dans le même repas, 8-12 semaines pour juger. Effet modeste d'après les études : à valider avec ton médecin avant les essais.</li>
+          <li><b>Vitamine C</b> : kiwi, poivron, agrumes, fruits rouges chaque jour. <b>Zinc</b> : œufs, graines de courge, fruits de mer.</li>
+          <li><b>Oméga-3</b> : poisson gras 2×/semaine (sardine, maquereau, saumon). Lipides ≥ 0,8-1 g/kg.</li>
+          <li><b>Hydratation</b> : 2 L d'eau/jour. Sucre ajouté au minimum, alcool 0, tabac 0.</li>
+          <li><b>Avant les essais</b> : acide folique 400 µg/jour, à démarrer au moins 4 semaines avant (avis médecin). Pas de foie ni de complément de vitamine A.</li>
+          <li><b>Bilan sanguin</b> (mois 12 puis mois 20) : ferritine, vitamine D, TSH, B12, glycémie.</li>
+        </ul>
+      </div>
+
+      <div class="bb-sec" id="bb-pea" style="--c:#3FA8A8">
+        <h3>✨ Peau : corps &amp; visage</h3>
+        <h4>Corps (dès maintenant)</h4>
+        <ul>
+          <li>Après la douche (eau tiède), 5 min de crème ou huile d'amande douce sur ventre, seins, hanches, cuisses. Massage en pincé-roulé, tous les jours.</li>
+          <li>Gommage doux 1×/semaine. Pas d'eau brûlante.</li>
+          <li>Prise de poids lente et progressive pendant la grossesse : c'est le facteur le plus important.</li>
+          <li>Aucune crème ne garantit zéro vergeture : c'est un plus, pas une promesse.</li>
+        </ul>
+        <h4>Visage</h4>
+        <ul>
+          <li><b>Matin</b> : nettoyant doux, vitamine C, hydratant, <b>SPF 50 tous les jours</b> (c'est l'anti-rides n°1).</li>
+          <li><b>Soir</b> : démaquillage, rétinol 2-3 soirs/semaine, acide hyaluronique, crème riche.</li>
+          <li><b>Rétinol &amp; rétinoïdes</b> : stop dès que tu essaies (ou 1 mois avant, avis médecin), et pendant toute la grossesse.</li>
+          <li>Sommeil 7-8 h. Ne descends pas trop bas en gras : le visage creusé vieillit.</li>
+        </ul>
+      </div>
+
+      <div class="bb-sec" id="bb-enc" style="--c:#A08A7A">
+        <h3>🤰 Le jour où tu es enceinte</h3>
+        <p class="x-small">Toujours avec l'accord de ton médecin ou de ta sage-femme.</p>
+        <h4>1er trimestre</h4>
+        <ul><li>Tu continues, effort ≤ 7/10 (tu peux parler). Tu arrêtes le vacuum et les crunchs. Pas de chaleur excessive. Rétinol stop.</li></ul>
+        <h4>2e trimestre</h4>
+        <ul>
+          <li>Pas de position allongée sur le dos prolongée : hip thrust sur banc incliné ou pont court.</li>
+          <li>Dead bug → bird dog et Pallof. Planche stoppée si le ventre « bombe ».</li>
+          <li>Plus de saut, plus de risque de chute. Squat gobelet, charge réduite.</li>
+        </ul>
+        <h4>3e trimestre</h4>
+        <ul><li>Volume en baisse, marche, mobilité du bassin, respiration et plancher pelvien.</li></ul>
+        <div class="bb-no">🛑 <b>Arrête et appelle</b> en cas de saignement, douleur, contractions, perte de liquide, vertige ou essoufflement anormal.</div>
+        <h4>Après l'accouchement</h4>
+        <ul><li>Reprise progressive après le feu vert médical. Rééducation périnéale et contrôle du diastasis avant tout travail abdominal.</li></ul>
+      </div>
+
     </div>
   </div>
 
@@ -1158,26 +1262,6 @@ function renderHome(){
       +'<div class="day-card-name">'+d[1]+(/^(Lundi|Mardi|Mercredi|Jeudi|Vendredi|Samedi|Dimanche)$/.test(s.label)?'':' · '+s.label)+'</div>'
       +(doneThisWeek(d[0])?'<span class="x-done">✅ faite cette semaine</span>':'')+'<div class="day-card-desc">'+s.sub+'</div><div class="day-card-pill">'+s.ex.length+' exercices · '+d[2]+'</div></div><div class="day-card-arrow">›</div></div>';
   }).join('');
-}
-
-// ─────────────────────────────
-// AUTH
-// ─────────────────────────────
-function checkPwd(){
-  var v = document.getElementById('pwd-input').value;
-  if(v==='ornellaITALIA18'){
-    sessionStorage.setItem('pa','1');
-    document.getElementById('pwd-screen').classList.add('hidden');
-    document.getElementById('app').classList.add('on');
-  } else {
-    document.getElementById('pwd-error').textContent='Mot de passe incorrect';
-    document.getElementById('pwd-input').value='';
-  }
-}
-document.getElementById('pwd-input').addEventListener('keydown',function(e){ if(e.key==='Enter') checkPwd(); });
-if(sessionStorage.getItem('pa')==='1'){
-  document.getElementById('pwd-screen').classList.add('hidden');
-  document.getElementById('app').classList.add('on');
 }
 
 // ─────────────────────────────
@@ -1672,6 +1756,77 @@ function buildSuivi(){
 // ─────────────────────────────
 function goNutri(){ renderNutriPlans(); show('p-nutri'); }
 function goMens(){ buildMens(); show('p-mens'); }
+
+// ─────────────────────────────
+// PROJET BÉBÉ (prépa grossesse 24 mois)
+// ─────────────────────────────
+var BB_START=new Date(2026,10,1);
+var BB_SEA=[
+  {t:"Séance A · Fessiers & sangle",s:"≈ 45 min · 1×/semaine",ex:[
+    ["Respiration 90/90 + activation transverse","2 × 8 expirations lentes (4-6 s)","Bas du dos plaqué, ventre qui rentre doucement","respiration 90/90 transverse"],
+    ["Hip thrust barre","4 × 8-10 · tempo 3-1-1-1 · repos 2 min","Bassin à l'horizontale, menton rentré","hip thrust barre technique"],
+    ["Squat bulgare haltères","3 × 10/côté · tempo 3-0-1-0","Pied avant loin du banc, buste penché","squat bulgare technique"],
+    ["Soulevé de terre roumain haltères","3 × 10 · tempo 3-1-1-0","Dos neutre, hanches loin derrière","soulevé de terre roumain haltères"],
+    ["Abducteur machine, buste penché","3 × 15 · tempo 2-0-1-1","Haut du fessier, galbe latéral","abducteur machine buste penché"],
+    ["Dead bug","3 × 8/côté · 4 s par répétition","Tu expires en bas, sans cambrer","dead bug exercice transverse"],
+    ["Vacuum abdominal","3 × 30 s","Expire tout, nombril vers la colonne","vacuum abdominal technique"]]},
+  {t:"Séance B · Dos & stabilité",s:"≈ 45 min · 1×/semaine",ex:[
+    ["Tirage vertical prise neutre","4 × 10 · tempo 2-1-1-1","Coudes vers les hanches","tirage vertical prise neutre"],
+    ["Rowing haltère, poitrine appuyée","3 × 10-12 · tempo 2-1-1-0","Omoplates qui se rapprochent","rowing haltère poitrine appuyée banc"],
+    ["Tirage horizontal à la poulie","3 × 12 · tempo 2-1-1-1","Buste droit, pas d'élan","tirage horizontal poulie technique"],
+    ["Élévations latérales","3 × 15 · tempo 2-0-1-0","Charge légère, épaules basses","élévations latérales technique"],
+    ["Pallof press","3 × 10/côté · tempo 2-2-2","Le buste ne tourne pas : c'est le but","pallof press technique"],
+    ["Planche sur les genoux","3 × 30-40 s","Bassin légèrement rentré, tu expires","planche sur les genoux transverse"],
+    ["Bird dog","3 × 8/côté · 3 s tenu","Dos plat, bassin immobile","bird dog exercice"]]},
+  {t:"Séance C · Ischios, jambes & courbes",s:"≈ 45 min · 1×/semaine",ex:[
+    ["Leg curl assis ou allongé","4 × 10-12 · tempo 3-1-1-0","Contrôle la descente","leg curl ischios technique"],
+    ["Pont fessier une jambe","3 × 10/côté · tempo 2-1-1-2","Bassin stable, pas de bascule","pont fessier une jambe"],
+    ["Presse à cuisses pieds hauts et écartés","3 × 12 · tempo 3-0-1-0","Bas du dos collé au dossier","presse à cuisses pieds hauts fessiers"],
+    ["Step-up sur banc","3 × 10/côté · tempo 2-0-1-1","Pousse dans le talon","step up fessiers technique"],
+    ["Extension de dos au banc romain","3 × 12 · tempo 2-1-1-0","Dos neutre, sans cambrer en haut","extension lombaire banc romain"],
+    ["Marche du fermier (farmer carry)","3 × 30 m","Côtes rentrées, marche droite","farmer carry technique"],
+    ["Vacuum abdominal","3 × 30 s","Expire tout, nombril vers la colonne","vacuum abdominal technique"]]},
+  {t:"Routine D · Transverse & mobilité",s:"25 min · 1×/semaine + 3 min/jour",ex:[
+    ["Respiration 90/90","2 min","Côtes qui s'ouvrent, ventre calme","respiration 90/90 transverse"],
+    ["Chat-vache","10 lentes","Un mouvement par respiration","chat vache mobilité"],
+    ["Mobilité hanches 90/90","5/côté","Genoux en rotation, dos long","90 90 hip mobility"],
+    ["Ouverture thoracique (thread the needle)","8/côté","Bassin immobile","thread the needle mobilité thoracique"],
+    ["Heel slides","2 × 10/côté","Bas du dos plaqué","heel slides transverse"],
+    ["Dead bug","3 × 10/côté","Lent, sans cambrure","dead bug exercice transverse"],
+    ["Bird dog","3 × 8/côté","Dos plat","bird dog exercice"],
+    ["Vacuum abdominal","3 × 30 s","Chaque matin à jeun, 2 min","vacuum abdominal technique"]]}
+];
+function bbMois(){
+  var n=new Date();
+  var m=(n.getFullYear()-BB_START.getFullYear())*12+n.getMonth()-BB_START.getMonth()+1;
+  return m;
+}
+function bbPos(){
+  var m=bbMois(), el=document.getElementById("bb-pos"); if(!el) return;
+  if(m<1){ el.textContent="Départ le 1er novembre 2026 · prépa grossesse"; return; }
+  if(m>24) m=24;
+  var ph=m<=3?1:m<=9?2:m<=18?3:4;
+  el.textContent="Mois "+m+" / 24 · Phase "+ph;
+}
+function bbRender(){
+  var box=document.getElementById("bb-seances"); if(!box||box.getAttribute("data-ok")) return;
+  box.innerHTML=BB_SEA.map(function(se,i){
+    return '<details class="bb-d" style="--c:#5BA678"'+(i===0?' open':'')+'><summary>'+se.t+'<small>'+se.s+'</small></summary>'
+      +se.ex.map(function(e){
+        return '<div class="bb-ex"><div><b>'+e[0]+'</b><span>'+e[1]+'</span><i>'+e[2]+'</i></div><button class="bb-v" data-q="'+e[3]+'" aria-label="Voir le mouvement">▶️</button></div>';
+      }).join('')+'</details>';
+  }).join('');
+  box.setAttribute("data-ok","1");
+}
+function goBebe(){ bbRender(); bbPos(); show("p-bebe"); document.body.scrollTop=0; }
+document.addEventListener("click",function(e){
+  var t=e.target; if(!t||!t.closest) return;
+  var v=t.closest(".bb-v");
+  if(v){ window.open("https://www.youtube.com/results?search_query="+encodeURIComponent(v.getAttribute("data-q")),"_blank"); return; }
+  var g=t.closest(".bb-chips button");
+  if(g){ var s=document.getElementById(g.getAttribute("data-go")); if(s) s.scrollIntoView({behavior:"smooth",block:"start"}); }
+});
+
 var MF=[['poids','Poids','kg'],['taille','Tour de taille','cm'],['hanches','Hanches','cm'],['fessiers','Fessiers','cm'],['cuisse','Cuisse','cm'],['bras','Bras','cm'],['sspoitrine','Sous-poitrine','cm'],['poitrine','Poitrine','cm'],['cou','Cou','cm']];
 var MENS_SEED=[
   {date:'2026-07-04',poids:63,taille:66,hanches:89,fessiers:100.5,cuisse:58,bras:28,sspoitrine:72,poitrine:89,note:'Point de départ.'},
